@@ -1,5 +1,5 @@
-import Header from "@/components/header/Header";
-import MobileFooter from "@/components/mobile-footer/MobileFooter";
+import Header from "@/src/components/header/Header";
+import MobileFooter from "@/src/components/mobile-footer/MobileFooter";
 
 export default async function CategoryLayout({
   children,

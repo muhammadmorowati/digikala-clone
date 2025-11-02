@@ -1,12 +1,10 @@
-import BreadcrumbContainer from "@/components/product/BreadcrumbContainer";
-import ProductMain from "@/components/product/ProductMain";
-import ProductPageMobileStickyHeader from "@/components/ui/ProductPageMobileStickyHeader";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Product, Submenu, SubmenuItem } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import { Megaphone, Store } from "lucide-react";
-import ProductModel from "models/Product";
-import mongoose from "mongoose";
+
+import connectToDB from "@/config/mongodb";
+import BreadcrumbContainer from "@/src/components/product/BreadcrumbContainer";
+import ProductMain from "@/src/components/product/ProductMain";
+import ProductPageMobileStickyHeader from "@/src/components/ui/ProductPageMobileStickyHeader";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Product, Submenu, SubmenuItem } from "@/src/utils/types";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";

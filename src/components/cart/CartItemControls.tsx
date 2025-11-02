@@ -1,8 +1,8 @@
 "use client";
 
-import { deleteOrder } from "@/app/admin/orders/action";
-import { useCart } from "@/utils/cartItemsContext";
-import { CartItem } from "@/utils/types";
+import { deleteOrder } from "@/src/app/admin/orders/action";
+import { useCart } from "@/src/utils/cartItemsContext";
+import { CartItem } from "@/src/utils/types";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
 export default function CartItemControls({

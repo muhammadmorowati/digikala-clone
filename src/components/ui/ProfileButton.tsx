@@ -1,13 +1,5 @@
 "use client";
 
-import { signOut } from "@/app/admin/users/action";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Bell,
   ChevronDown,
@@ -24,7 +16,9 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Button } from "./button";
-import { User } from "@/utils/types";
+import { signOut } from "@/src/app/admin/users/action";
+import { User } from "@/src/utils/types";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from "./dropdown-menu";
 
 export default function ProfileButton({ user }: { user: User }) {
   const router = useRouter();

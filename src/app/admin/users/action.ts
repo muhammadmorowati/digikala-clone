@@ -1,17 +1,11 @@
 "use server";
 
-import { generateAccessToken, generateRefreshToken } from "@/utils/auth";
-import { LoginFormState, RegisterFormState } from "@/utils/types";
-import {
-  LoginSchema,
-  RegisterSchema,
-  UserupdateSchema,
-} from "@/utils/validation";
-import bcrypt, { compare } from "bcryptjs";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import { generateAccessToken, generateRefreshToken } from "@/src/utils/auth";
+import { RegisterFormState, LoginFormState } from "@/src/utils/types";
+import { RegisterSchema, LoginSchema, UserupdateSchema } from "@/src/utils/validation";
+import { verify } from "crypto";
 import fs from "fs/promises";
-import { verify } from "jsonwebtoken";
-import UserModel from "models/User";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";

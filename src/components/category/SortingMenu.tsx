@@ -1,4 +1,4 @@
-import { sortingMenuItems } from "@/data/data";
+import { sortingMenuItems } from "@/src/data/data";
 import { ArrowDownWideNarrow } from "lucide-react";
 import Link from "next/link";
 

@@ -1,14 +1,14 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/src/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Product } from "@/utils/types";
+} from "@/src/components/ui/carousel";
+import { Product } from "@/src/utils/types";
 import Image from "next/image";
 import Link from "next/link";
 

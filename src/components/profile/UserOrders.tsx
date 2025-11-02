@@ -1,8 +1,7 @@
-import { authUser } from "@/utils/auth";
-import { Order } from "@/utils/types";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import { authUser } from "@/src/utils/auth";
+import { Order } from "@/src/utils/types";
 import { ChevronLeft } from "lucide-react";
-import OrderModel from "models/Order";
 import Image from "next/image";
 import React from "react";
 

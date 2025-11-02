@@ -1,15 +1,14 @@
 "use client";
-
-import { signup } from "@/app/admin/users/action";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { RegisterFormState } from "@/utils/types";
-import { RegisterSchema, RegisterSchemaType } from "@/utils/validation";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { RegisterFormState } from "@/src/utils/types";
+import { RegisterSchemaType, RegisterSchema } from "@/src/utils/validation";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import toast from "react-hot-toast";
+import { signup } from "../../admin/users/action";
 
 const initialState: RegisterFormState = {
   errors: {},

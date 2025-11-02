@@ -1,8 +1,4 @@
 "use client";
-
-import { addArticle, updateArticle } from "@/app/admin/articles/action";
-import { Button } from "@/components/ui/button";
-import { Article, Category } from "@/utils/types";
 import { Editor } from "@tinymce/tinymce-react";
 import { UploadCloud } from "lucide-react";
 import Image from "next/image";
@@ -10,6 +6,9 @@ import { useEffect, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import toast from "react-hot-toast";
 import TagInput from "./TagInput";
+import { addArticle, updateArticle } from "@/src/app/admin/articles/action";
+import { Article, Category } from "@/src/utils/types";
+import { Button } from "../ui/button";
 
 export default function ArticleForm({
   article,

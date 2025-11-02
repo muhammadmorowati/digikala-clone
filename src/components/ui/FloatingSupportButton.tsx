@@ -5,7 +5,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/src/components/ui/accordion";
 import { ArrowLeft, ChevronLeft, Headset, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

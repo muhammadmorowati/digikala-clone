@@ -1,23 +1,14 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { authUser } from "@/utils/auth";
-import { Product, User } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import { Bell, Box, Check, UserRound } from "lucide-react";
-import ProductModel from "models/Product";
-import UserModel from "models/User";
+
 import Image from "next/image";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
+import connectToDB from "@/config/mongodb";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/src/components/ui/table";
+import { authUser } from "@/src/utils/auth";
+import { User, Product } from "@/src/utils/types";
 
 export default async function AdminPage() {
   connectToDB();

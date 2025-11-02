@@ -1,6 +1,6 @@
 "use server";
 
-import { refreshToken } from "@/app/admin/users/action";
+import { refreshToken } from "@/src/app/admin/users/action";
 import { hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 import UserModel from "models/User";

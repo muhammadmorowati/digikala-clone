@@ -1,11 +1,11 @@
-import Sidebar from "@/components/admin/Sidebar";
-import { Button } from "@/components/ui/button";
-import Container from "@/components/ui/container";
-import { SignoutFunction } from "@/components/ui/SignoutFunction";
-import { authUser } from "@/utils/auth";
-import { User } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import { ArrowLeft } from "lucide-react";
+
+import connectToDB from "@/config/mongodb";
+import Sidebar from "@/src/components/admin/Sidebar";
+import { Button } from "@/src/components/ui/button";
+import Container from "@/src/components/ui/container";
+import { SignoutFunction } from "@/src/components/ui/SignoutFunction";
+import { authUser } from "@/src/utils/auth";
+import { User } from "@/src/utils/types";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";

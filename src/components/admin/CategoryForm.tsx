@@ -1,8 +1,8 @@
 "use client";
 
-import { addCategory, updateCategory } from "@/app/admin/categories/action";
-import { Button } from "@/components/ui/button";
-import { Category } from "@/utils/types";
+import { addCategory, updateCategory } from "@/src/app/admin/categories/action";
+import { Button } from "@/src/components/ui/button";
+import { Category } from "@/src/utils/types";
 import { UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";

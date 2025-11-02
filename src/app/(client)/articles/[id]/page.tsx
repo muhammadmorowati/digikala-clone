@@ -1,34 +1,15 @@
-import ArticleComment from "@/components/article/ArticleComment";
-import ScrollUp from "@/components/footer/ScrollUp";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { formatDateToPersian } from "@/utils/PersianFormatter ";
-import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import parse from "html-react-parser";
-import {
-  ArrowUp,
-  ChevronLeft,
-  Clock,
-  Facebook,
-  Instagram,
-  Library,
-  Linkedin,
-  MessageCircle,
-  Send,
-  Timer,
-  Twitter,
-} from "lucide-react";
-import ArticleModel from "models/Article";
+
+import connectToDB from "@/config/mongodb";
+import ArticleComment from "@/models/ArticleComment";
+import ScrollUp from "@/src/components/footer/ScrollUp";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@/src/components/ui/breadcrumb";
+import { Separator } from "@/src/components/ui/separator";
+import { formatDateToPersian } from "@/src/utils/PersianFormatter ";
+import { Article } from "@/src/utils/types";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { parse } from "path";
 
 export async function generateMetadata({
   params: { id },

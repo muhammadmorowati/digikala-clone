@@ -1,6 +1,6 @@
-import { authUser } from "@/utils/auth";
-import { User } from "@/utils/types";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import { authUser } from "@/src/utils/auth";
+import { User } from "@/src/utils/types";
 import { ChevronLeft, Pencil } from "lucide-react";
 
 export default async function UserInfo() {

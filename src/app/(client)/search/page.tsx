@@ -1,9 +1,7 @@
-import SubmenuProductsMain from "@/components/category/SubmenuProductsMain";
-import { Category, Product } from "@/utils/types";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Info } from "lucide-react";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
+
+import SubmenuProductsMain from "@/src/components/category/SubmenuProductsMain";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Product, Category } from "@/src/utils/types";
 import { Metadata } from "next";
 import Image from "next/image";
 

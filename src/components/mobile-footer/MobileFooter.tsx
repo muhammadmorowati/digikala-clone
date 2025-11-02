@@ -1,6 +1,6 @@
 "use client";
 
-import { mobileFooterLinks } from "@/data/data";
+import { mobileFooterLinks } from "@/src/data/data";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import CartLengthPseudo from "../cart/CartLengthPseudo";

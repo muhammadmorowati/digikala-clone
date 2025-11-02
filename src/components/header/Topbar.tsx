@@ -1,6 +1,4 @@
-import { authUser } from "@/utils/auth";
-import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
+
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +8,9 @@ import { DarkMode } from "../ui/DarkMode";
 import ProfileButton from "../ui/ProfileButton";
 import Searchbar from "./Searchbar";
 import TopbarContainer from "./TopbarContainer";
+import connectToDB from "@/config/mongodb";
+import { authUser } from "@/src/utils/auth";
+import { serializeDoc } from "@/src/utils/serializeDoc";
 
 export default async function Topbar() {
   await connectToDB();

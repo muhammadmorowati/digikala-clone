@@ -1,16 +1,8 @@
 "use server";
 
-import {
-  categoryEditSchema,
-  CategorySchema,
-  CategorySubmenuItemSchema,
-  CategorySubmenusSchema,
-} from "@/utils/validation";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import { CategorySchema, categoryEditSchema, CategorySubmenusSchema, CategorySubmenuItemSchema } from "@/src/utils/validation";
 import { promises as fs, unlink, writeFile } from "fs";
-import CategoryModel from "models/Category";
-import SubmenuModel from "models/Submenu";
-import SubmenuItemModel from "models/SubmenuItem";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
@@ -165,7 +157,7 @@ export async function updateCategory(state: any, formData: FormData) {
   }
 
   // Update heros
-  let heroPaths = Array.isArray(category.hero) ? [...category.hero] : [];
+  const heroPaths = Array.isArray(category.hero) ? [...category.hero] : [];
   const existingHeros = new Set(heroPaths.map((path) => path.split("/").pop())); // Track existing images by name
 
   const heroPromises = (heros as File[]).map(async (hero) => {
@@ -189,7 +181,7 @@ export async function updateCategory(state: any, formData: FormData) {
   await Promise.all(heroPromises);
 
   // Update heros
-  let bannerPaths = Array.isArray(category.banner) ? [...category.banner] : [];
+  const bannerPaths = Array.isArray(category.banner) ? [...category.banner] : [];
   const existingBanners = new Set(
     bannerPaths.map((path) => path.split("/").pop())
   ); // Track existing images by name

@@ -5,8 +5,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { footerLinks } from "@/data/data";
+} from "@/src/components/ui/accordion";
+import { footerLinks } from "@/src/data/data";
 import { ChevronDown, Instagram, Linkedin, Twitter } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";

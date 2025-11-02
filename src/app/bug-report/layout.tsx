@@ -1,4 +1,4 @@
-import MobileFooter from "@/components/mobile-footer/MobileFooter";
+import MobileFooter from "@/src/components/mobile-footer/MobileFooter";
 
 export default async function BugReportLayout({
   children,

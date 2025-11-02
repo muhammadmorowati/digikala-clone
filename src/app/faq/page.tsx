@@ -1,13 +1,13 @@
-import FaqCategories from "@/components/faq/FaqCategories";
+import FaqCategories from "@/src/components/faq/FaqCategories";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
-import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
-import { commonQuestions } from "@/data/data";
+} from "@/src/components/ui/accordion";
+import { Input } from "@/src/components/ui/input";
+import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import { commonQuestions } from "@/src/data/data";
 import { ChevronDown, FileQuestion } from "lucide-react";
 
 export default function Faq() {

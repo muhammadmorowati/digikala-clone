@@ -1,9 +1,6 @@
 "use server";
-
-import { OrderSchema } from "@/utils/validation";
-import connectToDB from "config/mongodb";
-import OrderModel from "models/Order";
-import { ObjectId } from "mongoose";
+import connectToDB from "@/config/mongodb";
+import { OrderSchema } from "@/src/utils/validation";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 

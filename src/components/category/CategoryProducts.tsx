@@ -1,17 +1,15 @@
-import NotFound from "@/app/not-found";
-import CategoryHero from "@/components/category/CategoryHero";
-import Articles from "@/components/home/Articles";
-import Bestseller from "@/components/home/Bestseller";
-import Brands from "@/components/home/Brands";
-import Offers from "@/components/home/Offers";
-import SelectedProducts from "@/components/home/SelectedProducts";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Category, Product } from "@/utils/types";
-import ArticleModel from "models/Article";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
+
+import NotFound from "@/src/app/not-found";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Category, Product } from "@/src/utils/types";
 import Image from "next/image";
 import Link from "next/link";
+import Articles from "../home/Articles";
+import Bestseller from "../home/Bestseller";
+import Brands from "../home/Brands";
+import Offers from "../home/Offers";
+import SelectedProducts from "../home/SelectedProducts";
+import CategoryHero from "./CategoryHero";
 
 export default async function CategoryProducts({ id }: { id: string }) {
   const category: Category = await CategoryModel.findOne({

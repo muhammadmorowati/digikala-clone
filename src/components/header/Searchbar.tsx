@@ -1,7 +1,7 @@
-import { Product } from "@/utils/types";
-import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import ProductModel from "models/Product";
+
+import connectToDB from "@/config/mongodb";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Product } from "@/src/utils/types";
 import SearchbarForm from "./SearchbarForm";
 
 export default async function Searchbar({

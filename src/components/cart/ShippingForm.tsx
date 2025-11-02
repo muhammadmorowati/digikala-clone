@@ -1,12 +1,12 @@
 "use client";
 
-import { updateUser } from "@/app/admin/users/action";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cities, province } from "@/data/data";
-import { useCart } from "@/utils/cartItemsContext";
-import { User } from "@/utils/types";
-import useScroll from "@/utils/useScroll";
+import { updateUser } from "@/src/app/admin/users/action";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { cities, province } from "@/src/data/data";
+import { useCart } from "@/src/utils/cartItemsContext";
+import { User } from "@/src/utils/types";
+import useScroll from "@/src/utils/useScroll";
 import axios from "axios";
 import { CirclePlus, MapPin, X } from "lucide-react";
 import Image from "next/image";

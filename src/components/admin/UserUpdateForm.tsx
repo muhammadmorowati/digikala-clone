@@ -1,6 +1,6 @@
 "use client";
 
-import { updateUser } from "@/app/admin/users/action";
+import { updateUser } from "@/src/app/admin/users/action";
 import {
   Select,
   SelectContent,
@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/src/components/ui/select";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

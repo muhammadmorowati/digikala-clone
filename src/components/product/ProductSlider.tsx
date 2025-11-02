@@ -5,7 +5,7 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import OfferSkeleton from "../skeleton/OfferSkeleton";
-import { Product, ProductImage } from "@/utils/types";
+import { Product, ProductImage } from "@/src/utils/types";
 
 // interface ProductSliderProps {
 //   productImages: ProductImage[];

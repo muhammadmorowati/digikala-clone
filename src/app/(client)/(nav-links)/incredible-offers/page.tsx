@@ -1,13 +1,11 @@
-import MarketOffers from "@/components/home/MarketOffers";
-import Offers from "@/components/home/Offers";
-import SelectedProducts from "@/components/home/SelectedProducts";
-import IncredibleOffersCategoriesSlider from "@/components/incredible-offers/IncredibleOffersCategoriesSlider";
-import IncredibleOffersProductsSlider from "@/components/incredible-offers/IncredibleOffersProductsSlider";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Product } from "@/utils/types";
-import { Sparkles } from "lucide-react";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
+
+import MarketOffers from "@/src/components/home/MarketOffers";
+import Offers from "@/src/components/home/Offers";
+import SelectedProducts from "@/src/components/home/SelectedProducts";
+import IncredibleOffersCategoriesSlider from "@/src/components/incredible-offers/IncredibleOffersCategoriesSlider";
+import IncredibleOffersProductsSlider from "@/src/components/incredible-offers/IncredibleOffersProductsSlider";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Product } from "@/src/utils/types";
 import Image from "next/image";
 import Link from "next/link";
 

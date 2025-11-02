@@ -1,6 +1,6 @@
 "use client";
 
-import { Category, Product } from "@/utils/types";
+import { Category, Product } from "@/src/utils/types";
 import { Info } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";

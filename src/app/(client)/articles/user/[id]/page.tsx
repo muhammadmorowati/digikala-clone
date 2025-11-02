@@ -1,31 +1,11 @@
-import ArticleCard from "@/components/article/ArticleCard";
-import ScrollUp from "@/components/footer/ScrollUp";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-} from "@/components/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import { ArrowUp, ChevronLeft, Library } from "lucide-react";
-import ArticleModel from "models/Article";
+
+import connectToDB from "@/config/mongodb";
+import ArticleCard from "@/src/components/article/ArticleCard";
+import ScrollUp from "@/src/components/footer/ScrollUp";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@/src/components/ui/breadcrumb";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/src/components/ui/pagination";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/src/components/ui/select";
+import { Article } from "@/src/utils/types";
 import { Metadata } from "next";
 import Image from "next/image";
 

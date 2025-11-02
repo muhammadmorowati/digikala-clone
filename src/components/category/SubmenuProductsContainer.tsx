@@ -1,10 +1,8 @@
-import NotFound from "@/app/not-found";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Product, Submenu } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
-import SubmenuModel from "models/Submenu";
+
+import connectToDB from "@/config/mongodb";
+import NotFound from "@/src/app/not-found";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Submenu, Product } from "@/src/utils/types";
 import BreadcrumbContainer from "../product/BreadcrumbContainer";
 import SubmenuProductsMain from "./SubmenuProductsMain";
 

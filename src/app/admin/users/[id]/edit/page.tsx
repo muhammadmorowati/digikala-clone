@@ -1,8 +1,8 @@
-import PageHeader from "@/components/admin/PageHeader";
-import UserUpdateForm from "@/components/admin/UserUpdateForm";
-import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import UserModel from "models/User";
+import connectToDB from "@/config/mongodb";
+import PageHeader from "@/src/components/admin/PageHeader";
+import UserUpdateForm from "@/src/components/admin/UserUpdateForm";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+
 
 export default async function EditProductPage({
   params: { id },

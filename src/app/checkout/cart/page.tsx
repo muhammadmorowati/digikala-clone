@@ -1,11 +1,11 @@
-import CartContainer from "@/components/cart/CartContainer";
-import FreeShipping from "@/components/cart/FreeShipping";
-import RecentViews from "@/components/cart/RecentViews";
-import ShoppincartItems from "@/components/cart/ShoppincartItems";
-import { authUser } from "@/utils/auth";
-import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import ProductModel from "models/Product";
+import connectToDB from "@/config/mongodb";
+import CartContainer from "@/src/components/cart/CartContainer";
+import FreeShipping from "@/src/components/cart/FreeShipping";
+import RecentViews from "@/src/components/cart/RecentViews";
+import ShoppincartItems from "@/src/components/cart/ShoppincartItems";
+import { authUser } from "@/src/utils/auth";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+
 
 export default async function Cart() {
   await connectToDB();

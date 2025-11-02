@@ -1,12 +1,12 @@
-import { ThemeProvider } from "@/components/ui/theme-provider";
-import { CartProvider } from "@/utils/cartItemsContext";
-import { cn } from "@/utils/utils";
+
 import localFont from "next/font/local";
 import NextTopLoader from "nextjs-toploader";
 import { Suspense } from "react";
 import { Toaster } from "react-hot-toast";
-import "./globals.css";
 import Loading from "./loading";
+import { ThemeProvider } from "../components/ui/theme-provider";
+import { CartProvider } from "../utils/cartItemsContext";
+import { cn } from "../utils/utils";
 
 const iranSans = localFont({ src: "../fonts/IranianSans.ttf" });
 

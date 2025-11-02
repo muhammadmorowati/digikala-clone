@@ -1,9 +1,8 @@
-import PageHeader from "@/components/admin/PageHeader";
-import ProductForm from "@/components/admin/ProductForm";
-import { serializeDoc } from "@/utils/serializeDoc";
-import ProductModel from "models/Product";
-import CategoryModel from "models/Category";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import PageHeader from "@/src/components/admin/PageHeader";
+import ProductForm from "@/src/components/admin/ProductForm";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+
 
 export default async function EditProductPage({
   params: { id },

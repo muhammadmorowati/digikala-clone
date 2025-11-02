@@ -1,14 +1,10 @@
 "use server";
 
-import { ProductSchema } from "@/utils/validation";
-import { ProductImage } from "@/utils/types";
+import connectToDB from "@/config/mongodb";
+import { ProductImage } from "@/src/utils/types";
+import { ProductSchema } from "@/src/utils/validation";
 import crypto from "crypto";
 import fs from "fs/promises";
-import connectToDB from "config/mongodb";
-import ColorModel from "models/Color";
-import FeatureModel from "models/Feature";
-import ImageModel from "models/Image";
-import ProductModel from "models/Product";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";

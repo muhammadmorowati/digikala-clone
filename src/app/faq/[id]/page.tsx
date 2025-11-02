@@ -1,12 +1,12 @@
-import FaqCategories from "@/components/faq/FaqCategories";
+import FaqCategories from "@/src/components/faq/FaqCategories";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
-import { faqCategories } from "@/data/data";
+} from "@/src/components/ui/accordion";
+import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import { faqCategories } from "@/src/data/data";
 import { ChevronDown } from "lucide-react";
 import { Metadata } from "next";
 

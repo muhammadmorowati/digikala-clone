@@ -1,6 +1,6 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCart } from "@/utils/cartItemsContext";
-import { CartItem, Product, User } from "@/utils/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
+import { useCart } from "@/src/utils/cartItemsContext";
+import { CartItem, Product, User } from "@/src/utils/types";
 import {
   ArrowRight,
   Mail,

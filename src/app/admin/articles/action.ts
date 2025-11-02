@@ -1,9 +1,8 @@
 "use server";
 
-import { ArticleEditSchema, ArticleSchema } from "@/utils/validation";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import { ArticleSchema, ArticleEditSchema } from "@/src/utils/validation";
 import { promises as fs, unlink, writeFile } from "fs";
-import ArticleModel from "models/Article";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";

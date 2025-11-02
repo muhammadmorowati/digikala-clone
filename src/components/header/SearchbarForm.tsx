@@ -1,13 +1,4 @@
 "use client";
-
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Product } from "@/utils/types";
 import {
   ArrowRight,
   ChevronLeft,
@@ -21,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import SearchSkeleton from "./SearchSkeleton";
+import { Product } from "@/src/utils/types";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
 
 export default function SearchbarForm({
   placeholder,

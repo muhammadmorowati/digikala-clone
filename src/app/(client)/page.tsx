@@ -1,31 +1,23 @@
-import Articles from "@/components/home/Articles";
-import {
-  FirstBanner,
-  LastBanner,
-  MiddleBanner,
-} from "@/components/home/Banner";
-import Bestseller from "@/components/home/Bestseller";
-import Brands from "@/components/home/Brands";
-import CategoriesPage from "@/components/home/CategoriesPage";
-import Digiclub from "@/components/home/Digiclub";
-import Hero from "@/components/home/Hero";
-import MarketOffers from "@/components/home/MarketOffers";
-import Offers from "@/components/home/Offers";
-import ProductsCard from "@/components/home/ProductsCard";
-import SelectedProducts from "@/components/home/SelectedProducts";
-import Services from "@/components/home/Services";
-import StorySlider from "@/components/home/StorySlider";
-import FloatingSupermarketButton from "@/components/ui/FloatingSupermarketButton";
-import FloatingSupportButton from "@/components/ui/FloatingSupportButton";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import ArticleModel from "models/Article";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
-import StoryModel from "models/Story";
-import SubmenuModel from "models/Submenu";
+
+import connectToDB from "@/config/mongodb";
+import Articles from "@/src/components/home/Articles";
+import { FirstBanner, MiddleBanner, LastBanner } from "@/src/components/home/Banner";
+import Bestseller from "@/src/components/home/Bestseller";
+import Brands from "@/src/components/home/Brands";
+import Digiclub from "@/src/components/home/Digiclub";
+import Hero from "@/src/components/home/Hero";
+import MarketOffers from "@/src/components/home/MarketOffers";
+import Offers from "@/src/components/home/Offers";
+import ProductsCard from "@/src/components/home/ProductsCard";
+import SelectedProducts from "@/src/components/home/SelectedProducts";
+import Services from "@/src/components/home/Services";
+import StorySlider from "@/src/components/home/StorySlider";
+import FloatingSupermarketButton from "@/src/components/ui/FloatingSupermarketButton";
+import FloatingSupportButton from "@/src/components/ui/FloatingSupportButton";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Article } from "@/src/utils/types";
 import Link from "next/link";
+import CategoriesPage from "../categories/page";
 
 export default async function Home() {
   await connectToDB();

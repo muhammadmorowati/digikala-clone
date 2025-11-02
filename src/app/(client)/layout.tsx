@@ -1,6 +1,7 @@
-import Footer from "@/components/footer/Footer";
-import Header from "@/components/header/Header";
-import MobileFooter from "@/components/mobile-footer/MobileFooter";
+import Footer from "@/src/components/footer/Footer";
+import Header from "@/src/components/header/Header";
+import MobileFooter from "@/src/components/mobile-footer/MobileFooter";
+
 
 export default async function RootLayout({
   children,

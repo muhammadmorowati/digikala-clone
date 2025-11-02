@@ -1,8 +1,8 @@
-import ArticleForm from "@/components/admin/ArticleForm";
-import PageHeader from "@/components/admin/PageHeader";
-import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import CategoryModel from "models/Category";
+import connectToDB from "@/config/mongodb";
+import ArticleForm from "@/src/components/admin/ArticleForm";
+import PageHeader from "@/src/components/admin/PageHeader";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+
 
 export default async function NewCategoryPage() {
   await connectToDB();

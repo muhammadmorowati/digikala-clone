@@ -1,9 +1,8 @@
 "use server";
 
-import { StorySchema } from "@/utils/validation";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import { StorySchema } from "@/src/utils/validation";
 import fs from "fs/promises";
-import StoryModel from "models/Story";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
