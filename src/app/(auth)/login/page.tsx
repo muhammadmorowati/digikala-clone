@@ -4,7 +4,7 @@ import { Input } from "@/src/components/ui/input";
 import { LoginFormState } from "@/src/utils/types";
 import { LoginSchemaType, LoginSchema } from "@/src/utils/validation";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { signin } from "../../admin/users/action";
@@ -14,15 +14,14 @@ const initialState: LoginFormState = {
   success: false,
 };
 
+type ErrorKey = keyof LoginFormState["errors"]
+
 export default function Login() {
+  const searchParams = useSearchParams();
+  const redirectedLogin = searchParams.has("redirected")
   const router = useRouter();
   const [state, setState] = useState<LoginFormState>(initialState);
-  const [redirectedLogin, setRedirectedLogin] = useState(false);
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    setRedirectedLogin(searchParams.has("redirected"));
-  }, [redirectedLogin]);
+ 
 
   const validateForm = (formData: FormData) => {
     const formObject = Object.fromEntries(
@@ -34,8 +33,12 @@ export default function Login() {
       return {}; // No errors
     } else {
       const errors: Partial<LoginFormState["errors"]> = {};
-      validation.error.errors.forEach((error) => {
-        errors[error.path[0]] = [error.message];
+      validation.error.errors.forEach((err) => {
+        const key = err.path[0];
+        if (key === "email" || key === "password" || key === "general") {
+          const k = key as ErrorKey;
+          errors[k] = [...(errors[k] ?? []), err.message];
+        }
       });
       return errors;
     }
@@ -79,7 +82,7 @@ export default function Login() {
           errors: result.errors,
           success: false,
         }));
-        toast.error(result.errors.general[0]);
+        toast.error(result.errors.general?.[0] ?? "Login failed");
       }
     } catch (error) {
       console.error("Error during signup:", error);

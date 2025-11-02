@@ -30,7 +30,8 @@ export default async function BestsellingPage() {
 
   const bestSellerProducts: Product[] = products
     .slice()
-    .sort((a, b) => b.recommended_percent - a.recommended_percent);
+    .sort((a: Product, b: Product) =>
+        (b.recommended_percent ?? 0) - (a.recommended_percent ?? 0));
 
   const serializedProducts = serializeDoc(bestSellerProducts);
   const serializedCategories = serializeDoc(categories);

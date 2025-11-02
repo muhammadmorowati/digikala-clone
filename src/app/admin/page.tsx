@@ -9,6 +9,7 @@ import connectToDB from "@/config/mongodb";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/src/components/ui/table";
 import { authUser } from "@/src/utils/auth";
 import { User, Product } from "@/src/utils/types";
+import { Bell, Check, Box, UserRound } from "lucide-react";
 
 export default async function AdminPage() {
   connectToDB();

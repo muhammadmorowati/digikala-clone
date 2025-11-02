@@ -2,6 +2,7 @@
 import SubmenuProductsMain from "@/src/components/category/SubmenuProductsMain";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Product, Category } from "@/src/utils/types";
+import { Info } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 

@@ -6,6 +6,7 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbP
 import { Separator } from "@/src/components/ui/separator";
 import { formatDateToPersian } from "@/src/utils/PersianFormatter ";
 import { Article } from "@/src/utils/types";
+import { ArrowUp, ChevronLeft, Clock, Facebook, Instagram, Library, Linkedin, MessageCircle, Send, Timer, Twitter } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";

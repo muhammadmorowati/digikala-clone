@@ -5,6 +5,8 @@ import ProductMain from "@/src/components/product/ProductMain";
 import ProductPageMobileStickyHeader from "@/src/components/ui/ProductPageMobileStickyHeader";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Product, Submenu, SubmenuItem } from "@/src/utils/types";
+import { Megaphone, Store } from "lucide-react";
+import mongoose from "mongoose";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";

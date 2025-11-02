@@ -28,9 +28,12 @@ export default function Register() {
     if (validation.success) {
       return {}; // No errors
     } else {
-      const errors: Partial<RegisterFormState["errors"]> = {};
-      validation.error.errors.forEach((error) => {
-        errors[error.path[0]] = [error.message];
+      const errors: Partial<Record<"email" | "password" | "general", string[]>> = {};
+      validation.error.errors.forEach((err) => {
+           const key = err.path[0];
+      if (key === "email" || key === "password" || key === "general") {
+        errors[key] = [...(errors[key] ?? []), err.message];
+      }
       });
       return errors;
     }

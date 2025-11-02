@@ -2,6 +2,7 @@ import connectToDB from "@/config/mongodb";
 import ArticleCard from "@/src/components/article/ArticleCard";
 import ScrollUp from "@/src/components/footer/ScrollUp";
 import { Article } from "@/src/utils/types";
+import { Library, ArrowUp } from "lucide-react";
 
 
 export default async function ArticlesPage() {

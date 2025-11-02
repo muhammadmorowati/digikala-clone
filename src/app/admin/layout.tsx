@@ -6,6 +6,7 @@ import Container from "@/src/components/ui/container";
 import { SignoutFunction } from "@/src/components/ui/SignoutFunction";
 import { authUser } from "@/src/utils/auth";
 import { User } from "@/src/utils/types";
+import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
