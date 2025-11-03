@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-require("./User");
+import mongoose from "mongoose";
+import "./User"
 
 const schema = new mongoose.Schema({
   totalPrice: {

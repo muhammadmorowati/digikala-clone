@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-require("./Product");
-require("./User");
+import mongoose from "mongoose";
+import "./Product"
+import "./User"
 
 const schema = new mongoose.Schema({
   date: {

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-require("./Product");
+import mongoose from "mongoose";
+import "./Product"
 
 const schema = new mongoose.Schema({
   name: {

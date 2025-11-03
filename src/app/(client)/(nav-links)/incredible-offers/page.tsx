@@ -5,10 +5,14 @@ import SelectedProducts from "@/src/components/home/SelectedProducts";
 import IncredibleOffersCategoriesSlider from "@/src/components/incredible-offers/IncredibleOffersCategoriesSlider";
 import IncredibleOffersProductsSlider from "@/src/components/incredible-offers/IncredibleOffersProductsSlider";
 import { serializeDoc } from "@/src/utils/serializeDoc";
-import { Product } from "@/src/utils/types";
+import { Category, Product } from "@/src/utils/types";
 import { Sparkles } from "lucide-react";
+import CategoryModel from "@/models/Category";
+import ProductModel from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
+
+type WithId<T> = T & { _id: string };
 
 export default async function IncredibleOffers() {
   const products = await ProductModel.find({})
@@ -24,21 +28,21 @@ export default async function IncredibleOffers() {
         },
       },
     })
-    .lean();
+    .lean<WithId<Product>[]>()
 
   // Discount Products
-  const categories = await CategoryModel.find({}).lean();
-  const discountProducts = products.filter(
-    (product: Product) => product.discount > 0
-  );
+  const categories = await CategoryModel.find({}).lean<WithId<Category>[]>()
+ const discountProducts: WithId<Product>[] = products.filter(
+    (p) => (p.discount ?? 0) > 0
+  )
 
   const SortedOfferProductsByRating = discountProducts
     ?.slice()
-    .sort((a, b) => b.rating - a.rating);
+    .sort((a, b) => (a.discount ?? 0) - (b.discount ?? 0))
 
   const SortedOfferProductsByLowerDiscount = discountProducts
     ?.slice()
-    .sort((a, b) => a.discount - b.discount);
+    .sort((a, b) => (a.discount ?? 0) - (b.discount ?? 0))
 
   const serializedAllProducts = serializeDoc(products);
   const serializedCategories = serializeDoc(categories);

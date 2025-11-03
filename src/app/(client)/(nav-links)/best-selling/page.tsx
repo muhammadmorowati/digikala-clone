@@ -1,7 +1,10 @@
 import BestsellingMain from "@/src/components/best-selling/BestsellingMain";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Category, Product } from "@/src/utils/types";
+import CategoryModel from "@/models/Category";
+import ProductModel from "@/models/Product";
 
+type WithId<T> = T & { _id: string };
 
 export default async function BestsellingPage() {
   const products = await ProductModel.find({})
@@ -17,7 +20,8 @@ export default async function BestsellingPage() {
         },
       },
     })
-    .lean();
+      .sort({ recommended_percent: -1 })           
+    .lean<WithId<Product>[]>(); 
 
   const categories: Category[] = await CategoryModel.find({})
     .populate({
@@ -26,7 +30,7 @@ export default async function BestsellingPage() {
         path: "items",
       },
     })
-    .lean();
+    .lean<WithId<Category>[]>(); 
 
   const bestSellerProducts: Product[] = products
     .slice()

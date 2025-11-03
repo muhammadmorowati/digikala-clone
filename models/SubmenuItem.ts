@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-require("./Submenu");
+import mongoose from "mongoose";
+import "./Submenu"
 
 const schema = new mongoose.Schema({
   title: {

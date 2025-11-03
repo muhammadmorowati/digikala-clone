@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
-require("./Comment");
-require("./Question");
-require("./Feature");
-require("./Color");
-require("./Order");
-require("./Image");
-require("./Category");
+import mongoose from "mongoose";
+import "./Comment"
+import "./Question"
+import "./Feature"
+import "./Color"
+import "./Order"
+import "./Image"
+import "./Category"
 
 const schema = new mongoose.Schema({
   title: {
