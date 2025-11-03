@@ -4,6 +4,7 @@ import connectToDB from "@/config/mongodb";
 import { ArticleSchema, ArticleEditSchema } from "@/src/utils/validation";
 import { promises as fs, unlink, writeFile } from "fs";
 import { revalidatePath } from "next/cache";
+import ArticleModel from "@/models/Article";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
 import { promisify } from "util";
@@ -11,7 +12,7 @@ import { promisify } from "util";
 const unlinkAsync = promisify(unlink);
 const writeFileAsync = promisify(writeFile);
 
-export async function addArticle(_state, formData: FormData) {
+export async function addArticle(_state:unknown, formData: FormData) {
   await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 
@@ -19,7 +20,7 @@ export async function addArticle(_state, formData: FormData) {
   if (typeof entries.tags === "string") {
     try {
       entries.tags = JSON.parse(entries.tags);
-    } catch (error) {
+    } catch (error:unknown) {
       console.error("Failed to parse tags:", error);
       return { tags: ["Invalid tags format"] };
     }
@@ -38,8 +39,8 @@ export async function addArticle(_state, formData: FormData) {
   const articleDir = path.join(process.cwd(), "public/articles");
   try {
     await fs.access(articleDir);
-  } catch (error) {
-    if (error.code === "ENOENT") {
+  } catch (error:unknown) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       await fs.mkdir(articleDir, { recursive: true });
     } else {
       throw error;
@@ -72,7 +73,7 @@ export async function addArticle(_state, formData: FormData) {
   redirect("/admin/articles");
 }
 
-export async function updateArticle(_state, formData: FormData) {
+export async function updateArticle(_state:unknown, formData: FormData) {
   await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 

@@ -33,8 +33,14 @@ export default async function ArticlePage({
 }) {
   await connectToDB();
   const articles: Article[] = await ArticleModel.find({});
-  const article: Article = await ArticleModel.findOne({ _id: id })
+  const article: Article | null = await ArticleModel.findOne({ _id: id })
 
+  if (!article) {
+  return (
+    <div className="p-4 text-center text-red-600">مقاله‌ای یافت نشد.</div>
+  );
+  }
+  
   const ArticlePublishedDate = (
     <span className="flex text-xs items-center text-neutral-400 gap-1">
       <Clock size={14} />

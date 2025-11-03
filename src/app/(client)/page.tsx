@@ -16,8 +16,13 @@ import FloatingSupermarketButton from "@/src/components/ui/FloatingSupermarketBu
 import FloatingSupportButton from "@/src/components/ui/FloatingSupportButton";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Article } from "@/src/utils/types";
+import ArticleModel from "@/models/Article";
+import CategoryModel from "@/models/Category";
+import ProductModel from "@/models/Product";
+import StoryModel from "@/models/Story";
+import SubmenuModel from "@/models/Submenu";
 import Link from "next/link";
-import CategoriesPage from "../categories/page";
+import CategoriesPage from "@/src/components/home/CategoriesPage";
 
 export default async function Home() {
   await connectToDB();

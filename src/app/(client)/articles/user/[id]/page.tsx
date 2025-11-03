@@ -7,6 +7,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/src/components/ui/select";
 import { Article } from "@/src/utils/types";
 import { Library, ChevronLeft, ArrowUp } from "lucide-react";
+import ArticleModel from "@/models/Article"
 import { Metadata } from "next";
 import Image from "next/image";
 

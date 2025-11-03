@@ -3,7 +3,7 @@ import ArticleCard from "@/src/components/article/ArticleCard";
 import ScrollUp from "@/src/components/footer/ScrollUp";
 import { Article } from "@/src/utils/types";
 import { Library, ArrowUp } from "lucide-react";
-
+import ArticleModel from "@/models/Article"
 
 export default async function ArticlesPage() {
   await connectToDB();
