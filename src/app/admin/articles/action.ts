@@ -48,10 +48,9 @@ export async function addArticle(_state:unknown, formData: FormData) {
   }
 
   const coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-  await fs.writeFile(
-    path.join(process.cwd(), "public", coverPath),
-    Buffer.from(await data.cover.arrayBuffer())
-  );
+ const ab = await data.cover.arrayBuffer();
+  const bytes = new Uint8Array(ab);
+  await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
 
   // Save category to the database
   await ArticleModel.create({
@@ -118,10 +117,9 @@ export async function updateArticle(_state:unknown, formData: FormData) {
 
     // Save the new cover image
     coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-    await writeFileAsync(
-      path.join(process.cwd(), "public", coverPath),
-      Buffer.from(await data.cover.arrayBuffer())
-    );
+       const ab = await data.cover.arrayBuffer();
+    const bytes = new Uint8Array(ab);                         // ✅
+    await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
   }
 
   // Update the article in the database

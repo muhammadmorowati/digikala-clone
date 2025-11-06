@@ -1,6 +1,6 @@
 import AdminTable from "@/src/components/admin/AdminTable";
 import PageHeader from "@/src/components/admin/PageHeader";
-
+import SubmenuModel from "@/models/Submenu"
 
 export default function SubmenuPage() {
   return <SubmenuTable />;

@@ -2,7 +2,7 @@ import connectToDB from "@/config/mongodb";
 import AdminTable from "@/src/components/admin/AdminTable";
 import PageHeader from "@/src/components/admin/PageHeader";
 import { serializeDoc } from "@/src/utils/serializeDoc";
-
+import OrderModel from "@/models/Order"
 
 export default async function AdminUsersPage() {
   await connectToDB();

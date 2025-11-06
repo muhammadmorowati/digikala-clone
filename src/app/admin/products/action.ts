@@ -3,66 +3,82 @@
 import connectToDB from "@/config/mongodb";
 import { ProductImage } from "@/src/utils/types";
 import { ProductSchema } from "@/src/utils/validation";
-import crypto from "crypto";
-import fs from "fs/promises";
+import crypto from "node:crypto";
+import { access, mkdir, unlink, writeFile } from "node:fs/promises";
+import ColorModel from "@/models/Color";
+import FeatureModel from "@/models/Feature";
+import ImageModel from "@/models/Image";
+import ProductModel from "@/models/Product";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
-import path from "path";
+import path from "node:path";
 
-export async function addProduct(_state: any, formData: FormData) {
+// ───────────── helpers
+const toBytes = (ab: ArrayBuffer) => new Uint8Array(ab); // ArrayBufferView for writeFile
+const ensureDir = async (dir: string) => {
+  try {
+    await access(dir);
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === "ENOENT") await mkdir(dir, { recursive: true });
+    else throw e;
+  }
+};
+const num = (v: FormDataEntryValue | undefined) => Number(v ?? 0);
+const idStr = (v: FormDataEntryValue | undefined) => (v?.toString() ?? "");
+
+// ───────────── addProduct
+export async function addProduct(_state: unknown, formData: FormData) {
   await connectToDB();
+
   const entries = Object.fromEntries(formData.entries());
-  const featureArray = JSON.parse(entries.features as string);
-  const colorArray = JSON.parse(entries.colors as string);
+  // parse arrays safely
+  const featureArray: Array<{ key: string; value: string }> = (() => {
+    try { return JSON.parse(String(entries.features ?? "[]")); } catch { return []; }
+  })();
+  const colorArray: Array<{ name: string; hex: string }> = (() => {
+    try { return JSON.parse(String(entries.colors ?? "[]")); } catch { return []; }
+  })();
 
   const parsedEntries = {
     ...entries,
-    rating: Number(entries.rating),
-    voter: Number(entries.voter),
-    price: Number(entries.price),
-    discount: Number(entries.discount),
-    discount_price: Number(entries.discount_price),
-    recommended_percent: Number(entries.recommended_percent),
-    likes: Number(entries.likes),
-    submenuId: entries.submenuId?.toString() || "",
-    submenuItemId: entries.submenuItemId?.toString() || "",
+    rating: num(entries.rating),
+    voter: num(entries.voter),
+    price: num(entries.price),
+    discount: num(entries.discount),
+    discount_price: num(entries.discount_price),
+    recommended_percent: num(entries.recommended_percent),
+    likes: num(entries.likes),
+    submenuId: idStr(entries.submenuId),
+    submenuItemId: idStr(entries.submenuItemId),
   };
 
   const result = ProductSchema.safeParse(parsedEntries);
   if (!result.success) {
-    console.log("❌❌❌", result.error.formErrors.fieldErrors);
+    console.log("❌ validation:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
-
   const data = result.data;
 
-  // Define the directory path
+  // ensure dir
   const productDir = path.join(process.cwd(), "public/products");
-  try {
-    await fs.access(productDir);
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      await fs.mkdir(productDir, { recursive: true });
-    } else {
-      throw error;
-    }
-  }
+  await ensureDir(productDir);
 
-  // Handle thumbnail image
-  const imagePath = `/products/${crypto.randomUUID()}-${data.thumbnail.name}`;
-  await fs.writeFile(
-    path.join(process.cwd(), "public", imagePath),
-    Buffer.from(await data.thumbnail.arrayBuffer())
+  // thumbnail
+  const thumbnailPath = `/products/${crypto.randomUUID()}-${data.thumbnail.name}`;
+  await writeFile(
+    path.join(process.cwd(), "public", thumbnailPath),
+    toBytes(await data.thumbnail.arrayBuffer())
   );
 
-  // Create the product record
+  // create product
   const product = await ProductModel.create({
     title: data.title,
     en_title: data.en_title,
     rating: data.rating,
     voter: data.voter,
     sizes: data.sizes,
-    thumbnail: imagePath,
+    thumbnail: thumbnailPath,
     price: data.price,
     discount: data.discount,
     discount_price: data.discount_price,
@@ -78,130 +94,106 @@ export async function addProduct(_state: any, formData: FormData) {
     submenuItemId: data.submenuItemId,
   });
 
-  // Handle features
-  const featureIds = [];
-  if (featureArray.length > 0) {
-    for (const feature of featureArray) {
-      const newFeature = await FeatureModel.create({
-        key: feature.key,
-        value: feature.value,
-        productId: product._id,
-      });
-      featureIds.push(newFeature._id);
-    }
+  // features
+  const featureIds: string[] = [];
+  for (const f of featureArray) {
+    const newFeature = await FeatureModel.create({
+      key: f.key,
+      value: f.value,
+      productId: product._id,
+    });
+    featureIds.push(newFeature._id);
   }
 
-  // Handle colors
-  const colorIds = [];
-  if (colorArray.length > 0) {
-    for (const color of colorArray) {
-      const newColor = await ColorModel.create({
-        name: color.name,
-        hex: color.hex,
-        productId: product._id,
-      });
-      colorIds.push(newColor._id);
-    }
+  // colors
+  const colorIds: string[] = [];
+  for (const c of colorArray) {
+    const newColor = await ColorModel.create({
+      name: c.name,
+      hex: c.hex,
+      productId: product._id,
+    });
+    colorIds.push(newColor._id);
   }
 
-  // Handle additional images
-  const imageIds = [];
+  // extra images
+  const imageIds: string[] = [];
   const images = formData.getAll("image");
-  const imagePaths = new Set();
+  const seenNames = new Set<string>();
 
-  const imagePromises = (images as File[]).map(async (image) => {
-    if (image instanceof File) {
-      const imagePath = `/products/${crypto.randomUUID()}-${image.name}`;
-      if (!imagePaths.has(image.name)) {
-        imagePaths.add(image.name);
-        await fs.writeFile(
-          path.join(process.cwd(), "public", imagePath),
-          Buffer.from(await image.arrayBuffer())
-        );
+  await Promise.all(
+    (images as File[]).map(async (image) => {
+      if (!(image instanceof File)) return;
+      // avoid duplicate file names in the same submission
+      if (seenNames.has(image.name)) return;
+      seenNames.add(image.name);
 
-        const newImage = await ImageModel.create({
-          url: imagePath,
-          productId: product._id,
-        });
-        imageIds.push(newImage._id);
-      } else {
-        console.warn("Duplicate image detected:", image);
-      }
-    }
-  });
-  await Promise.all(imagePromises);
+      const p = `/products/${crypto.randomUUID()}-${image.name}`;
+      await writeFile(path.join(process.cwd(), "public", p), toBytes(await image.arrayBuffer()));
+
+      const created = await ImageModel.create({ url: p, productId: product._id });
+      imageIds.push(created._id);
+    })
+  );
 
   await ProductModel.findByIdAndUpdate(product._id, {
-    $set: {
-      images: imageIds,
-      colors: colorIds,
-      features: featureIds,
-    },
+    $set: { images: imageIds, colors: colorIds, features: featureIds },
   });
 
-  // Revalidate paths and redirect
   revalidatePath("/");
   revalidatePath("/products");
   redirect("/admin/products");
 }
 
-export async function updateProduct(_state: any, formData: FormData) {
+// ───────────── updateProduct
+export async function updateProduct(_state: unknown, formData: FormData) {
   await connectToDB();
+
   const entries = Object.fromEntries(formData.entries());
-  const featureArray = JSON.parse(entries.features as string);
-  const colorArray = JSON.parse(entries.colors as string);
+  const featureArray: Array<{ key: string; value: string }> = (() => {
+    try { return JSON.parse(String(entries.features ?? "[]")); } catch { return []; }
+  })();
+  const colorArray: Array<{ name: string; hex: string }> = (() => {
+    try { return JSON.parse(String(entries.colors ?? "[]")); } catch { return []; }
+  })();
 
   const parsedEntries = {
     ...entries,
-    rating: Number(entries.rating),
-    voter: Number(entries.voter),
-    price: Number(entries.price),
-    discount: Number(entries.discount),
-    discount_price: Number(entries.discount_price),
-    recommended_percent: Number(entries.recommended_percent),
-    likes: Number(entries.likes),
-    submenuId: entries.submenuId?.toString() || "",
-    submenuItemId: entries.submenuItemId?.toString() || "",
+    rating: num(entries.rating),
+    voter: num(entries.voter),
+    price: num(entries.price),
+    discount: num(entries.discount),
+    discount_price: num(entries.discount_price),
+    recommended_percent: num(entries.recommended_percent),
+    likes: num(entries.likes),
+    submenuId: idStr(entries.submenuId),
+    submenuItemId: idStr(entries.submenuItemId),
   };
 
   const result = ProductSchema.safeParse(parsedEntries);
   if (!result.success) {
-    console.log("❌❌❌", result.error.formErrors.fieldErrors);
+    console.log("❌ validation:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
 
   const data = result.data;
   const productId = data._id;
-
-  // Fetch the existing product
   const product = await ProductModel.findById(productId);
-  if (!product) {
-    throw new Error(`Product with id ${productId} not found`);
-  }
+  if (!product) throw new Error(`Product with id ${productId} not found`);
 
-  // Define the directory path
   const productDir = path.join(process.cwd(), "public/products");
-  try {
-    await fs.access(productDir);
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      await fs.mkdir(productDir, { recursive: true });
-    } else {
-      throw error;
-    }
-  }
+  await ensureDir(productDir);
 
-  // Handle thumbnail image update
+  // thumbnail (optional)
   let thumbnailPath = product.thumbnail;
   if (data.thumbnail) {
     thumbnailPath = `/products/${crypto.randomUUID()}-${data.thumbnail.name}`;
-    await fs.writeFile(
+    await writeFile(
       path.join(process.cwd(), "public", thumbnailPath),
-      Buffer.from(await data.thumbnail.arrayBuffer())
+      toBytes(await data.thumbnail.arrayBuffer())
     );
   }
 
-  // Update the product record
   await ProductModel.findByIdAndUpdate(productId, {
     title: data.title,
     en_title: data.en_title,
@@ -221,118 +213,89 @@ export async function updateProduct(_state: any, formData: FormData) {
     submenuItemId: data.submenuItemId,
   });
 
-  // Update features
-  const existingFeatureIds = await FeatureModel.find({ productId }).distinct(
-    "_id"
-  );
-  const newFeatureIds = [];
-  for (const feature of featureArray) {
-    const existingFeature = await FeatureModel.findOneAndUpdate(
-      { productId, key: feature.key },
-      { value: feature.value },
+  // features (upsert & prune)
+  const existingFeatureIds = await FeatureModel.find({ productId }).distinct("_id");
+  const newFeatureIds: string[] = [];
+  for (const f of featureArray) {
+    const updated = await FeatureModel.findOneAndUpdate(
+      { productId, key: f.key },
+      { value: f.value },
       { new: true, upsert: true }
     );
-    newFeatureIds.push(existingFeature._id);
+    newFeatureIds.push(updated._id);
   }
-  await FeatureModel.deleteMany({
-    _id: {
-      $in: existingFeatureIds.filter((id) => !newFeatureIds.includes(id)),
-    },
-  });
+  await FeatureModel.deleteMany({ _id: { $in: existingFeatureIds.filter((id) => !newFeatureIds.includes(id)) } });
 
-  // Update colors
+  // colors (upsert & prune)
   const existingColorIds = await ColorModel.find({ productId }).distinct("_id");
-  const newColorIds = [];
-  for (const color of colorArray) {
-    const existingColor = await ColorModel.findOneAndUpdate(
-      { productId, name: color.name },
-      { hex: color.hex },
+  const newColorIds: string[] = [];
+  for (const c of colorArray) {
+    const updated = await ColorModel.findOneAndUpdate(
+      { productId, name: c.name },
+      { hex: c.hex },
       { new: true, upsert: true }
     );
-    newColorIds.push(existingColor._id);
+    newColorIds.push(updated._id);
   }
-  await ColorModel.deleteMany({
-    _id: { $in: existingColorIds.filter((id) => !newColorIds.includes(id)) },
-  });
+  await ColorModel.deleteMany({ _id: { $in: existingColorIds.filter((id) => !newColorIds.includes(id)) } });
 
-  // Update additional images
+  // images (create new & prune removed)
   const existingImageIds = await ImageModel.find({ productId }).distinct("_id");
-  const newImageIds = [];
+  const existingImageUrls = await ImageModel.find({ productId }).distinct("url"); // ✅ URLs from DB (not product.images)
+  const newImageIds: string[] = [];
+
   const images = formData.getAll("image");
-  const imagePaths = new Set(product.images.map((image) => image.url)); // Keep track of existing paths to avoid duplicates
-  const imagePromises = (images as File[]).map(async (image) => {
-    if (image instanceof File) {
-      const imagePath = `/products/${crypto.randomUUID()}-${image.name}`;
-      if (!imagePaths.has(imagePath)) {
-        imagePaths.add(imagePath);
-        await fs.writeFile(
-          path.join(process.cwd(), "public", imagePath),
-          Buffer.from(await image.arrayBuffer())
-        );
+  const seen = new Set<string>(existingImageUrls);
+  await Promise.all(
+    (images as File[]).map(async (image) => {
+      if (!(image instanceof File)) return;
+      // generate a path and avoid duplicates by full path
+      const p = `/products/${crypto.randomUUID()}-${image.name}`;
+      if (seen.has(p)) return;
+      seen.add(p);
+      await writeFile(path.join(process.cwd(), "public", p), toBytes(await image.arrayBuffer()));
+      const created = await ImageModel.create({ url: p, productId: product._id });
+      newImageIds.push(created._id);
+    })
+  );
 
-        const newImage = await ImageModel.create({
-          url: imagePath,
-          productId: product._id,
-        });
-        newImageIds.push(newImage._id);
-      } else {
-        console.warn("Duplicate image detected:", image);
-      }
-    }
-  });
-  await Promise.all(imagePromises);
-  await ImageModel.deleteMany({
-    _id: { $in: existingImageIds.filter((id) => !newImageIds.includes(id)) },
-  });
+  await ImageModel.deleteMany({ _id: { $in: existingImageIds.filter((id) => !newImageIds.includes(id)) } });
 
-  // Update product with new associated data
   await ProductModel.findByIdAndUpdate(product._id, {
-    $set: {
-      images: newImageIds,
-      colors: newColorIds,
-      features: newFeatureIds,
-    },
+    $set: { images: newImageIds, colors: newColorIds, features: newFeatureIds },
   });
 
-  // Revalidate paths and redirect
   revalidatePath("/");
   revalidatePath("/products");
   redirect("/admin/products");
 }
 
+// ───────────── deleteProduct
 export async function deleteProduct(id: string) {
   await connectToDB();
-  const productWithImages = await ProductModel.findOne({ _id: id }).populate(
-    "images"
-  );
 
+  const productWithImages = await ProductModel.findOne({ _id: id }).populate("images");
   if (!productWithImages) return notFound();
 
-  const imagePaths = productWithImages.images.map(
-    (img: ProductImage) => img.url
-  );
-  const allImagePaths = [productWithImages.thumbnail, ...imagePaths].filter(
-    Boolean
-  ); // Remove any falsy values (like null or undefined)
+  const imagePaths = (productWithImages.images as ProductImage[]).map((img) => img.url);
+  const allImagePaths = [productWithImages.thumbnail, ...imagePaths].filter(Boolean) as string[];
 
-  // Delete image files
   await Promise.all(
-    allImagePaths.map(async (filePath) => {
-      const fullPath = path.join("public", filePath);
+    allImagePaths.map(async (rel) => {
+      const full = path.join(process.cwd(), "public", rel);
       try {
-        await fs.unlink(fullPath);
-        console.log(`Deleted file: ${fullPath}`);
-      } catch (error) {
-        if (error.code === "ENOENT") {
-          console.warn(`File not found: ${fullPath}`);
+        await unlink(full);
+      } catch (e) {
+        const err = e as NodeJS.ErrnoException;
+        if (err.code === "ENOENT") {
+          console.warn("File not found:", full);
         } else {
-          console.error(`Failed to delete file ${fullPath}:`, error);
+          console.error("Failed to delete file:", full, err);
         }
       }
     })
   );
 
-  // Delete related records from the database
   await Promise.all([
     ImageModel.deleteMany({ productId: id }),
     FeatureModel.deleteMany({ productId: id }),
