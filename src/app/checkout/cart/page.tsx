@@ -5,7 +5,7 @@ import RecentViews from "@/src/components/cart/RecentViews";
 import ShoppincartItems from "@/src/components/cart/ShoppincartItems";
 import { authUser } from "@/src/utils/auth";
 import { serializeDoc } from "@/src/utils/serializeDoc";
-
+import ProductModel from "@/models/Product"
 
 export default async function Cart() {
   await connectToDB();

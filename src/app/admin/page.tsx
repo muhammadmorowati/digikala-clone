@@ -7,6 +7,8 @@ import {
 } from "../../components/ui/avatar";
 import connectToDB from "@/config/mongodb";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/src/components/ui/table";
+import ProductModel from "@/models/Product";
+import UserModel from "@/models/User"
 import { authUser } from "@/src/utils/auth";
 import { User, Product } from "@/src/utils/types";
 import { Bell, Check, Box, UserRound } from "lucide-react";
@@ -18,7 +20,7 @@ export default async function AdminPage() {
   const products: Product[] = await ProductModel.find({}).lean();
   const topProducts = products
     .slice()
-    .sort((a, b) => b.likes - a.likes)
+    .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
     .slice(0, 3);
 
   return (

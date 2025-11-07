@@ -2,7 +2,7 @@ import connectToDB from "@/config/mongodb";
 import { addSubmenu } from "@/src/app/admin/categories/action";
 import { Category } from "@/src/utils/types";
 import { Button } from "../ui/button";
-
+import CategoryModel from "@/models/Category"
 
 export default async function CategorySubmenuForm() {
   await connectToDB();

@@ -5,7 +5,7 @@ import UserList from "@/src/components/profile/UserList";
 import { authUser } from "@/src/utils/auth";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { User } from "@/src/utils/types";
-
+import ProductModel from "@/models/Product"
 
 export default async function ProfileIdPage({
   params: { id },

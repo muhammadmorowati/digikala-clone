@@ -265,7 +265,7 @@ export default function AdminTable({
                       height={100}
                       width={100}
                       className="w-8 h-8 object-cover"
-                      src={category.icon}
+                      src={category.icon!}
                     />
                   </div>
                 </TableCell>

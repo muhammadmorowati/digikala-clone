@@ -9,25 +9,25 @@ import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
 import { faqCategories } from "@/src/data/data";
 import { ChevronDown } from "lucide-react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-export async function generateMetadata({
-  params: { id },
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  const category = faqCategories.find((category) => category.id === id);
-
+export async function generateMetadata(
+  { params: { id } }: { params: { id: string } }
+): Promise<Metadata> {
+  const category = faqCategories.find((c) => c.id === id);
   return {
-    title: category.title,
+    title: category?.title ?? "سؤالات متداول",
   };
 }
 
-export default function FagCategory({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
-  const category = faqCategories.find((category) => category.id === id);
+export default function FagCategory(
+  { params: { id } }: { params: { id: string } }
+) {
+  const category = faqCategories.find((c) => c.id === id);
+
+  if (!category) {
+    return notFound();
+  }
 
   return (
     <div className="pb-14">
@@ -62,6 +62,7 @@ export default function FagCategory({
             ))}
           </Accordion>
         </div>
+
         {/* Faq Categories */}
         <div className="mt-10">
           <FaqCategories />

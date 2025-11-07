@@ -1,9 +1,15 @@
 import PaymentStatus from "@/src/components/cart/PaymentStatus";
 
-export default async function VerifyPaymentPage({ searchParams }) {
+export default async function VerifyPaymentPage({
+  searchParams,
+}: {
+  searchParams: { success?: string; error?: string };
+}) {
   return (
     <div className="mt-20 gap-5 flex flex-col items-center justify-center">
       <PaymentStatus param={searchParams} />
     </div>
   );
 }
+
+

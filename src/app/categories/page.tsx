@@ -2,7 +2,8 @@ import connectToDB from "@/config/mongodb";
 import Categories from "@/src/components/categories/Categories";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Product } from "@/src/utils/types";
-
+import CategoryModel from "@/models/Category";
+import ProductModel from "@/models/Product"
 
 export default async function CategoriesPage() {
   await connectToDB();

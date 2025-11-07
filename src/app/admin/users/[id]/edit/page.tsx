@@ -2,7 +2,7 @@ import connectToDB from "@/config/mongodb";
 import PageHeader from "@/src/components/admin/PageHeader";
 import UserUpdateForm from "@/src/components/admin/UserUpdateForm";
 import { serializeDoc } from "@/src/utils/serializeDoc";
-
+import UserModel from "@/models/User"
 
 export default async function EditProductPage({
   params: { id },
