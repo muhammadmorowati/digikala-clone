@@ -1,8 +1,8 @@
 import AdminTable from "@/components/admin/AdminTable";
 import PageHeader from "@/components/admin/PageHeader";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "@/../config/mongodb";
-import ProductModel from "@/../models/Product";
+import connectToDB from "config/mongodb";
+import ProductModel from "models/Product";
 
 export default function AdminProductsPage() {
   return <ProductTable />;

@@ -1,8 +1,8 @@
 import BestsellingMain from "@/components/best-selling/BestsellingMain";
 import { Category, Product } from "@/utils/types";
 import { serializeDoc } from "@/utils/serializeDoc";
-import CategoryModel from "@/../models/Category";
-import ProductModel from "@/../models/Product";
+import CategoryModel from "models/Category";
+import ProductModel from "models/Product";
 
 export default async function BestsellingPage() {
   const products = await ProductModel.find({})

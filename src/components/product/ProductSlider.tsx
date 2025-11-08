@@ -1,5 +1,7 @@
 "use client";
 import Image from "next/image";
+import "swiper/css";
+import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import OfferSkeleton from "../skeleton/OfferSkeleton";

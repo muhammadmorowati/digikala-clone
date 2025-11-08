@@ -1,8 +1,8 @@
 import AdminTable from "@/components/admin/AdminTable";
 import PageHeader from "@/components/admin/PageHeader";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "@/../config/mongodb";
-import UserModel from "@/../models/User";
+import connectToDB from "config/mongodb";
+import UserModel from "models/User";
 
 export default async function AdminUsersPage() {
   await connectToDB();

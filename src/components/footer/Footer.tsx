@@ -10,7 +10,7 @@ import FooterLinks from "./FooterLinks";
 import MobileSizeApp from "./MobileSizeApp";
 import ScrollUp from "./ScrollUp";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "@/../config/mongodb";
+import connectToDB from "config/mongodb";
 
 export default async function Footer() {
   await connectToDB();

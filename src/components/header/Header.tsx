@@ -1,6 +1,6 @@
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "@/../config/mongodb";
-import CategoryModel from "@/../models/Category";
+import connectToDB from "config/mongodb";
+import CategoryModel from "models/Category";
 import Navbar from "./Navbar";
 import Topbar from "./Topbar";
 

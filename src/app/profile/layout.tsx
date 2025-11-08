@@ -1,7 +1,7 @@
 import Header from "@/components/header/Header";
 import MobileFooter from "@/components/mobile-footer/MobileFooter";
 import { authUser } from "@/utils/auth";
-import connectToDB from "@/../config/mongodb";
+import connectToDB from "config/mongodb";
 import { redirect } from "next/navigation";
 
 export default async function ProfileLayout({

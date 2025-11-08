@@ -1,8 +1,8 @@
 import { addSubmenuItem } from "@/app/admin/categories/action";
 import { Button } from "@/components/ui/button";
 import { Submenu } from "@/utils/types";
-import connectToDB from "@/../config/mongodb";
-import SubmenuModel from "@/../models/Submenu";
+import connectToDB from "config/mongodb";
+import SubmenuModel from "models/Submenu";
 
 export default async function CategorySubmenuItemForm() {
   await connectToDB();

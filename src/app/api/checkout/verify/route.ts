@@ -1,5 +1,5 @@
 import { verifyPayment } from "@/utils/zarinpal";
-import CheckoutModel from "@/../models/Checkout";
+import CheckoutModel from "models/Checkout";
 import { NextResponse } from "next/server";
 
 export const GET = async (req) => {

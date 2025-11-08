@@ -3,6 +3,7 @@
 import { Category } from "@/utils/types";
 import Image from "next/image";
 import Link from "next/link";
+import "swiper/css";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 export default function CategoriesPage({

@@ -23,9 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Article } from "@/utils/types";
-import connectToDB from "@/../config/mongodb";
+import connectToDB from "config/mongodb";
 import { ArrowUp, ChevronLeft, Library } from "lucide-react";
-import ArticleModel from "@/../models/Article";
+import ArticleModel from "models/Article";
 import { Metadata } from "next";
 import Image from "next/image";
 
