@@ -1,9 +1,10 @@
-import ProfileHeader from "@/components/profile/ProfileHeader";
-import ProfileScreenSize from "@/components/profile/ProfileScreenSize";
-import UserInfo from "@/components/profile/UserInfo";
-import UserList from "@/components/profile/UserList";
-import UserOrders from "@/components/profile/UserOrders";
-import WarnSection from "@/components/profile/WarnSection";
+import ProfileHeader from "@/src/components/profile/ProfileHeader";
+import ProfileScreenSize from "@/src/components/profile/ProfileScreenSize";
+import UserInfo from "@/src/components/profile/UserInfo";
+import UserList from "@/src/components/profile/UserList";
+import UserOrders from "@/src/components/profile/UserOrders";
+import WarnSection from "@/src/components/profile/WarnSection";
+
 
 export default function ProfilePage({
   params: { id },

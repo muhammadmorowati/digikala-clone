@@ -1,4 +1,4 @@
-import { Article } from "@/utils/types";
+import { Article } from "@/src/utils/types";
 import { Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

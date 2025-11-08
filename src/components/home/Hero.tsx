@@ -1,6 +1,6 @@
 "use client";
 
-import { hero } from "@/data/data";
+import { hero } from "@/src/data/data";
 import Image from "next/image";
 import Link from "next/link";
 import "swiper/css";

@@ -1,7 +1,7 @@
 "use client";
 
-import { deleteOrder } from "@/app/admin/orders/action";
-import { CartItem } from "@/utils/types";
+import { deleteOrder } from "@/src/app/admin/orders/action";
+import { CartItem } from "@/src/utils/types";
 import {
   createContext,
   ReactNode,

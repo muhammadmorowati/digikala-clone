@@ -1,4 +1,4 @@
-import { brands } from "@/data/data";
+import { brands } from "@/src/data/data";
 import Image from "next/image";
 import {
   Carousel,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/utils/cartItemsContext";
+import { useCart } from "@/src/utils/cartItemsContext";
 import { ReactNode } from "react";
 
 export default function CartContainer({ children }: { children: ReactNode }) {

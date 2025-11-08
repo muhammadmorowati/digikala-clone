@@ -1,9 +1,9 @@
-import ArticleCard from "@/components/article/ArticleCard";
-import ScrollUp from "@/components/footer/ScrollUp";
-import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import { ArrowUp, Library } from "lucide-react";
-import ArticleModel from "models/Article";
+import connectToDB from "@/config/mongodb";
+import ArticleCard from "@/src/components/article/ArticleCard";
+import ScrollUp from "@/src/components/footer/ScrollUp";
+import { Article } from "@/src/utils/types";
+import { Library, ArrowUp } from "lucide-react";
+import ArticleModel from "@/models/Article"
 
 export default async function ArticlesPage() {
   await connectToDB();

@@ -1,5 +1,6 @@
-import { authUser } from "@/utils/auth";
-import connectToDB from "config/mongodb";
+
+import connectToDB from "@/config/mongodb";
+import { authUser } from "@/src/utils/auth";
 import { redirect } from "next/navigation";
 
 export default async function AuthLayout({

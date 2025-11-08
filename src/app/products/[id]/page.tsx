@@ -1,15 +1,15 @@
-import BreadcrumbContainer from "@/components/product/BreadcrumbContainer";
-import ProductMain from "@/components/product/ProductMain";
-import ProductPageMobileStickyHeader from "@/components/ui/ProductPageMobileStickyHeader";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { Product, Submenu, SubmenuItem } from "@/utils/types";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/config/mongodb";
+import BreadcrumbContainer from "@/src/components/product/BreadcrumbContainer";
+import ProductMain from "@/src/components/product/ProductMain";
+import ProductPageMobileStickyHeader from "@/src/components/ui/ProductPageMobileStickyHeader";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Product, Submenu, SubmenuItem } from "@/src/utils/types";
 import { Megaphone, Store } from "lucide-react";
-import ProductModel from "models/Product";
 import mongoose from "mongoose";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ProductModel from "@/models/Product";
 
 export async function generateMetadata({
   params: { id },
@@ -17,7 +17,11 @@ export async function generateMetadata({
   params: { id: string };
 }): Promise<Metadata> {
   await connectToDB();
-  const product: Product = await ProductModel.findOne({ _id: id });
+  const product = await ProductModel.findOne({ _id: id }).lean<Product | null>();
+
+  if (!product) {
+    return { title: "محصول یافت نشد" };
+  }
 
   return {
     title: { absolute: `قیمت و خرید ${product.title}` },
@@ -31,12 +35,11 @@ export default async function ProductPage({
 }) {
   await connectToDB();
 
-  // Validate if the provided id is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return notFound(); // Trigger a 404 if the id is not valid
+    return notFound();
   }
 
-  const product: Product = await ProductModel.findOne({ _id: id })
+  const product = await ProductModel.findOne({ _id: id })
     .populate("images")
     .populate("colors")
     .populate("features")
@@ -44,22 +47,20 @@ export default async function ProductPage({
       path: "category",
       populate: {
         path: "submenus",
-        populate: {
-          path: "items",
-        },
+        populate: { path: "items" },
       },
     })
-    .lean();
+    .lean<Product | null>(); // ✅
 
   if (!product) {
     return notFound();
   }
+
   const serializedProduct = serializeDoc(product);
   const category = serializedProduct.category;
   const submenu = category.submenus?.find(
     (submenu: Submenu) => submenu._id.toString() === product.submenuId
   );
-
   const item = submenu?.items.find(
     (item: SubmenuItem) => item._id.toString() === product.submenuItemId
   );

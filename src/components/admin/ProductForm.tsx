@@ -1,6 +1,6 @@
 "use client";
-import { addProduct, updateProduct } from "@/app/admin/products/action";
-import { Button } from "@/components/ui/button";
+import { addProduct, updateProduct } from "@/src/app/admin/products/action";
+import { Button } from "@/src/components/ui/button";
 import {
   Category,
   Color,
@@ -8,7 +8,7 @@ import {
   Product,
   Submenu,
   SubmenuItem,
-} from "@/utils/types";
+} from "@/src/utils/types";
 import { LucideUploadCloud, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";

@@ -1,43 +1,15 @@
-import { DeleteDropdownItem } from "@/components/admin/DeleteDropdownItem";
-import ProductDetails from "@/components/admin/ProductDetails";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Article,
-  Category,
-  Order,
-  Product,
-  Story,
-  Submenu,
-  SubmenuItem,
-  User,
-} from "@/utils/types";
+
 import { Edit2, Eye, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import avatar from "./../../../public/users/avatar1.png";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Product, User, Category, Submenu, SubmenuItem, Story, Article, Order } from "@/src/utils/types";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../ui/table";
+import { DeleteDropdownItem } from "./DeleteDropdownItem";
+import ProductDetails from "./ProductDetails";
 
 export default function AdminTable({
   products,
@@ -293,7 +265,7 @@ export default function AdminTable({
                       height={100}
                       width={100}
                       className="w-8 h-8 object-cover"
-                      src={category.icon}
+                      src={category.icon!}
                     />
                   </div>
                 </TableCell>

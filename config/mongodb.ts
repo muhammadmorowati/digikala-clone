@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const connectToDB = async () => {
+const connectToDB = async (): Promise<boolean | void> => {
   try {
     if (mongoose.connections[0].readyState) {
       return true;
-    } else {
-      await mongoose.connect(process.env.MONGODB_URI);
-      console.log("Connect To DB Successfully :))");
     }
+
+    await mongoose.connect(process.env.MONGODB_URI as string);
+    console.log("✅ Connected to MongoDB successfully!");
   } catch (err) {
-    console.log("DB Connection has error ->", err);
+    console.error("❌ DB Connection Error ->", err);
   }
 };
 

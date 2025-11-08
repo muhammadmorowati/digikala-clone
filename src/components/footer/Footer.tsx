@@ -1,5 +1,5 @@
-import { partners } from "@/data/data";
-import { authUser } from "@/utils/auth";
+import { partners } from "@/src/data/data";
+import { authUser } from "@/src/utils/auth";
 import { Headset } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import FooterFaq from "./FooterFaq";
 import FooterLinks from "./FooterLinks";
 import MobileSizeApp from "./MobileSizeApp";
 import ScrollUp from "./ScrollUp";
-import { serializeDoc } from "@/utils/serializeDoc";
+import { serializeDoc } from "@/src/utils/serializeDoc";
 import connectToDB from "config/mongodb";
 
 export default async function Footer() {

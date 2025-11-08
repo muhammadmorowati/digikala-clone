@@ -1,8 +1,9 @@
-import { verifyPayment } from "@/utils/zarinpal";
-import CheckoutModel from "models/Checkout";
-import { NextResponse } from "next/server";
 
-export const GET = async (req) => {
+import { verifyPayment } from "@/src/utils/zarinpal";
+import { NextRequest, NextResponse } from "next/server";
+import CheckoutModel from "@/models/Checkout"
+
+export const GET = async (req: NextRequest) => {
   try {
     const { searchParams } = req.nextUrl;
     const { Authority: authority, Status } = Object.fromEntries(
@@ -41,10 +42,11 @@ export const GET = async (req) => {
 
     return NextResponse.redirect(successUrl);
   } catch (err) {
+    const error = err as Error
     return NextResponse.json(
       {
         message: "Internal Server Error !!",
-        error: err?.message,
+        error: error?.message,
       },
       { status: 500 }
     );

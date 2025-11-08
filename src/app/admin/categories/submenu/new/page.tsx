@@ -1,5 +1,6 @@
-import CategorySubmenuForm from "@/components/admin/CategorySubmenuForm";
-import PageHeader from "@/components/admin/PageHeader";
+import CategorySubmenuForm from "@/src/components/admin/CategorySubmenuForm";
+import PageHeader from "@/src/components/admin/PageHeader";
+
 
 export default function NewSubmenuPage() {
   return (

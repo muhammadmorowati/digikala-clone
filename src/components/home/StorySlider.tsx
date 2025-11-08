@@ -6,12 +6,12 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "@/src/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import Modal from "../ui/Modal";
-import { Story } from "@/utils/types";
+import { Story } from "@/src/utils/types";
 
 interface StorySliderProps {
   stories: Story[];

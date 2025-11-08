@@ -1,7 +1,7 @@
 "use client";
 
-import { addStory } from "@/app/admin/stories/action";
-import { Button } from "@/components/ui/button";
+import { addStory } from "@/src/app/admin/stories/action";
+import { Button } from "@/src/components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";

@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-require("./ArticleComment");
-require("./Category");
+import mongoose from "mongoose";
+import "./ArticleComment";
+import "./Category";
 
 const schema = new mongoose.Schema({
   title: {

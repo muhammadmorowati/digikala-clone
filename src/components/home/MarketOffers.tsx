@@ -1,8 +1,6 @@
-import { Category, Product } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import { ArrowLeft } from "lucide-react";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
+
+import connectToDB from "@/config/mongodb";
+import { Category, Product } from "@/src/utils/types";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,7 +17,7 @@ export default async function MarketOffers() {
   });
 
   const supermarketProducts: Product[] = await ProductModel.find({
-    category: category?._id ?? "",
+    category: category._id,
   })
     .populate("images")
     .populate("colors")
@@ -166,7 +164,7 @@ export default async function MarketOffers() {
 const DiscountProductsFunc = ({ product }: { product: Product }) => {
   return (
     <div className="relative bg-white w-[4.5rem] h-[4.5rem] rounded-full flex items-center justify-center">
-      <Link href={`/products/${product?._id ?? ""}`}>
+      <Link href={`/products/${product._id}`}>
         <Image
           width={50}
           height={50}

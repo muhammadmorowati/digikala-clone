@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/utils/types";
+import { Product } from "@/src/utils/types";
 import ProductCard from "./ProductCard";
 import SortingMenu from "./SortingMenu";
 

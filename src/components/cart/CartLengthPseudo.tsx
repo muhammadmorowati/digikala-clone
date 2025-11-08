@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/utils/cartItemsContext";
+import { useCart } from "@/src/utils/cartItemsContext";
 
 export default function CartLengthPseudo({
   className,

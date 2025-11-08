@@ -1,12 +1,13 @@
-import ShippingForm from "@/components/cart/ShippingForm";
-import { authUser } from "@/utils/auth";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { User } from "@/utils/types";
+
 import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import persianLogo from "../../../../public/logo/digi.svg";
+import ShippingForm from "@/src/components/cart/ShippingForm";
+import { authUser } from "@/src/utils/auth";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { User } from "@/src/utils/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

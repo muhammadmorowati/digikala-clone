@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-require("./Product");
-require("./Submenu");
+import mongoose from "mongoose";
+import "./Product"
+import "./Submenu"
 
 const schema = new mongoose.Schema({
   title: {

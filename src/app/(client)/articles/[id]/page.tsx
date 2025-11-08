@@ -1,34 +1,17 @@
-import ArticleComment from "@/components/article/ArticleComment";
-import ScrollUp from "@/components/footer/ScrollUp";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { formatDateToPersian } from "@/utils/PersianFormatter ";
-import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import parse from "html-react-parser";
-import {
-  ArrowUp,
-  ChevronLeft,
-  Clock,
-  Facebook,
-  Instagram,
-  Library,
-  Linkedin,
-  MessageCircle,
-  Send,
-  Timer,
-  Twitter,
-} from "lucide-react";
-import ArticleModel from "models/Article";
+
+import connectToDB from "@/config/mongodb";
+import ArticleComment from "@/models/ArticleComment";
+import ScrollUp from "@/src/components/footer/ScrollUp";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@/src/components/ui/breadcrumb";
+import { Separator } from "@/src/components/ui/separator";
+import { formatDateToPersian } from "@/src/utils/PersianFormatter"
+import { Article } from "@/src/utils/types";
+import { ArrowUp, ChevronLeft, Clock, Facebook, Instagram, Library, Linkedin, MessageCircle, Send, Timer, Twitter } from "lucide-react";
+import ArticleModel from "@/models/Article"
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import parse from "html-react-parser"
 
 export async function generateMetadata({
   params: { id },
@@ -50,8 +33,14 @@ export default async function ArticlePage({
 }) {
   await connectToDB();
   const articles: Article[] = await ArticleModel.find({});
-  const article: Article = await ArticleModel.findOne({ _id: id });
+  const article: Article | null = await ArticleModel.findOne({ _id: id })
 
+  if (!article) {
+  return (
+    <div className="p-4 text-center text-red-600">مقاله‌ای یافت نشد.</div>
+  );
+  }
+  
   const ArticlePublishedDate = (
     <span className="flex text-xs items-center text-neutral-400 gap-1">
       <Clock size={14} />

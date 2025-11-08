@@ -4,8 +4,8 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from "@/components/ui/accordion";
-import { commonQuestions } from "@/data/data";
+} from "@/src/components/ui/accordion";
+import { commonQuestions } from "@/src/data/data";
 import { ChevronDown } from "lucide-react";
 
 export default function GuaranteeAccordion() {

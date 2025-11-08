@@ -1,15 +1,21 @@
-import SubmenuProductsMain from "@/components/category/SubmenuProductsMain";
-import { Category, Product } from "@/utils/types";
-import { serializeDoc } from "@/utils/serializeDoc";
+
+import SubmenuProductsMain from "@/src/components/category/SubmenuProductsMain";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { Product, Category } from "@/src/utils/types";
 import { Info } from "lucide-react";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
 import { Metadata } from "next";
+import CategoryModel from "@/models/Category";
+import ProductModel from "@/models/Product";
 import Image from "next/image";
 
-export async function generateMetadata({ searchParams }): Promise<Metadata> {
+type WithId<T> = T & { _id: string };
+type ProductWithPopulated = WithId<Product> & { category: WithId<Category> };
+
+export async function generateMetadata(
+  { searchParams }: { searchParams: { q?: string } }
+): Promise<Metadata> {
   return {
-    title: searchParams.q,
+    title: searchParams?.q ?? "جستجو",
   };
 }
 
@@ -19,7 +25,8 @@ export default async function SearchCategoryPage({
   searchParams?: {
     q?: string;
   };
-}) {
+  }) {
+  
   const products: Product[] = await ProductModel.find({})
     .populate("images")
     .populate("colors")
@@ -33,12 +40,13 @@ export default async function SearchCategoryPage({
         },
       },
     })
-    .lean();
+    .lean<ProductWithPopulated[]>()
 
+  const q = (searchParams?.q ?? "").trim()
   const searchParamsResult = products.filter(
     (product) =>
-      product.title.includes(searchParams.q || "") ||
-      product.en_title.includes(searchParams.q || "")
+    (product.title ?? "").includes(q) ||
+  (product.en_title ?? "").includes(q)
   );
   // Fetch the category and submenu based on the query
   const category: Category | null = await CategoryModel.findOne({

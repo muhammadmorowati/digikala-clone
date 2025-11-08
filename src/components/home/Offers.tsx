@@ -2,8 +2,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel";
-import { Product } from "@/utils/types";
+} from "@/src/components/ui/carousel";
+import { Product } from "@/src/utils/types";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

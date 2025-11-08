@@ -1,7 +1,7 @@
-import ContactForm from "@/components/faq/ContactForm";
-import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
-import { authUser } from "@/utils/auth";
-import { User } from "@/utils/types";
+import ContactForm from "@/src/components/faq/ContactForm";
+import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import { authUser } from "@/src/utils/auth";
+import { User } from "@/src/utils/types";
 import { Clock, Headset, Info, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

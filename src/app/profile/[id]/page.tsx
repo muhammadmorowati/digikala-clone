@@ -1,11 +1,11 @@
-import ProfileMain from "@/components/profile/ProfileMain";
-import UserInfo from "@/components/profile/UserInfo";
-import UserList from "@/components/profile/UserList";
-import { authUser } from "@/utils/auth";
-import { serializeDoc } from "@/utils/serializeDoc";
-import { User } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import ProductModel from "models/Product";
+import connectToDB from "@/config/mongodb";
+import ProfileMain from "@/src/components/profile/ProfileMain";
+import UserInfo from "@/src/components/profile/UserInfo";
+import UserList from "@/src/components/profile/UserList";
+import { authUser } from "@/src/utils/auth";
+import { serializeDoc } from "@/src/utils/serializeDoc";
+import { User } from "@/src/utils/types";
+import ProductModel from "@/models/Product"
 
 export default async function ProfileIdPage({
   params: { id },

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import FullSizeImage from "./FullSizeImage";
 import ProductSlider from "./ProductSlider";
-import { Product } from "@/utils/types";
+import { Product } from "@/src/utils/types";
 
 export default function ProductImage({ product }: { product: Product }) {
   const [isOpen, setIsOpen] = useState("");
