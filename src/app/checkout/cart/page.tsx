@@ -4,8 +4,8 @@ import RecentViews from "@/components/cart/RecentViews";
 import ShoppincartItems from "@/components/cart/ShoppincartItems";
 import { authUser } from "@/utils/auth";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import ProductModel from "models/Product";
+import connectToDB from "@/../config/mongodb";
+import ProductModel from "@/../models/Product";
 
 export default async function Cart() {
   await connectToDB();

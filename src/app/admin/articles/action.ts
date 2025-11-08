@@ -1,9 +1,9 @@
 "use server";
 
 import { ArticleEditSchema, ArticleSchema } from "@/utils/validation";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/../config/mongodb";
 import { promises as fs, unlink, writeFile } from "fs";
-import ArticleModel from "models/Article";
+import ArticleModel from "@/../models/Article";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
@@ -12,7 +12,7 @@ import { promisify } from "util";
 const unlinkAsync = promisify(unlink);
 const writeFileAsync = promisify(writeFile);
 
-export async function addArticle(_state, formData: FormData) {
+export async function addArticle(_state:unknown, formData: FormData) {
   await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 
@@ -20,7 +20,7 @@ export async function addArticle(_state, formData: FormData) {
   if (typeof entries.tags === "string") {
     try {
       entries.tags = JSON.parse(entries.tags);
-    } catch (error) {
+    } catch (error:unknown) {
       console.error("Failed to parse tags:", error);
       return { tags: ["Invalid tags format"] };
     }
@@ -39,8 +39,8 @@ export async function addArticle(_state, formData: FormData) {
   const articleDir = path.join(process.cwd(), "public/articles");
   try {
     await fs.access(articleDir);
-  } catch (error) {
-    if (error.code === "ENOENT") {
+  } catch (error:unknown) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       await fs.mkdir(articleDir, { recursive: true });
     } else {
       throw error;
@@ -48,10 +48,9 @@ export async function addArticle(_state, formData: FormData) {
   }
 
   const coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-  await fs.writeFile(
-    path.join(process.cwd(), "public", coverPath),
-    Buffer.from(await data.cover.arrayBuffer())
-  );
+ const ab = await data.cover.arrayBuffer();
+  const bytes = new Uint8Array(ab);
+  await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
 
   // Save category to the database
   await ArticleModel.create({
@@ -73,7 +72,7 @@ export async function addArticle(_state, formData: FormData) {
   redirect("/admin/articles");
 }
 
-export async function updateArticle(_state, formData: FormData) {
+export async function updateArticle(_state:unknown, formData: FormData) {
   await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 
@@ -118,10 +117,9 @@ export async function updateArticle(_state, formData: FormData) {
 
     // Save the new cover image
     coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-    await writeFileAsync(
-      path.join(process.cwd(), "public", coverPath),
-      Buffer.from(await data.cover.arrayBuffer())
-    );
+       const ab = await data.cover.arrayBuffer();
+    const bytes = new Uint8Array(ab);                         // ✅
+    await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
   }
 
   // Update the article in the database

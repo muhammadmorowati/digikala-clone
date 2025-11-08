@@ -7,9 +7,9 @@ import Offers from "@/components/home/Offers";
 import SelectedProducts from "@/components/home/SelectedProducts";
 import { serializeDoc } from "@/utils/serializeDoc";
 import { Category, Product } from "@/utils/types";
-import ArticleModel from "models/Article";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
+import ArticleModel from "@/../models/Article";
+import CategoryModel from "@/../models/Category";
+import ProductModel from "@/../models/Product";
 import Image from "next/image";
 import Link from "next/link";
 

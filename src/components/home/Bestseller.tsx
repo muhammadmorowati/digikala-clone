@@ -4,7 +4,6 @@ import { Product } from "@/utils/types";
 import { Flame } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import "swiper/css";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 export default function Bestseller({

@@ -1,8 +1,8 @@
 import AdminTable from "@/components/admin/AdminTable";
 import PageHeader from "@/components/admin/PageHeader";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import SubmenuItemModel from "models/SubmenuItem";
+import connectToDB from "@/../config/mongodb";
+import SubmenuItemModel from "@/../models/SubmenuItem";
 
 export default function SubmenuItemPage() {
   return <SubmenuItemTable />;

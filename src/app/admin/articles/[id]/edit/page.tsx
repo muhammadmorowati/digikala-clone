@@ -1,9 +1,9 @@
 import ArticleForm from "@/components/admin/ArticleForm";
 import PageHeader from "@/components/admin/PageHeader";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import ArticleModel from "models/Article";
-import CategoryModel from "models/Category";
+import connectToDB from "@/../config/mongodb";
+import ArticleModel from "@/../models/Article";
+import CategoryModel from "@/../models/Category";
 
 export default async function EditArticlePage({
   params: { id },

@@ -3,7 +3,7 @@
 import { refreshToken } from "@/app/admin/users/action";
 import { hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
-import UserModel from "models/User";
+import UserModel from "@/../models/User";
 import { cookies } from "next/headers";
 
 const hashPassword = async (password) => {

@@ -6,8 +6,8 @@ import IncredibleOffersProductsSlider from "@/components/incredible-offers/Incre
 import { serializeDoc } from "@/utils/serializeDoc";
 import { Product } from "@/utils/types";
 import { Sparkles } from "lucide-react";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
+import CategoryModel from "@/../models/Category";
+import ProductModel from "@/../models/Product";
 import Image from "next/image";
 import Link from "next/link";
 

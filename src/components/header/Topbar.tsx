@@ -1,6 +1,6 @@
 import { authUser } from "@/utils/auth";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/../config/mongodb";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

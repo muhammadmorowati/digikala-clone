@@ -10,7 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { formatDateToPersian } from "@/utils/PersianFormatter";
 import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/../config/mongodb";
 import parse from "html-react-parser";
 import {
   ArrowUp,
@@ -25,7 +25,7 @@ import {
   Timer,
   Twitter,
 } from "lucide-react";
-import ArticleModel from "models/Article";
+import ArticleModel from "@/../models/Article";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";

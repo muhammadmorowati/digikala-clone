@@ -4,7 +4,7 @@ import Container from "@/components/ui/container";
 import { SignoutFunction } from "@/components/ui/SignoutFunction";
 import { authUser } from "@/utils/auth";
 import { User } from "@/utils/types";
-import connectToDB from "config/mongodb";
+import connectToDB from "@/../config/mongodb";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";

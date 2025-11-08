@@ -1,8 +1,8 @@
 import PageHeader from "@/components/admin/PageHeader";
 import ProductForm from "@/components/admin/ProductForm";
 import { serializeDoc } from "@/utils/serializeDoc";
-import connectToDB from "config/mongodb";
-import CategoryModel from "models/Category";
+import connectToDB from "@/../config/mongodb";
+import CategoryModel from "@/../models/Category";
 
 export default async function NewProductPage() {
   await connectToDB();

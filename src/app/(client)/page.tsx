@@ -19,12 +19,12 @@ import FloatingSupermarketButton from "@/components/ui/FloatingSupermarketButton
 import FloatingSupportButton from "@/components/ui/FloatingSupportButton";
 import { serializeDoc } from "@/utils/serializeDoc";
 import { Article } from "@/utils/types";
-import connectToDB from "config/mongodb";
-import ArticleModel from "models/Article";
-import CategoryModel from "models/Category";
-import ProductModel from "models/Product";
-import StoryModel from "models/Story";
-import SubmenuModel from "models/Submenu";
+import connectToDB from "@/../config/mongodb";
+import ArticleModel from "@/../models/Article";
+import CategoryModel from "@/../models/Category";
+import ProductModel from "@/../models/Product";
+import StoryModel from "@/../models/Story";
+import SubmenuModel from "@/../models/Submenu";
 import Link from "next/link";
 
 export default async function Home() {

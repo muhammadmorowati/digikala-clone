@@ -4,10 +4,6 @@ import { ProductImage } from "@/utils/types";
 import { ChevronLeft, ChevronRight, LayoutGrid } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import "swiper/css";
-import "swiper/css/free-mode";
-import "swiper/css/navigation";
-import "swiper/css/thumbs";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 

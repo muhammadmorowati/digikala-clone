@@ -6,107 +6,105 @@ import {
   CategorySubmenuItemSchema,
   CategorySubmenusSchema,
 } from "@/utils/validation";
-import connectToDB from "config/mongodb";
-import { promises as fs, unlink, writeFile } from "fs";
-import CategoryModel from "models/Category";
-import SubmenuModel from "models/Submenu";
-import SubmenuItemModel from "models/SubmenuItem";
+import connectToDB from "@/../config/mongodb";
+import { promises as fs, } from "fs";
+import CategoryModel from "@/../models/Category";
+import SubmenuModel from "@/../models/Submenu";
+import SubmenuItemModel from "@/../models/SubmenuItem";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
 import { promisify } from "util";
+import { access, mkdir, unlink, writeFile } from "node:fs/promises"
 
-const unlinkAsync = promisify(unlink);
-const writeFileAsync = promisify(writeFile);
+type PathStr = string;
+type Bytes = Uint8Array;
 
-export async function addCategory(_state, formData: FormData) {
+function toBytes(ab: ArrayBuffer): Bytes {
+  return new Uint8Array(ab);
+}
+
+// ───────────────── addCategory ─────────────────
+export async function addCategory(_state: unknown, formData: FormData) {
   await connectToDB();
+
   const heros = formData.getAll("hero");
   const banners = formData.getAll("banner");
 
-  // Safely parse the data
-  const result = CategorySchema.safeParse({
+  const parsed = CategorySchema.safeParse({
     ...Object.fromEntries(formData.entries()),
     hero: heros,
     banner: banners,
   });
-
-  if (result.success === false) {
-    console.log("❌❌❌", result.error.formErrors.fieldErrors);
-    return result.error.formErrors.fieldErrors;
+  if (!parsed.success) {
+    return parsed.error.formErrors.fieldErrors;
   }
+  const data = parsed.data;
 
-  const data = result.data;
-
-  // Define the directory path
+  // اطمینان از وجود پوشه
   const categoryDir = path.join(process.cwd(), "public/categories");
   try {
-    await fs.access(categoryDir);
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      await fs.mkdir(categoryDir, { recursive: true });
-    } else {
-      throw error;
-    }
+    await access(categoryDir);
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === "ENOENT") await mkdir(categoryDir, { recursive: true });
+    else throw e;
   }
 
-  const coverPath = `/categories/${crypto.randomUUID()}-${data.cover.name}`;
-  await fs.writeFile(
+  // ذخیره cover
+  const coverPath: PathStr = `/categories/${crypto.randomUUID()}-${data.cover.name}`;
+  await writeFile(
     path.join(process.cwd(), "public", coverPath),
-    Buffer.from(await data.cover.arrayBuffer())
+    toBytes(await data.cover.arrayBuffer()) // ✅ ArrayBufferView
   );
 
-  const iconPath = `/categories/${crypto.randomUUID()}-${data.icon.name}`;
-  await fs.writeFile(
+  // ذخیره icon
+  const iconPath: PathStr = `/categories/${crypto.randomUUID()}-${data.icon.name}`;
+  await writeFile(
     path.join(process.cwd(), "public", iconPath),
-    Buffer.from(await data.icon.arrayBuffer())
+    toBytes(await data.icon.arrayBuffer())
   );
 
-  // Handle hero files
-  const heroPaths = [];
-  const existingHeros = new Set(); // To track existing images and avoid duplicates
+  // hero images
+  const heroPaths: PathStr[] = []; // ✅ تایپ صریح
+  const existingHeros = new Set<string>();
 
-  const imagePromises = (heros as File[]).map(async (image) => {
-    if (image instanceof File) {
-      const imagePath = `/categories/hero/${crypto.randomUUID()}-${image.name}`;
-      if (!existingHeros.has(image.name)) {
-        existingHeros.add(image.name);
-        await fs.writeFile(
-          path.join(process.cwd(), "public", imagePath),
-          Buffer.from(await image.arrayBuffer())
-        );
-        heroPaths.push(imagePath);
-      } else {
-        console.warn("Duplicate image detected:", image.name);
+  await Promise.all(
+    (heros as File[]).map(async (image) => {
+      if (image instanceof File) {
+        const imagePath: PathStr = `/categories/hero/${crypto.randomUUID()}-${image.name}`;
+        if (!existingHeros.has(image.name)) {
+          existingHeros.add(image.name);
+          await writeFile(
+            path.join(process.cwd(), "public", imagePath),
+            toBytes(await image.arrayBuffer())
+          );
+          heroPaths.push(imagePath);
+        }
       }
-    }
-  });
-  await Promise.all(imagePromises);
+    })
+  );
 
-  // Handle banner files
-  const bannerPaths = [];
-  const existingBanners = new Set(); // To track existing images and avoid duplicates
+  // banner images
+  const bannerPaths: PathStr[] = []; // ✅ تایپ صریح
+  const existingBanners = new Set<string>();
 
-  const bannerImagePromises = (banners as File[]).map(async (image) => {
-    if (image instanceof File) {
-      const imagePath = `/categories/banner/${crypto.randomUUID()}-${
-        image.name
-      }`;
-      if (!existingBanners.has(image.name)) {
-        existingBanners.add(image.name);
-        await fs.writeFile(
-          path.join(process.cwd(), "public", imagePath),
-          Buffer.from(await image.arrayBuffer())
-        );
-        bannerPaths.push(imagePath);
-      } else {
-        console.warn("Duplicate image detected:", image.name);
+  await Promise.all(
+    (banners as File[]).map(async (image) => {
+      if (image instanceof File) {
+        const imagePath: PathStr = `/categories/banner/${crypto.randomUUID()}-${image.name}`;
+        if (!existingBanners.has(image.name)) {
+          existingBanners.add(image.name);
+          await writeFile(
+            path.join(process.cwd(), "public", imagePath),
+            toBytes(await image.arrayBuffer())
+          );
+          bannerPaths.push(imagePath);
+        }
       }
-    }
-  });
-  await Promise.all(bannerImagePromises);
+    })
+  );
 
-  // Save category to the database
   await CategoryModel.create({
     title: data.title,
     cover: coverPath,
@@ -119,100 +117,107 @@ export async function addCategory(_state, formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/categories");
-
   redirect("/admin/categories");
 }
 
-export async function updateCategory(state: any, formData: FormData) {
+// ───────────────── updateCategory ─────────────────
+export async function updateCategory(_state: unknown, formData: FormData) {
   await connectToDB();
+
   const heros = formData.getAll("hero");
   const banners = formData.getAll("banner");
 
-  const result = categoryEditSchema.safeParse({
+  const parsed = categoryEditSchema.safeParse({
     ...Object.fromEntries(formData.entries()),
     hero: heros,
     banner: banners,
   });
-
-  if (result.success === false) {
-    console.log("❌❌❌", result.error.formErrors.fieldErrors);
-    return result.error.formErrors.fieldErrors;
+  if (!parsed.success) {
+    return parsed.error.formErrors.fieldErrors;
   }
+  const data = parsed.data;
 
-  const data = result.data;
   const category = await CategoryModel.findOne({ _id: data._id });
-  if (category == null) return notFound();
+  if (!category) return notFound();
 
-  let coverPath = category.cover;
-  let iconPath = category.icon;
+  let coverPath: PathStr = category.cover;
+  let iconPath: PathStr = category.icon;
 
-  if (data.cover != null && data.cover.size > 0) {
-    await unlinkAsync(`public${category.cover}`);
+  if (data.cover && data.cover.size > 0) {
+    try {
+      await unlink(path.join(process.cwd(), "public", category.cover));
+    } catch (e) {
+      console.warn("unlink old cover failed:", e);
+    }
     coverPath = `/categories/${crypto.randomUUID()}-${data.cover.name}`;
-    await writeFileAsync(
-      `public${coverPath}`,
-      Buffer.from(await data.cover.arrayBuffer())
+    await writeFile(
+      path.join(process.cwd(), "public", coverPath),
+      toBytes(await data.cover.arrayBuffer())
     );
   }
 
-  if (data.icon != null && data.icon.size > 0) {
-    await unlinkAsync(`public${category.icon}`);
+  if (data.icon && data.icon.size > 0) {
+    try {
+      await unlink(path.join(process.cwd(), "public", category.icon));
+    } catch (e) {
+      console.warn("unlink old icon failed:", e);
+    }
     iconPath = `/categories/${crypto.randomUUID()}-${data.icon.name}`;
-    await writeFileAsync(
-      `public${iconPath}`,
-      Buffer.from(await data.icon.arrayBuffer())
+    await writeFile(
+      path.join(process.cwd(), "public", iconPath),
+      toBytes(await data.icon.arrayBuffer())
     );
   }
 
-  // Update heros
-  let heroPaths = Array.isArray(category.hero) ? [...category.hero] : [];
-  const existingHeros = new Set(heroPaths.map((path) => path.split("/").pop())); // Track existing images by name
+  // heroes
+  const heroPaths: PathStr[] = Array.isArray(category.hero)
+    ? [...category.hero]
+    : [];
+  const existingHeros = new Set<string>(
+    heroPaths.map((p) => p.split("/").pop() || "")
+  );
 
-  const heroPromises = (heros as File[]).map(async (hero) => {
-    if (hero instanceof File) {
-      const heroName = hero.name;
-      const heroPath = `/categories/hero/${crypto.randomUUID()}-${heroName}`;
-
-      // Check if the hero already exists
-      if (!existingHeros.has(heroName)) {
-        existingHeros.add(heroName);
-        await fs.writeFile(
-          path.join(process.cwd(), "public", heroPath),
-          Buffer.from(await hero.arrayBuffer())
-        );
-        heroPaths.push(heroPath);
-      } else {
-        console.warn("Duplicate hero detected:", heroName);
+  await Promise.all(
+    (heros as File[]).map(async (hero) => {
+      if (hero instanceof File) {
+        const heroName = hero.name;
+        if (!existingHeros.has(heroName)) {
+          existingHeros.add(heroName);
+          const heroPath: PathStr = `/categories/hero/${crypto.randomUUID()}-${heroName}`;
+          await writeFile(
+            path.join(process.cwd(), "public", heroPath),
+            toBytes(await hero.arrayBuffer())
+          );
+          heroPaths.push(heroPath);
+        }
       }
-    }
-  });
-  await Promise.all(heroPromises);
+    })
+  );
 
-  // Update heros
-  let bannerPaths = Array.isArray(category.banner) ? [...category.banner] : [];
-  const existingBanners = new Set(
-    bannerPaths.map((path) => path.split("/").pop())
-  ); // Track existing images by name
+  // banners
+  const bannerPaths: PathStr[] = Array.isArray(category.banner)
+    ? [...category.banner]
+    : [];
+  const existingBanners = new Set<string>(
+    bannerPaths.map((p) => p.split("/").pop() || "")
+  );
 
-  const bannerPromises = (banners as File[]).map(async (banner) => {
-    if (banner instanceof File) {
-      const bannerName = banner.name;
-      const bannerPath = `/categories/banner/${crypto.randomUUID()}-${bannerName}`;
-
-      // Check if the banner already exists
-      if (!existingBanners.has(bannerName)) {
-        existingBanners.add(bannerName);
-        await fs.writeFile(
-          path.join(process.cwd(), "public", bannerPath),
-          Buffer.from(await banner.arrayBuffer())
-        );
-        bannerPaths.push(bannerPath);
-      } else {
-        console.warn("Duplicate banner detected:", bannerName);
+  await Promise.all(
+    (banners as File[]).map(async (banner) => {
+      if (banner instanceof File) {
+        const bannerName = banner.name;
+        if (!existingBanners.has(bannerName)) {
+          existingBanners.add(bannerName);
+          const bPath: PathStr = `/categories/banner/${crypto.randomUUID()}-${bannerName}`;
+          await writeFile(
+            path.join(process.cwd(), "public", bPath),
+            toBytes(await banner.arrayBuffer())
+          );
+          bannerPaths.push(bPath);
+        }
       }
-    }
-  });
-  await Promise.all(bannerPromises);
+    })
+  );
 
   await CategoryModel.findOneAndUpdate(
     { _id: data._id },
@@ -231,39 +236,48 @@ export async function updateCategory(state: any, formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/categories");
-
   redirect("/admin/categories");
 }
 
+// ───────────────── deleteCategory ─────────────────
 export async function deleteCategory(id: string) {
   await connectToDB();
   const category = await CategoryModel.findOneAndDelete({ _id: id });
+  if (!category) return notFound();
 
-  if (category == null) return notFound();
+  // این‌ها آرایه‌اند: یکی‌یکی پاک کن
+  const files: PathStr[] = [
+    category.cover,
+    category.icon,
+    ...(Array.isArray(category.hero) ? category.hero : []),
+    ...(Array.isArray(category.banner) ? category.banner : []),
+  ];
 
-  await fs.unlink(`public${category.cover}`);
-  await fs.unlink(`public${category.icon}`);
-  await fs.unlink(`public${category.hero}`);
-  await fs.unlink(`public${category.banner}`);
+  await Promise.all(
+    files.map(async (rel) => {
+      const full = path.join(process.cwd(), "public", rel);
+      try {
+        await unlink(full);
+      } catch (e) {
+        console.warn("unlink failed:", full, e);
+      }
+    })
+  );
 
   revalidatePath("/");
   revalidatePath("/admin/categories");
 }
 
-// Submenu Actions
+// ───────────────── submenu ─────────────────
 export async function addSubmenu(formData: FormData) {
   await connectToDB();
-  const result = CategorySubmenusSchema.safeParse(
+  const parsed = CategorySubmenusSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
+  if (!parsed.success) return parsed.error.formErrors.fieldErrors;
 
-  if (!result.success) {
-    return result.error.formErrors.fieldErrors;
-  }
+  const data = parsed.data;
 
-  const data = result.data;
-
-  // Create the new submenu
   const newSubmenu = await SubmenuModel.create({
     title: data.title,
     href: data.href,
@@ -271,7 +285,6 @@ export async function addSubmenu(formData: FormData) {
     items: [],
   });
 
-  // Update the category to include the new submenu
   await CategoryModel.findOneAndUpdate(
     { _id: data.categoryId },
     { $push: { submenus: newSubmenu._id } },
@@ -286,40 +299,31 @@ export async function addSubmenu(formData: FormData) {
 export async function deleteSubmenu(id: string) {
   await connectToDB();
   const submenu = await SubmenuModel.findOneAndDelete({ _id: id });
-
-  if (submenu == null) return notFound();
-
+  if (!submenu) return notFound();
   revalidatePath("/");
   redirect("/admin/categories/submenu");
 }
 
-// Submenu-Item Actions
+// ───────────────── submenu-item ─────────────────
 export async function addSubmenuItem(formData: FormData) {
   await connectToDB();
-  // Convert FormData entries to a plain object
-  const result = CategorySubmenuItemSchema.safeParse(
+  const parsed = CategorySubmenuItemSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
+  if (!parsed.success) return parsed.error.formErrors.fieldErrors;
 
-  if (!result.success) {
-    console.error("Validation Errors:", result.error.formErrors.fieldErrors);
-    return result.error.formErrors.fieldErrors;
-  }
+  const data = parsed.data;
 
-  const data = result.data;
-
-  // Create the new submenu
   const newSubmenuItem = await SubmenuItemModel.create({
     title: data.title,
     href: data.href,
     submenuId: data.submenuId,
   });
 
-  // Update the category to include the new submenu
   await SubmenuModel.findOneAndUpdate(
     { _id: data.submenuId },
-    { $push: { items: newSubmenuItem._id } }, // Corrected $push usage
-    { new: true } // Option to return the updated document
+    { $push: { items: newSubmenuItem._id } },
+    { new: true }
   ).populate("items");
 
   revalidatePath("/");
@@ -330,9 +334,7 @@ export async function addSubmenuItem(formData: FormData) {
 export async function deleteSubmenuItem(id: string) {
   await connectToDB();
   const submenuItem = await SubmenuItemModel.findOneAndDelete({ _id: id });
-
-  if (submenuItem == null) return notFound();
-
+  if (!submenuItem) return notFound();
   revalidatePath("/");
   redirect("/admin/categories/submenu-Item");
 }

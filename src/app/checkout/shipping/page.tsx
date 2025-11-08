@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import persianLogo from "../../../../public/logo/digi.svg";
+import persianLogo from "@/public/logo/digi.svg";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

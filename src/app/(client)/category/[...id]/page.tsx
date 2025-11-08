@@ -1,8 +1,8 @@
 import CategoryProducts from "@/components/category/CategoryProducts";
 import SubmenuProductsContainer from "@/components/category/SubmenuProductsContainer";
-import connectToDB from "config/mongodb";
-import CategoryModel from "models/Category";
-import SubmenuModel from "models/Submenu";
+import connectToDB from "@/../config/mongodb";
+import CategoryModel from "@/../models/Category";
+import SubmenuModel from "@/../models/Submenu";
 import { Metadata } from "next";
 
 export async function generateMetadata({

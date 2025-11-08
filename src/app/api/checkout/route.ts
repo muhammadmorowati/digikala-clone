@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import CheckoutModel from "models/Checkout";
-import connectToDB from "config/mongodb";
+import CheckoutModel from "@/../models/Checkout";
+import connectToDB from "@/../config/mongodb";
 import { createPayment } from "@/utils/zarinpal";
 
 export const POST = async (req) => {
