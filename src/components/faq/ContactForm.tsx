@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@/src/utils/types";
+import { User } from "@/utils/types";
 import { ChangeEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";

@@ -1,8 +1,8 @@
 
-import Footer from "@/src/components/footer/Footer";
-import Header from "@/src/components/header/Header";
-import MobileFooter from "@/src/components/mobile-footer/MobileFooter";
-import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import Footer from "@/components/footer/Footer";
+import Header from "@/components/header/Header";
+import MobileFooter from "@/components/mobile-footer/MobileFooter";
+import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
 import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {

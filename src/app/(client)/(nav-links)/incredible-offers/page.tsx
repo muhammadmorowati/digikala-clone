@@ -1,52 +1,18 @@
 
-import MarketOffers from "@/src/components/home/MarketOffers";
-import Offers from "@/src/components/home/Offers";
-import SelectedProducts from "@/src/components/home/SelectedProducts";
-import IncredibleOffersCategoriesSlider from "@/src/components/incredible-offers/IncredibleOffersCategoriesSlider";
-import IncredibleOffersProductsSlider from "@/src/components/incredible-offers/IncredibleOffersProductsSlider";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import { Category, Product } from "@/src/utils/types";
+import MarketOffers from "@/components/home/MarketOffers";
+import Offers from "@/components/home/Offers";
+import SelectedProducts from "@/components/home/SelectedProducts";
+import IncredibleOffersCategoriesSlider from "@/components/incredible-offers/IncredibleOffersCategoriesSlider";
+import IncredibleOffersProductsSlider from "@/components/incredible-offers/IncredibleOffersProductsSlider";
+import { serializeDoc } from "@/utils/serializeDoc";
+import { Category, Product } from "@/utils/types";
 import { Sparkles } from "lucide-react";
-import CategoryModel from "@/models/Category";
-import ProductModel from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
 
 type WithId<T> = T & { _id: string };
 
 export default async function IncredibleOffers() {
-  const products = await ProductModel.find({})
-    .populate("images")
-    .populate("colors")
-    .populate("features")
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
-      },
-    })
-    .lean<WithId<Product>[]>()
-
-  // Discount Products
-  const categories = await CategoryModel.find({}).lean<WithId<Category>[]>()
- const discountProducts: WithId<Product>[] = products.filter(
-    (p) => (p.discount ?? 0) > 0
-  )
-
-  const SortedOfferProductsByRating = discountProducts
-    ?.slice()
-    .sort((a, b) => (a.discount ?? 0) - (b.discount ?? 0))
-
-  const SortedOfferProductsByLowerDiscount = discountProducts
-    ?.slice()
-    .sort((a, b) => (a.discount ?? 0) - (b.discount ?? 0))
-
-  const serializedAllProducts = serializeDoc(products);
-  const serializedCategories = serializeDoc(categories);
-  const serializedOfferProducts = serializeDoc(SortedOfferProductsByRating);
 
   return (
     <div className="flex flex-col gap-10">
@@ -82,19 +48,19 @@ export default async function IncredibleOffers() {
           </p>
         </div>
         <IncredibleOffersProductsSlider
-          products={SortedOfferProductsByLowerDiscount}
+          products={[]}
         />
       </div>
 
       {/* categories slider */}
-      <IncredibleOffersCategoriesSlider categories={serializedCategories} />
+      <IncredibleOffersCategoriesSlider categories={[]} />
       {/* offers */}
-      <Offers products={serializedOfferProducts} />
+      <Offers products={[]} />
       <div className="-mt-5">
         <MarketOffers />
       </div>
       <div className="-mt-10">
-        <SelectedProducts products={serializedAllProducts} />
+        <SelectedProducts products={[]} />
       </div>
     </div>
   );

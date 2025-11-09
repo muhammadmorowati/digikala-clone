@@ -5,23 +5,14 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
-import connectToDB from "@/config/mongodb";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/src/components/ui/table";
-import ProductModel from "@/models/Product";
-import UserModel from "@/models/User"
-import { authUser } from "@/src/utils/auth";
-import { User, Product } from "@/src/utils/types";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { authUser } from "@/utils/auth";
+import { User, Product } from "@/utils/types";
 import { Bell, Check, Box, UserRound } from "lucide-react";
 
 export default async function AdminPage() {
-  connectToDB();
-  const users: User[] = await UserModel.find({});
+
   const user: User = await authUser();
-  const products: Product[] = await ProductModel.find({}).lean();
-  const topProducts = products
-    .slice()
-    .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
-    .slice(0, 3);
 
   return (
     <div className="h-screen flex">
@@ -101,7 +92,6 @@ export default async function AdminPage() {
                 </span>
                 <div className="text-neutral-400">تعداد کاربران</div>
                 <div className="text-2xl font-semibold">
-                  {users.length.toLocaleString()}
                 </div>
                 <span className="text-green-500 text-sm">
                   +10% نسبت به ماه قبل
@@ -130,39 +120,6 @@ export default async function AdminPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topProducts.map((product: Product) => (
-                    <TableRow key={product._id.toString()}>
-                      <TableCell>
-                        <div className="w-20">
-                          <Image
-                            alt={product.title}
-                            height={100}
-                            width={100}
-                            className="w-16 h-16 object-cover"
-                            src={product.thumbnail}
-                          />
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <p className="max-w-96">{product.title}</p>
-                      </TableCell>
-                      <TableCell>
-                        <div className="w-36 relative flex items-center h-2">
-                          <div className="w-28 absolute top-0 h-full right-0 bg-neutral-300 rounded">
-                            <div
-                              className="bg-green-500 rounded h-full"
-                              style={{
-                                width: `${product.recommended_percent}%`,
-                              }}
-                            ></div>
-                          </div>
-                          <p className="absolute -top-1.5 -left-2">
-                            {product.recommended_percent}%
-                          </p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
                 </TableBody>
               </Table>
             </div>

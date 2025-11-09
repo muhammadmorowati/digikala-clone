@@ -1,4 +1,4 @@
-import { Product } from "@/src/utils/types";
+import { Product } from "@/utils/types";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 

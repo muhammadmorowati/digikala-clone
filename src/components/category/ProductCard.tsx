@@ -1,4 +1,4 @@
-import { CartItem, Product } from "@/src/utils/types";
+import { CartItem, Product } from "@/utils/types";
 import Image from "next/image";
 import Link from "next/link";
 

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectToDB from "@/config/mongodb";
-import CheckoutModel from "@/models/Checkout";
-import { createPayment } from "@/src/utils/zarinpal";
+import { createPayment } from "@/utils/zarinpal";
 
 type CreatePaymentResult = {
   authority: string;
@@ -15,7 +13,6 @@ type Body = {
 
 export const POST = async (req: NextRequest) => {
   try {
-    await connectToDB();
 
     const body = (await req.json()) as Body;
     const { totalPrice, user } = body ?? {};
@@ -41,16 +38,9 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const checkout = await CheckoutModel.create({
-      totalPrice,
-      authority: payment.authority,
-      user: user._id,
-    });
-
     return NextResponse.json(
       {
         message: "Checkout created successfully :))",
-        checkout,
         paymentUrl: payment.paymentUrl,
       },
       { status: 201 }

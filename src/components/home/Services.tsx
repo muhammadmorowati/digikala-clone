@@ -1,4 +1,4 @@
-import { services } from "@/src/data/data";
+import { services } from "@/data/data";
 import Image from "next/image";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 

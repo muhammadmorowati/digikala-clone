@@ -1,7 +1,7 @@
 "use client";
 
-import ProfileTabs from "@/src/components/profile/ProfileTabs";
-import { Product, User } from "@/src/utils/types";
+import ProfileTabs from "@/components/profile/ProfileTabs";
+import { Product, User } from "@/utils/types";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PersonalInfo from "./PersonalInfo";

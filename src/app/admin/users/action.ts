@@ -1,11 +1,8 @@
 "use server";
-
-import connectToDB from "@/config/mongodb";
-import { generateAccessToken, generateRefreshToken } from "@/src/utils/auth";
-import type { RegisterFormState, LoginFormState } from "@/src/utils/types";
-import { RegisterSchema, LoginSchema, UserupdateSchema } from "@/src/utils/validation";
+import { generateAccessToken, generateRefreshToken } from "@/utils/auth";
+import type { RegisterFormState, LoginFormState } from "@/utils/types";
+import { RegisterSchema, LoginSchema, UserupdateSchema } from "@/utils/validation";
 import jwt from "jsonwebtoken";
-import UserModel from "@/models/User";
 import { hash, compare } from "bcryptjs";
 import { access, mkdir, unlink, writeFile } from "node:fs/promises";
 import { revalidatePath } from "next/cache";
@@ -34,7 +31,6 @@ export async function signup(
   formData: FormData
 ): Promise<RegisterFormState> {
   try {
-    await connectToDB();
 
     const parsed = RegisterSchema.safeParse(Object.fromEntries(formData.entries()));
     if (!parsed.success) {
@@ -43,20 +39,7 @@ export async function signup(
 
     const { name, email, phone, password } = parsed.data;
 
-    const exists = await UserModel.findOne({ $or: [{ name }, { email }, { phone }] }).lean();
-    if (exists) {
-      return {
-        ...state,
-        errors: { general: ["The username or email or phone exists already!!"] },
-        success: false,
-      };
-    }
-
     const hashedPassword = await hash(password, 10);
-    const usersCount = await UserModel.countDocuments();
-    const role = usersCount > 0 ? "USER" : "ADMIN";
-
-    await UserModel.create({ name, email, phone, password: hashedPassword, role });
 
     const accessToken = generateAccessToken({ name });
 
@@ -77,7 +60,6 @@ export async function signin(
   formData: FormData
 ): Promise<LoginFormState> {
   try {
-    await connectToDB();
 
     const parsed = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
     if (!parsed.success) {
@@ -86,29 +68,12 @@ export async function signin(
 
     const { email, password } = parsed.data;
 
-    // lean با جنریک تا TS بدونه password هست
-    const user = await UserModel.findOne({ email }).lean<{ email: string; password: string }>();
-    if (!user) {
-      return { ...state, errors: { general: ["کاربری با این مشخصات یافت نشد."] }, success: false };
-    }
-
-    const ok = await compare(password, user.password);
-    if (!ok) {
-      return { ...state, errors: { general: ["ایمیل یا رمز کاربری اشتباه است."] }, success: false };
-    }
-
     const accessToken = generateAccessToken({ email });
     const refreshToken = generateRefreshToken({ email });
 
     const store = await cookies();
     store.set("token", accessToken, cookieOpts);
     store.set("refreshToken", refreshToken, { ...cookieOpts, maxAge: 60 * 60 * 24 * 7 });
-
-    await UserModel.findOneAndUpdate(
-      { email },
-      { $push: { refreshToken } }, // اگر مدل شما آرایه نیست، $set کنید
-      { new: true }
-    );
 
     return { ...state, errors: {}, success: true };
   } catch (e) {
@@ -127,7 +92,6 @@ export async function signOut() {
 
 // ========================== UPDATE USER ==========================
 export async function updateUser(formData: FormData) {
-  await connectToDB();
 
   const id = formData.get("_id")?.toString();
   if (!id) throw new Error("User ID is required");
@@ -150,28 +114,10 @@ export async function updateUser(formData: FormData) {
   }
 
   const data = parsed.data;
-  const user = await UserModel.findById(id);
-  if (!user) return notFound();
 
   // پوشه مقصد را بساز
   const usersDir = path.join(process.cwd(), "public/users");
   await ensureDir(usersDir);
-
-  let avatarPath = user.avatar ?? "";
-  if (data.avatar && data.avatar.size > 0) {
-    if (user.avatar) {
-      try {
-        await unlink(path.join(process.cwd(), "public", user.avatar));
-      } catch (e) {
-        const err = e as NodeJS.ErrnoException;
-        if (err.code !== "ENOENT") console.warn("unlink old avatar failed:", err);
-      }
-    }
-    avatarPath = `/users/${crypto.randomUUID()}-${data.avatar.name}`;
-    await writeFile(
-      path.join(process.cwd(), "public", avatarPath),
-      toBytes(await data.avatar.arrayBuffer())
-    );
   }
 
   // فقط فیلدهای موجود را آپدیت کن تا مشکل string | undefined نداشته باشیم
@@ -194,52 +140,13 @@ export async function updateUser(formData: FormData) {
     };
   }> = {};
 
-  if (data.name) updateFields.name = data.name;
-  if (data.role) updateFields.role = data.role;
-  if (data.email) updateFields.email = data.email;
-  if (data.phone) updateFields.phone = data.phone;
-  updateFields.avatar = avatarPath; // مسیر جدید یا قبلی
-
-  if (data.password && data.password.trim()) {
-    updateFields.password = await hash(data.password, 10);
-  }
-
-  if (data.idNumber) updateFields.idNumber = data.idNumber;
-  if (data.job) updateFields.job = data.job;
-
-  if (data.address) {
-    updateFields.address = {
-      street: data.address.street || "",
-      plate: data.address.plate || "",
-      city: data.address.city || "",
-      postalcode: data.address.postalcode || "",
-      province: data.address.province || "",
-      unit: data.address.unit || "",
-    };
-  }
-
-  await UserModel.findByIdAndUpdate(id, { $set: updateFields });
-
   revalidatePath("/");
   revalidatePath("/users");
   revalidatePath("/admin/users");
-}
 
 // ========================== DELETE USER ==========================
 export async function deleteUser(id: string) {
-  await connectToDB();
 
-  const user = await UserModel.findOneAndDelete({ _id: id });
-  if (!user) return notFound();
-
-  if (user.avatar) {
-    try {
-      await unlink(path.join(process.cwd(), "public", user.avatar));
-    } catch (e) {
-      const err = e as NodeJS.ErrnoException;
-      if (err.code !== "ENOENT") console.warn("unlink avatar failed:", err);
-    }
-  }
 
   revalidatePath("/");
   revalidatePath("/users");
@@ -248,14 +155,10 @@ export async function deleteUser(id: string) {
 // ========================== REFRESH TOKEN ==========================
 export async function refreshToken(): Promise<string | null> {
   try {
-    await connectToDB();
 
     const store = await cookies();
     const rt = store.get("refreshToken")?.value;
     if (!rt) return null;
-
-    const user = await UserModel.findOne({ refreshToken: rt }).lean<{ email: string }>();
-    if (!user) return null;
 
     const secret = process.env.RefreshTokenSecretKey;
     if (!secret) {
@@ -269,11 +172,6 @@ export async function refreshToken(): Promise<string | null> {
       console.error("Invalid refresh token:", e);
       return null;
     }
-
-    const newAccessToken = generateAccessToken({ email: user.email });
-    store.set("token", newAccessToken, cookieOpts);
-
-    return newAccessToken;
   } catch (e) {
     console.error("Error refreshing token:", e);
     return null;

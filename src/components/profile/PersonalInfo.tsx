@@ -1,5 +1,5 @@
-import { updateUser } from "@/src/app/admin/users/action";
-import { User } from "@/src/utils/types";
+import { updateUser } from "@/app/admin/users/action";
+import { User } from "@/utils/types";
 import { Edit2, Plus, X } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { Button } from "../ui/button";

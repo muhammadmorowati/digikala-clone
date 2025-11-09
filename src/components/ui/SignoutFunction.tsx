@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "@/src/app/admin/users/action";
+import { signOut } from "@/app/admin/users/action";
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 import toast from "react-hot-toast";

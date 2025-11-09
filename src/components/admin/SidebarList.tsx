@@ -1,4 +1,4 @@
-import { signOut } from "@/src/app/admin/users/action";
+import { signOut } from "@/app/admin/users/action";
 import {
   BringToFront,
   ChevronLeft,

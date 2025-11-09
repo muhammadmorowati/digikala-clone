@@ -16,8 +16,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Button } from "./button";
-import { signOut } from "@/src/app/admin/users/action";
-import { User } from "@/src/utils/types";
+import { signOut } from "@/app/admin/users/action";
+import { User } from "@/utils/types";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from "./dropdown-menu";
 
 export default function ProfileButton({ user }: { user: User }) {

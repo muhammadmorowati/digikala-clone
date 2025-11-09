@@ -1,16 +1,11 @@
 "use server";
-
-import connectToDB from "@/config/mongodb";
 import {
   CategorySchema,
   categoryEditSchema,
   CategorySubmenusSchema,
   CategorySubmenuItemSchema,
-} from "@/src/utils/validation";
-import { access, mkdir, unlink, writeFile } from "node:fs/promises"; // ✅ فقط fs/promises
-import CategoryModel from "@/models/Category";
-import SubmenuModel from "@/models/Submenu";
-import SubmenuItemModel from "@/models/SubmenuItem";
+} from "@/utils/validation";
+import { access, mkdir, unlink, writeFile } from "node:fs/promises"
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "node:path";
@@ -25,7 +20,6 @@ function toBytes(ab: ArrayBuffer): Bytes {
 
 // ───────────────── addCategory ─────────────────
 export async function addCategory(_state: unknown, formData: FormData) {
-  await connectToDB();
 
   const heros = formData.getAll("hero");
   const banners = formData.getAll("banner");
@@ -104,15 +98,6 @@ export async function addCategory(_state: unknown, formData: FormData) {
     })
   );
 
-  await CategoryModel.create({
-    title: data.title,
-    cover: coverPath,
-    icon: iconPath,
-    href: data.href,
-    hero: heroPaths,
-    banner: bannerPaths,
-    submenus: [],
-  });
 
   revalidatePath("/");
   revalidatePath("/categories");
@@ -121,7 +106,6 @@ export async function addCategory(_state: unknown, formData: FormData) {
 
 // ───────────────── updateCategory ─────────────────
 export async function updateCategory(_state: unknown, formData: FormData) {
-  await connectToDB();
 
   const heros = formData.getAll("hero");
   const banners = formData.getAll("banner");
@@ -134,105 +118,6 @@ export async function updateCategory(_state: unknown, formData: FormData) {
   if (!parsed.success) {
     return parsed.error.formErrors.fieldErrors;
   }
-  const data = parsed.data;
-
-  const category = await CategoryModel.findOne({ _id: data._id });
-  if (!category) return notFound();
-
-  let coverPath: PathStr = category.cover;
-  let iconPath: PathStr = category.icon;
-
-  if (data.cover && data.cover.size > 0) {
-    try {
-      await unlink(path.join(process.cwd(), "public", category.cover));
-    } catch (e) {
-      console.warn("unlink old cover failed:", e);
-    }
-    coverPath = `/categories/${crypto.randomUUID()}-${data.cover.name}`;
-    await writeFile(
-      path.join(process.cwd(), "public", coverPath),
-      toBytes(await data.cover.arrayBuffer())
-    );
-  }
-
-  if (data.icon && data.icon.size > 0) {
-    try {
-      await unlink(path.join(process.cwd(), "public", category.icon));
-    } catch (e) {
-      console.warn("unlink old icon failed:", e);
-    }
-    iconPath = `/categories/${crypto.randomUUID()}-${data.icon.name}`;
-    await writeFile(
-      path.join(process.cwd(), "public", iconPath),
-      toBytes(await data.icon.arrayBuffer())
-    );
-  }
-
-  // heroes
-  const heroPaths: PathStr[] = Array.isArray(category.hero)
-    ? [...category.hero]
-    : [];
-  const existingHeros = new Set<string>(
-    heroPaths.map((p) => p.split("/").pop() || "")
-  );
-
-  await Promise.all(
-    (heros as File[]).map(async (hero) => {
-      if (hero instanceof File) {
-        const heroName = hero.name;
-        if (!existingHeros.has(heroName)) {
-          existingHeros.add(heroName);
-          const heroPath: PathStr = `/categories/hero/${crypto.randomUUID()}-${heroName}`;
-          await writeFile(
-            path.join(process.cwd(), "public", heroPath),
-            toBytes(await hero.arrayBuffer())
-          );
-          heroPaths.push(heroPath);
-        }
-      }
-    })
-  );
-
-  // banners
-  const bannerPaths: PathStr[] = Array.isArray(category.banner)
-    ? [...category.banner]
-    : [];
-  const existingBanners = new Set<string>(
-    bannerPaths.map((p) => p.split("/").pop() || "")
-  );
-
-  await Promise.all(
-    (banners as File[]).map(async (banner) => {
-      if (banner instanceof File) {
-        const bannerName = banner.name;
-        if (!existingBanners.has(bannerName)) {
-          existingBanners.add(bannerName);
-          const bPath: PathStr = `/categories/banner/${crypto.randomUUID()}-${bannerName}`;
-          await writeFile(
-            path.join(process.cwd(), "public", bPath),
-            toBytes(await banner.arrayBuffer())
-          );
-          bannerPaths.push(bPath);
-        }
-      }
-    })
-  );
-
-  await CategoryModel.findOneAndUpdate(
-    { _id: data._id },
-    {
-      $set: {
-        title: data.title,
-        href: data.href,
-        cover: coverPath,
-        icon: iconPath,
-        hero: heroPaths,
-        banner: bannerPaths,
-      },
-    },
-    { new: true }
-  );
-
   revalidatePath("/");
   revalidatePath("/categories");
   redirect("/admin/categories");
@@ -240,16 +125,8 @@ export async function updateCategory(_state: unknown, formData: FormData) {
 
 // ───────────────── deleteCategory ─────────────────
 export async function deleteCategory(id: string) {
-  await connectToDB();
-  const category = await CategoryModel.findOneAndDelete({ _id: id });
-  if (!category) return notFound();
-
   // این‌ها آرایه‌اند: یکی‌یکی پاک کن
   const files: PathStr[] = [
-    category.cover,
-    category.icon,
-    ...(Array.isArray(category.hero) ? category.hero : []),
-    ...(Array.isArray(category.banner) ? category.banner : []),
   ];
 
   await Promise.all(
@@ -269,7 +146,6 @@ export async function deleteCategory(id: string) {
 
 // ───────────────── submenu ─────────────────
 export async function addSubmenu(formData: FormData) {
-  await connectToDB();
   const parsed = CategorySubmenusSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -277,35 +153,19 @@ export async function addSubmenu(formData: FormData) {
 
   const data = parsed.data;
 
-  const newSubmenu = await SubmenuModel.create({
-    title: data.title,
-    href: data.href,
-    categoryId: data.categoryId,
-    items: [],
-  });
-
-  await CategoryModel.findOneAndUpdate(
-    { _id: data.categoryId },
-    { $push: { submenus: newSubmenu._id } },
-    { new: true }
-  ).populate("submenus");
-
   revalidatePath("/");
   revalidatePath("/categories/submenu");
   redirect("/admin/categories/submenu");
 }
 
 export async function deleteSubmenu(id: string) {
-  await connectToDB();
-  const submenu = await SubmenuModel.findOneAndDelete({ _id: id });
-  if (!submenu) return notFound();
+
   revalidatePath("/");
   redirect("/admin/categories/submenu");
 }
 
 // ───────────────── submenu-item ─────────────────
 export async function addSubmenuItem(formData: FormData) {
-  await connectToDB();
   const parsed = CategorySubmenuItemSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -313,27 +173,13 @@ export async function addSubmenuItem(formData: FormData) {
 
   const data = parsed.data;
 
-  const newSubmenuItem = await SubmenuItemModel.create({
-    title: data.title,
-    href: data.href,
-    submenuId: data.submenuId,
-  });
-
-  await SubmenuModel.findOneAndUpdate(
-    { _id: data.submenuId },
-    { $push: { items: newSubmenuItem._id } },
-    { new: true }
-  ).populate("items");
-
   revalidatePath("/");
   revalidatePath("/categories/submenu-Item");
   redirect("/admin/categories/submenu-Item");
 }
 
 export async function deleteSubmenuItem(id: string) {
-  await connectToDB();
-  const submenuItem = await SubmenuItemModel.findOneAndDelete({ _id: id });
-  if (!submenuItem) return notFound();
+
   revalidatePath("/");
   redirect("/admin/categories/submenu-Item");
 }

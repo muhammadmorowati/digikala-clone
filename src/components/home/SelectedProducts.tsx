@@ -1,4 +1,4 @@
-import { Product } from "@/src/utils/types";
+import { Product } from "@/utils/types";
 import { BadgePercent } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

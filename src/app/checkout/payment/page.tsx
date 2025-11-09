@@ -1,4 +1,4 @@
-import PaymentStatus from "@/src/components/cart/PaymentStatus";
+import PaymentStatus from "@/components/cart/PaymentStatus";
 
 export default async function VerifyPaymentPage({
   searchParams,

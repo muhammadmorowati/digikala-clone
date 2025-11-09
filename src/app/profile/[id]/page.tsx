@@ -1,32 +1,17 @@
-import connectToDB from "@/config/mongodb";
-import ProfileMain from "@/src/components/profile/ProfileMain";
-import UserInfo from "@/src/components/profile/UserInfo";
-import UserList from "@/src/components/profile/UserList";
-import { authUser } from "@/src/utils/auth";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import { User } from "@/src/utils/types";
-import ProductModel from "@/models/Product"
+import ProfileMain from "@/components/profile/ProfileMain";
+import UserInfo from "@/components/profile/UserInfo";
+import UserList from "@/components/profile/UserList";
+import { authUser } from "@/utils/auth";
+import { serializeDoc } from "@/utils/serializeDoc";
+import { User } from "@/utils/types";
 
 export default async function ProfileIdPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  await connectToDB();
   const user: User = await authUser();
-  const products = await ProductModel.find({})
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
-      },
-    })
-    .lean();
 
-  const serializedProducts = serializeDoc(products);
   const serializedUser = serializeDoc(user);
 
   return (
@@ -38,7 +23,7 @@ export default async function ProfileIdPage({
       <div className="col-span-8 max-lg:col-span-12 gap-5">
         <ProfileMain
           user={serializedUser}
-          products={serializedProducts}
+          products={[]}
           id={id}
         />
       </div>

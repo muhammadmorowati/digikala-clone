@@ -1,4 +1,4 @@
-import TermsAccordion from "@/src/components/accordions/TermsAccordion";
+import TermsAccordion from "@/components/accordions/TermsAccordion";
 
 import Image from "next/image";
 

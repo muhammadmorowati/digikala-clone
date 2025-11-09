@@ -1,6 +1,6 @@
-import ReturnAccordion from "@/src/components/accordions/ReturnAccordion";
-import FaqCategories from "@/src/components/faq/FaqCategories";
-import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import ReturnAccordion from "@/components/accordions/ReturnAccordion";
+import FaqCategories from "@/components/faq/FaqCategories";
+import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
 import { FileQuestion, Headset, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

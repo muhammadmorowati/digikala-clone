@@ -1,5 +1,5 @@
-import CategoryForm from "@/src/components/admin/CategoryForm";
-import PageHeader from "@/src/components/admin/PageHeader";
+import CategoryForm from "@/components/admin/CategoryForm";
+import PageHeader from "@/components/admin/PageHeader";
 
 
 export default function NewCategoryPage() {

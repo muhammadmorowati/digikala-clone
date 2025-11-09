@@ -1,4 +1,3 @@
-
 import localFont from "next/font/local";
 import NextTopLoader from "nextjs-toploader";
 import { Suspense } from "react";
@@ -7,6 +6,7 @@ import Loading from "./loading";
 import { ThemeProvider } from "../components/ui/theme-provider";
 import { CartProvider } from "../utils/cartItemsContext";
 import { cn } from "../utils/utils";
+import "./globals.css";
 
 const iranSans = localFont({ src: "../fonts/IranianSans.ttf" });
 

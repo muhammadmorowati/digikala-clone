@@ -1,10 +1,8 @@
 "use server";
 
-import connectToDB from "@/config/mongodb";
-import { ArticleSchema, ArticleEditSchema } from "@/src/utils/validation";
+import { ArticleSchema, ArticleEditSchema } from "@/utils/validation";
 import { promises as fs, unlink, writeFile } from "fs";
 import { revalidatePath } from "next/cache";
-import ArticleModel from "@/models/Article";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
 import { promisify } from "util";
@@ -13,7 +11,6 @@ const unlinkAsync = promisify(unlink);
 const writeFileAsync = promisify(writeFile);
 
 export async function addArticle(_state:unknown, formData: FormData) {
-  await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 
   // Parse tags if they are sent as a string
@@ -52,19 +49,7 @@ export async function addArticle(_state:unknown, formData: FormData) {
   const bytes = new Uint8Array(ab);
   await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
 
-  // Save category to the database
-  await ArticleModel.create({
-    title: data.title,
-    content: data.content,
-    author: data.author,
-    tags: data.tags,
-    source: data.source,
-    readingTime: data.readingTime,
-    publishedAt: new Date(),
-    cover: coverPath,
-    comment: [],
-    categoryId: data.categoryId,
-  });
+
 
   revalidatePath("/");
   revalidatePath("/articles");
@@ -73,7 +58,6 @@ export async function addArticle(_state:unknown, formData: FormData) {
 }
 
 export async function updateArticle(_state:unknown, formData: FormData) {
-  await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 
   // Parse tags if they are sent as a string
@@ -94,47 +78,6 @@ export async function updateArticle(_state:unknown, formData: FormData) {
   }
 
   const data = result.data;
-  const articleId = data._id;
-
-  // Find the existing article by ID
-  const article = await ArticleModel.findById(articleId);
-  if (!article) {
-    return notFound();
-  }
-
-  let coverPath = article.cover;
-
-  // Check if a new cover image is provided and update it
-  if (data.cover) {
-    // Remove the old cover image if it exists
-    if (coverPath) {
-      try {
-        await unlinkAsync(path.join(process.cwd(), "public", coverPath));
-      } catch (error) {
-        console.error("Failed to remove old cover:", error);
-      }
-    }
-
-    // Save the new cover image
-    coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-       const ab = await data.cover.arrayBuffer();
-    const bytes = new Uint8Array(ab);                         // ✅
-    await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
-  }
-
-  // Update the article in the database
-  await ArticleModel.findByIdAndUpdate(articleId, {
-    title: data.title,
-    content: data.content,
-    author: data.author,
-    tags: data.tags,
-    source: data.source,
-    readingTime: data.readingTime,
-    publishedAt: data.publishedAt || article.publishedAt, // Preserve original published date if not changed
-    cover: coverPath,
-    comment: article.comment, // Keep existing comments
-    categoryId: data.categoryId,
-  });
 
   revalidatePath("/");
   revalidatePath("/articles");
@@ -143,12 +86,6 @@ export async function updateArticle(_state:unknown, formData: FormData) {
 }
 
 export async function deleteArticle(id: string) {
-  await connectToDB();
-  const article = await ArticleModel.findOneAndDelete({ _id: id });
-
-  if (article == null) return notFound();
-
-  await fs.unlink(`public${article.cover}`);
 
   revalidatePath("/");
   revalidatePath("/admin/articles");

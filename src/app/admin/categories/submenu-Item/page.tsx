@@ -1,17 +1,12 @@
-import connectToDB from "@/config/mongodb";
-import AdminTable from "@/src/components/admin/AdminTable";
-import PageHeader from "@/src/components/admin/PageHeader";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import SubmenuItemModel from "@/models/SubmenuItem"
+import AdminTable from "@/components/admin/AdminTable";
+import PageHeader from "@/components/admin/PageHeader";
+import { serializeDoc } from "@/utils/serializeDoc";
 
 export default function SubmenuItemPage() {
   return <SubmenuItemTable />;
 }
 
 async function SubmenuItemTable() {
-  await connectToDB();
-  const submenuItems = await SubmenuItemModel.find({}).lean();
-  const serializedSubmenuItems = serializeDoc(submenuItems);
 
   return (
     <>
@@ -19,11 +14,8 @@ async function SubmenuItemTable() {
         title="آیتم های زیرمجموعه دسته‌بندی ها"
         href="/admin/categories/submenu-Item/new"
       />
-      {submenuItems.length ? (
-        <AdminTable submenuItems={serializedSubmenuItems} />
-      ) : (
+
         <div className="text-neutral-500">آیتمی برای نمایش وجود ندارد.</div>
-      )}
     </>
   );
 }

@@ -1,6 +1,6 @@
-import GuaranteeAccordion from "@/src/components/accordions/GuaranteeAccordion";
-import FaqCategories from "@/src/components/faq/FaqCategories";
-import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import GuaranteeAccordion from "@/components/accordions/GuaranteeAccordion";
+import FaqCategories from "@/components/faq/FaqCategories";
+import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
 import { FileQuestion, Headset, Mail } from "lucide-react";
 import Link from "next/link";
 

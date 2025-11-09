@@ -1,6 +1,6 @@
-import PaymentAccordion from "@/src/components/accordions/PaymentAccordion";
-import FaqCategories from "@/src/components/faq/FaqCategories";
-import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import PaymentAccordion from "@/components/accordions/PaymentAccordion";
+import FaqCategories from "@/components/faq/FaqCategories";
+import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
 import { FileQuestion, Headset, Mail } from "lucide-react";
 import Link from "next/link";
 

@@ -1,6 +1,6 @@
-import ExpressDeliveryAccordion from "@/src/components/accordions/ExpressDeliveryAccordion";
-import FaqCategories from "@/src/components/faq/FaqCategories";
-import MobileStickyHeader from "@/src/components/ui/MobileStickyHeader";
+import ExpressDeliveryAccordion from "@/components/accordions/ExpressDeliveryAccordion";
+import FaqCategories from "@/components/faq/FaqCategories";
+import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
 import { FileQuestion, Headset, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

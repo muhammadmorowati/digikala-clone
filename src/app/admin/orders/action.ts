@@ -1,11 +1,8 @@
 "use server";
-import connectToDB from "@/config/mongodb";
-import { OrderSchema } from "@/src/utils/validation";
+import { OrderSchema } from "@/utils/validation";
 import { revalidatePath } from "next/cache";
-import OrderModel from "@/models/Order";
 
 export async function addOrder(formData: FormData) {
-  await connectToDB();
   const entries = Object.fromEntries(formData.entries());
 
   const result = OrderSchema.safeParse(entries);
@@ -14,45 +11,7 @@ export async function addOrder(formData: FormData) {
     return result.error.formErrors.fieldErrors;
   }
 
-  const data = result.data;
-
-  // Check if the order already exists for the product and user
-  const hasInOrders = await OrderModel.findOne({
-    productId: data.productId,
-    userId: data.userId,
-  });
-
-  if (!hasInOrders) {
-    // Create the product record
-    await OrderModel.create({
-      productId: data.productId,
-      userId: data.userId,
-    });
     // Revalidate paths and redirect
     revalidatePath("/");
     revalidatePath("/orders");
   }
-  return;
-}
-
-export async function deleteOrder(id: string) {
-  await connectToDB();
-
-  // First, try to find and delete the order by _id (order ID)
-  const orderById = await OrderModel.findOneAndDelete({ _id: id });
-
-  if (orderById) {
-    revalidatePath("/");
-    revalidatePath("/orders");
-    return;
-  }
-
-  // If no order was found by _id, try finding and deleting by productId (product ID)
-  const orderByProductId = await OrderModel.findOneAndDelete({ productId: id });
-
-  if (orderByProductId) {
-    revalidatePath("/");
-    revalidatePath("/orders");
-    return;
-  }
-}

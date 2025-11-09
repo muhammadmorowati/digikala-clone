@@ -1,29 +1,13 @@
-import connectToDB from "@/config/mongodb";
-import CartContainer from "@/src/components/cart/CartContainer";
-import FreeShipping from "@/src/components/cart/FreeShipping";
-import RecentViews from "@/src/components/cart/RecentViews";
-import ShoppincartItems from "@/src/components/cart/ShoppincartItems";
-import { authUser } from "@/src/utils/auth";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import ProductModel from "@/models/Product"
+import CartContainer from "@/components/cart/CartContainer";
+import FreeShipping from "@/components/cart/FreeShipping";
+import RecentViews from "@/components/cart/RecentViews";
+import ShoppincartItems from "@/components/cart/ShoppincartItems";
+import { authUser } from "@/utils/auth";
+import { serializeDoc } from "@/utils/serializeDoc";
 
 export default async function Cart() {
-  await connectToDB();
   const user = await authUser();
 
-  const products = await ProductModel.find({})
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
-      },
-    })
-    .lean();
-
-  const serializedProducts = serializeDoc(products);
   const serializedUser = serializeDoc(user);
 
   return (
@@ -41,7 +25,7 @@ export default async function Cart() {
         <h5 className="border-b-2 text-sm mx-5 w-fit font-irsansb border-b-red-500 pb-2">
           بازدیدهای اخیر
         </h5>
-        <RecentViews products={serializedProducts} />
+        <RecentViews products={''} />
       </div>
     </CartContainer>
   );

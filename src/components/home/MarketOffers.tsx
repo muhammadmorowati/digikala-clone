@@ -1,34 +1,9 @@
-
-import connectToDB from "@/config/mongodb";
-import { Category, Product } from "@/src/utils/types";
+import { Category, Product } from "@/utils/types";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function MarketOffers() {
-  await connectToDB();
-  // Get Category by title
-  const category: Category = await CategoryModel.findOne({
-    title: "کالای خوراکی و اساسی",
-  }).populate({
-    path: "submenus",
-    populate: {
-      path: "items",
-    },
-  });
-
-  const supermarketProducts: Product[] = await ProductModel.find({
-    category: category._id,
-  })
-    .populate("images")
-    .populate("colors")
-    .populate("features")
-    .lean();
-
-  // Get products that have discount and sort them
-  const DiscountProducts = supermarketProducts
-    .filter((product) => product.discount > 0)
-    .slice()
-    .sort((a, b) => b.discount - a.discount);
 
   return (
     <div className="bg-gray-200 dark:bg-stone-800 rounded-2xl py-4 lg:px-10 px-5 mx-3 mt-5 bg-[url('/../../../../offer-pattern.svg')] bg-left bg-no-repeat">
@@ -132,26 +107,22 @@ export default async function MarketOffers() {
             </svg>
           </div>
           <div className="bg-green-600 whitespace-nowrap rounded-full text-white text-sm px-2 py-1">
-            تا {DiscountProducts[0].discount}% تخفیف
+            تا % تخفیف
           </div>
         </Link>
         <div className="flex items-center max-lg:w-full max-lg:justify-between gap-2">
           <div className="flex items-center gap-1.5 max-lg:hidden">
-            {DiscountProducts.slice(0, 4).map((product, index) => (
-              <DiscountProductsFunc key={index} product={product} />
-            ))}
+
           </div>
           <div className="flex items-center gap-1.5  lg:hidden">
-            {DiscountProducts.slice(0, 3).map((product, index) => (
-              <DiscountProductsFunc key={index} product={product} />
-            ))}
+           
           </div>
           <Link
             href="/fresh/incredible-offers"
             className="bg-white whitespace-nowrap rounded-full text-green-700 text-[13px] p-3 flex items-center gap-3"
           >
             <span className="max-lg:hidden">
-              بیش از {DiscountProducts.length - 1} کالا
+              بیش از  کالا
             </span>
             <ArrowLeft size={20} />
           </Link>

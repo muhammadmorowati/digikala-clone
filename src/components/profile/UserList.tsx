@@ -1,6 +1,6 @@
 "use client";
 
-import { profileList } from "@/src/data/data";
+import { profileList } from "@/data/data";
 import { ChevronLeft, House } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";

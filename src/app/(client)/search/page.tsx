@@ -1,11 +1,9 @@
 
-import SubmenuProductsMain from "@/src/components/category/SubmenuProductsMain";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import { Product, Category } from "@/src/utils/types";
+import SubmenuProductsMain from "@/components/category/SubmenuProductsMain";
+import { serializeDoc } from "@/utils/serializeDoc";
+import { Product, Category } from "@/utils/types";
 import { Info } from "lucide-react";
 import { Metadata } from "next";
-import CategoryModel from "@/models/Category";
-import ProductModel from "@/models/Product";
 import Image from "next/image";
 
 type WithId<T> = T & { _id: string };
@@ -26,59 +24,9 @@ export default async function SearchCategoryPage({
     q?: string;
   };
   }) {
-  
-  const products: Product[] = await ProductModel.find({})
-    .populate("images")
-    .populate("colors")
-    .populate("features")
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
-      },
-    })
-    .lean<ProductWithPopulated[]>()
-
-  const q = (searchParams?.q ?? "").trim()
-  const searchParamsResult = products.filter(
-    (product) =>
-    (product.title ?? "").includes(q) ||
-  (product.en_title ?? "").includes(q)
-  );
-  // Fetch the category and submenu based on the query
-  const category: Category | null = await CategoryModel.findOne({
-    _id: searchParamsResult[0]?.category._id,
-  })
-    .populate({
-      path: "submenus",
-      populate: {
-        path: "items",
-      },
-    })
-    .lean();
-
-  // Fallback to a default category if none found
-  const submenu = category?.submenus?.[0] || null;
-
-  const serializedCategory = serializeDoc(category);
-  const serializedSubmenu = serializeDoc(submenu);
-  const serializedSearchParamsResult = serializeDoc(searchParamsResult);
 
   return (
     <div>
-      {searchParamsResult.length > 0 ? (
-        <div className="grid grid-cols-12 gap-5 lg:mt-10">
-          <SubmenuProductsMain
-            category={serializedCategory}
-            submenu={serializedSubmenu}
-            products={serializedSearchParamsResult}
-            searchParams={searchParams}
-          />
-        </div>
-      ) : (
         <div className="col-span-12 p-5 flex flex-col justify-center items-center">
           <Image
             src="/not-found-product.svg"
@@ -96,7 +44,6 @@ export default async function SearchCategoryPage({
             </p>
           </div>
         </div>
-      )}
     </div>
   );
 }

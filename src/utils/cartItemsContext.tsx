@@ -1,7 +1,5 @@
 "use client";
-
-import { deleteOrder } from "@/src/app/admin/orders/action";
-import { CartItem } from "@/src/utils/types";
+import { CartItem } from "@/utils/types";
 import {
   createContext,
   ReactNode,
@@ -77,7 +75,6 @@ function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteFromCart = (productID) => {
-    deleteOrder(productID);
     const updatedCartItems = cart.filter((item) => item._id !== productID);
     updateLocalStorage(updatedCartItems);
   };

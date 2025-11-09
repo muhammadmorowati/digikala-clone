@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import avatar from "./../../../public/users/avatar1.png";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Product, User, Category, Submenu, SubmenuItem, Story, Article, Order } from "@/src/utils/types";
+import { Product, User, Category, Submenu, SubmenuItem, Story, Article, Order } from "@/utils/types";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../ui/table";

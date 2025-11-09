@@ -1,5 +1,4 @@
-import { partners } from "@/src/data/data";
-import { authUser } from "@/src/utils/auth";
+import { partners } from "@/data/data";
 import { Headset } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,13 +8,9 @@ import FooterFaq from "./FooterFaq";
 import FooterLinks from "./FooterLinks";
 import MobileSizeApp from "./MobileSizeApp";
 import ScrollUp from "./ScrollUp";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import connectToDB from "config/mongodb";
+import { serializeDoc } from "@/utils/serializeDoc";
 
 export default async function Footer() {
-  await connectToDB();
-  const user = await authUser();
-  const serializedUser = serializeDoc(user);
   return (
     <>
       <div className="border-t px-3 pt-5 max-lg:pb-14 border-gray-100 dark:border-gray-800">
@@ -69,7 +64,6 @@ export default async function Footer() {
         <div className="my-10">
           <FooterFaq vertical={true} />
         </div>
-        <FooterLinks user={serializedUser} />
         <App />
         <div className="max-lg:hidden my-10 w-full border-b bg-gray-400"></div>
         <div className="grid grid-cols-12 w-full gap-7">

@@ -1,25 +1,6 @@
 
-import connectToDB from "@/config/mongodb";
-import CategoryProducts from "@/src/components/category/CategoryProducts";
-import SubmenuProductsContainer from "@/src/components/category/SubmenuProductsContainer";
-import { Metadata } from "next";
-import CategoryModel from "@/models/Category";
-import SubmenuModel from "@/models/Submenu";
-
-export async function generateMetadata({
-  params: { id },
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  await connectToDB();
-  const catgory = await CategoryModel.findOne({ href: `/category/${id}` });
-  const submenu = await SubmenuModel.findOne({
-    href: `/category/${id[0]}/${id[1]}`,
-  });
-  return {
-    title: id.length === 1 ? catgory?.title : submenu?.title,
-  };
-}
+import CategoryProducts from "@/components/category/CategoryProducts";
+import SubmenuProductsContainer from "@/components/category/SubmenuProductsContainer";
 
 export default async function CategoryPage({
   params: { id },

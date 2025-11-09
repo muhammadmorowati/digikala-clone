@@ -1,4 +1,4 @@
-import Loader from "@/src/components/skeleton/Loader";
+import Loader from "@/components/skeleton/Loader";
 
 export default function Loading() {
   return (

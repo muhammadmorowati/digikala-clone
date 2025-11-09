@@ -4,8 +4,8 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from "@/src/components/ui/accordion";
-import { terms } from "@/src/data/data";
+} from "@/components/ui/accordion";
+import { terms } from "@/data/data";
 import { ChevronDown } from "lucide-react";
 
 export default function TermsAccordion() {

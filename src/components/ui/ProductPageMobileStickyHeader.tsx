@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import persianLogo from "../../../public/logo/digi.svg";
+import persianLogo from "@/public/logo/digi.svg";
 import CartLengthPseudo from "../cart/CartLengthPseudo";
 
 export default function ProductPageMobileStickyHeader({

@@ -1,44 +1,5 @@
-import BestsellingMain from "@/src/components/best-selling/BestsellingMain";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import { Category, Product } from "@/src/utils/types";
-import CategoryModel from "@/models/Category";
-import ProductModel from "@/models/Product";
-
-type WithId<T> = T & { _id: string };
 
 export default async function BestsellingPage() {
-  const products = await ProductModel.find({})
-    .populate("images")
-    .populate("colors")
-    .populate("features")
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
-      },
-    })
-      .sort({ recommended_percent: -1 })           
-    .lean<WithId<Product>[]>(); 
-
-  const categories: Category[] = await CategoryModel.find({})
-    .populate({
-      path: "submenus",
-      populate: {
-        path: "items",
-      },
-    })
-    .lean<WithId<Category>[]>(); 
-
-  const bestSellerProducts: Product[] = products
-    .slice()
-    .sort((a: Product, b: Product) =>
-        (b.recommended_percent ?? 0) - (a.recommended_percent ?? 0));
-
-  const serializedProducts = serializeDoc(bestSellerProducts);
-  const serializedCategories = serializeDoc(categories);
 
   return (
     <div className="mb-10">
@@ -53,10 +14,6 @@ export default async function BestsellingPage() {
           </span>
         </h1>
       </div>
-      <BestsellingMain
-        categories={serializedCategories}
-        bestSellerProducts={serializedProducts}
-      />
     </div>
   );
 }

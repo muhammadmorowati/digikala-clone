@@ -1,8 +1,6 @@
 "use server";
 
-import connectToDB from "@/config/mongodb";
-import { StorySchema } from "@/src/utils/validation";
-import StoryModel from "@/models/Story";                  
+import { StorySchema } from "@/utils/validation";
 import { access, mkdir, unlink, writeFile } from "node:fs/promises"
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
@@ -22,7 +20,6 @@ const ensureDir = async (dir: string) => {
 };
 
 export async function addStory(_state: unknown, formData: FormData) {
-  await connectToDB();
 
   const parsed = StorySchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) {
@@ -49,38 +46,12 @@ export async function addStory(_state: unknown, formData: FormData) {
     toBytes(await data.post.arrayBuffer())
   );
 
-  await StoryModel.create({
-    title: data.title,
-    cover: coverPath,
-    post: postPath,
-  });
-
   revalidatePath("/");
   revalidatePath("/stories");
   redirect("/admin/stories");
 }
 
 export async function deleteStory(id: string) {
-  await connectToDB();
-
-  const story = await StoryModel.findOneAndDelete({ _id: id });
-  if (!story) return notFound();
-
-  // remove files (ignore ENOENT)
-  const files = [story.cover, story.post].filter(Boolean) as string[];
-  await Promise.all(
-    files.map(async (rel) => {
-      const full = path.join(process.cwd(), "public", rel);
-      try {
-        await unlink(full);
-      } catch (e) {
-        const err = e as NodeJS.ErrnoException;
-        if (err.code !== "ENOENT") {
-          console.error("Failed to delete file:", full, err);
-        }
-      }
-    })
-  );
 
   revalidatePath("/");
   revalidatePath("/stories");

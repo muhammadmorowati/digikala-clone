@@ -1,8 +1,8 @@
 "use client";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { LoginFormState } from "@/src/utils/types";
-import { LoginSchemaType, LoginSchema } from "@/src/utils/validation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { LoginFormState } from "@/utils/types";
+import { LoginSchemaType, LoginSchema } from "@/utils/validation";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";

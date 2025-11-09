@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 
 export interface Address {
   province?: string;
@@ -10,7 +9,7 @@ export interface Address {
 }
 
 export interface User {
-  _id: ObjectId;
+  _id: Object;
   name: string;
   avatar?: string;
   email: string;
@@ -65,7 +64,7 @@ export interface Story {
 }
 
 export interface Product {
-  _id: ObjectId;
+  _id: Object;
   title: string;
   en_title?: string;
   rating?: number;
@@ -89,12 +88,12 @@ export interface Product {
   submenuItemId: string;
 }
 export interface ProductImage {
-  _id: ObjectId;
+  _id: Object;
   url: string;
-  productId?: ObjectId;
+  productId?: Object;
 }
 export interface Category {
-  _id: ObjectId;
+  _id: Object;
   title: string;
   icon?: string;
   cover: string[];
@@ -106,46 +105,46 @@ export interface Category {
   submenus: Submenu[];
 }
 export interface Submenu {
-  _id: ObjectId;
+  _id: Object;
   title: string;
   href: string;
-  categoryId?: ObjectId;
+  categoryId?: Object;
   items: SubmenuItem[];
 }
 export interface SubmenuItem {
-  _id: ObjectId;
+  _id: Object;
   title: string;
   href: string;
-  submenuId?: ObjectId;
+  submenuId?: Object;
 }
 export interface Question {
-  _id: ObjectId;
+  _id: Object;
   username: string;
   body: string;
   email: string;
   date: Date;
-  productId: ObjectId;
+  productId: Object;
 }
 export interface Feature {
   key: string;
   value: string;
-  productId: ObjectId;
+  productId: Object;
 }
 export interface Color {
   name: string;
   hex: string;
-  productId: ObjectId;
+  productId: Object;
 }
 export interface Order {
-  _id: ObjectId;
+  _id: Object;
   totalAmount: number;
   date: Date;
   status: string;
-  productId: ObjectId;
-  userId: ObjectId;
+  productId: Object;
+  userId: Object;
 }
 export interface Article {
-  _id: ObjectId;
+  _id: Object;
   title: string;
   content: string;
   author: string;
@@ -154,11 +153,11 @@ export interface Article {
   source: string;
   readingTime: string;
   cover: string;
-  categoryId?: ObjectId;
+  categoryId?: Object;
 }
 
 export interface CartItem {
-  _id: ObjectId;
+  _id: Object;
   title: string;
   thumbnail: string;
   guarantee: string;

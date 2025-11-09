@@ -1,5 +1,5 @@
 "use client";
-import useScroll from "@/src/utils/useScroll";
+import useScroll from "@/utils/useScroll";
 import {
   ChevronLeft,
   CircleHelp,
@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { Feature, Product, Question } from "@/src/utils/types";
+import { Feature, Product, Question } from "@/utils/types";
 import { Button } from "../ui/button";
 
 export default function ProductTab({ product }: { product: Product }) {

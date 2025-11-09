@@ -1,4 +1,4 @@
-import { faqCategories } from "@/src/data/data";
+import { faqCategories } from "@/data/data";
 import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 

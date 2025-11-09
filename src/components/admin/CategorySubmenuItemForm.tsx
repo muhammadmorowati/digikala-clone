@@ -1,12 +1,8 @@
-import connectToDB from "@/config/mongodb";
-import { addSubmenuItem } from "@/src/app/admin/categories/action";
-import { Submenu } from "@/src/utils/types";
+import { addSubmenuItem } from "@/app/admin/categories/action";
+import { Submenu } from "@/utils/types";
 import { Button } from "../ui/button";
-import SubmenuModel from "@/models/Submenu"
 
 export default async function CategorySubmenuItemForm() {
-  await connectToDB();
-  const submenus = await SubmenuModel.find({});
 
   return (
     <form action={addSubmenuItem}>
@@ -53,11 +49,6 @@ export default async function CategorySubmenuItemForm() {
         id="submenuId"
       >
         <option value="-1">دسته‌بندی مورد نظر را انتخاب کنید</option>
-        {submenus.map((submenu: Submenu) => (
-          <option key={submenu._id.toString()} value={submenu._id.toString()}>
-            {submenu.title}
-          </option>
-        ))}
       </select>
       <Button
         type="submit"
