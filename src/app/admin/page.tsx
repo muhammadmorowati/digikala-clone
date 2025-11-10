@@ -6,13 +6,11 @@ import {
   AvatarImage,
 } from "../../components/ui/avatar";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { authUser } from "@/utils/auth";
 import { User, Product } from "@/utils/types";
 import { Bell, Check, Box, UserRound } from "lucide-react";
 
 export default async function AdminPage() {
 
-  const user: User = await authUser();
 
   return (
     <div className="h-screen flex">
@@ -27,15 +25,11 @@ export default async function AdminPage() {
               className="p-2.5 dark:bg-neutral-700 bg-neutral-100 w-10 h-10 rounded-full flex items-center justify-center"
             />
             <div className="border dark:border-neutral-600 rounded-lg px-3 py-1.5 flex items-center gap-2 dark:text-white font-irsansb text-neutral-600 border-neutral-100">
-              {user.avatar ? (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar} className="object-cover" />
                   <AvatarFallback className="text-red-500 p-0.5">
-                    {user.name.split(" ")[0].slice(0, 1)}{" "}
-                    {user.name.split(" ")[1].slice(0, 1)}
+
                   </AvatarFallback>
                 </Avatar>
-              ) : (
                 <Image
                   width={100}
                   height={100}
@@ -43,8 +37,7 @@ export default async function AdminPage() {
                   alt="admin"
                   className="grayscale rounded-full w-8 h-8 border"
                 />
-              )}
-              {user.name}
+
             </div>
           </div>
         </header>

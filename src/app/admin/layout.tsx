@@ -2,7 +2,6 @@ import Sidebar from "@/components/admin/Sidebar";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/container";
 import { SignoutFunction } from "@/components/ui/SignoutFunction";
-import { authUser } from "@/utils/auth";
 import { User } from "@/utils/types";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
@@ -22,16 +21,9 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  const user: User = await authUser();
-
-  // If no user is found, redirect to login
-  if (!user) {
-    redirect("/login?redirected");
-  }
 
   return (
     <div>
-      {user.role !== "ADMIN" ? (
         <div className="relative bg-neutral-100 dark:bg-neutral-800 p-2 w-full h-screen flex flex-col gap-10 items-center justify-center">
           <Button
             asChild
@@ -57,7 +49,6 @@ export default async function AdminLayout({
             className="dark:bg-neutral-100 rounded-lg p-2"
           />
         </div>
-      ) : (
         <Container>
           <div className="grid grid-cols-12 gap-5 pt-5">
             <div className="px-5 col-span-4 max-lg:col-span-12 xl:col-span-3">
@@ -68,7 +59,6 @@ export default async function AdminLayout({
             </div>
           </div>
         </Container>
-      )}
     </div>
   );
 }

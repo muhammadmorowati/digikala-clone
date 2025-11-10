@@ -1,7 +1,6 @@
 import ProfileMain from "@/components/profile/ProfileMain";
 import UserInfo from "@/components/profile/UserInfo";
 import UserList from "@/components/profile/UserList";
-import { authUser } from "@/utils/auth";
 import { serializeDoc } from "@/utils/serializeDoc";
 import { User } from "@/utils/types";
 
@@ -10,9 +9,6 @@ export default async function ProfileIdPage({
 }: {
   params: { id: string };
 }) {
-  const user: User = await authUser();
-
-  const serializedUser = serializeDoc(user);
 
   return (
     <div className="grid grid-cols-12 gap-5 lg:px-20 pb-20 lg:pt-10">
@@ -21,11 +17,7 @@ export default async function ProfileIdPage({
         <UserList id={id} />
       </div>
       <div className="col-span-8 max-lg:col-span-12 gap-5">
-        <ProfileMain
-          user={serializedUser}
-          products={[]}
-          id={id}
-        />
+       
       </div>
     </div>
   );
