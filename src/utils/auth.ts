@@ -23,12 +23,12 @@ export const hashPassword = async (password: string) => {
   return await hash(password, 12);
 };
 
-export const generateAccessToken = (data: Record<string, any>) => {
+export const generateAccessToken = async (data: Record<string, any>) => {
   const secret = process.env.AccessTokenSecretKey || "access_secret";
   return sign({ ...data }, secret, { expiresIn: "60d" });
 };
 
-export const verifyAccessToken = (token: string) => {
+export const verifyAccessToken = async (token: string) => {
   try {
     const secret = process.env.AccessTokenSecretKey || "access_secret";
     return verify(token, secret) as JwtPayload;
@@ -38,7 +38,7 @@ export const verifyAccessToken = (token: string) => {
   }
 };
 
-export const generateRefreshToken = (data: Record<string, any>) => {
+export const generateRefreshToken = async (data: Record<string, any>) => {
   const secret = process.env.RefreshTokenSecretKey || "refresh_secret";
   return sign({ ...data }, secret, { expiresIn: "15d" });
 };

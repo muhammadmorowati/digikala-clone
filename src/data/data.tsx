@@ -1,25 +1,25 @@
 // Hero Images Source
-import image2 from "@/../public/hero/00648ead8efeea7cb5d2e01e2995d88893c720d8_1725640143.webp";
-import image1 from "@/../public/hero/223182406f6b2b94af6e227293071c82552e3f04_1720613062.webp";
-import image3 from "@/../public/hero/5e019f7eb15ca21899dea8d986bc9a0c3ba4f3da_1720423339.webp";
-import image4 from "@/../public/hero/86cd652dcca75bc161612940ad0c23d375b45e75_1720969903.webp";
-import image5 from "@/../public/hero/8db73b25bd311928c27f64d04eb58f9836666d7a_1715008589.webp";
-import image6 from "@/../public/hero/a0e32b8fd59bbfa40b4c8a5b7d43149d84e29846_1721248372.webp";
-import image7 from "@/../public/hero/aafb21566813f2ab151d259f45ad95640affd557_1720939653.webp";
-import image8 from "@/../public/hero/dd85e4685cbd6565e27af70daea6141a06933743_1699359521.webp";
-import image9 from "@/../public/hero/e1272decb672540df5818e3200f843b5a2596b99_1720633023.webp";
+import image2 from "@/public/hero/00648ead8efeea7cb5d2e01e2995d88893c720d8_1725640143.webp";
+import image1 from "@/public/hero/223182406f6b2b94af6e227293071c82552e3f04_1720613062.webp";
+import image3 from "@/public/hero/5e019f7eb15ca21899dea8d986bc9a0c3ba4f3da_1720423339.webp";
+import image4 from "@/public/hero/86cd652dcca75bc161612940ad0c23d375b45e75_1720969903.webp";
+import image5 from "@/public/hero/8db73b25bd311928c27f64d04eb58f9836666d7a_1715008589.webp";
+import image6 from "@/public/hero/a0e32b8fd59bbfa40b4c8a5b7d43149d84e29846_1721248372.webp";
+import image7 from "@/public/hero/aafb21566813f2ab151d259f45ad95640affd557_1720939653.webp";
+import image8 from "@/public/hero/dd85e4685cbd6565e27af70daea6141a06933743_1699359521.webp";
+import image9 from "@/public/hero/e1272decb672540df5818e3200f843b5a2596b99_1720633023.webp";
 
 // Services Images Source
-import s_image1 from "@/../public/services/2f34563cf96880fc578e08fee355bc1dac50fe9c_1718718377.png";
-import s_image2 from "@/../public/services/625d8883f37944f3f0c4af5fe39435600931ab22_1713343293.png";
-import s_image3 from "@/../public/services/6395b5347ba5a4ba6d556f9ab3916185f2745295_1720858203.png";
-import s_image4 from "@/../public/services/7493e66e491c18d699274a48a53a9dfcb8aa2e93_1717230600.png";
-import s_image5 from "@/../public/services/787a330f980d0cb7583d5d3316a868757535ea79_1708970899.png";
-import s_image6 from "@/../public/services/98d35f5e1706a907fe3f9019d907e3d031a6402e_1719843669.png";
-import s_image7 from "@/../public/services/ac127167132653d14c758748b07824a6a7643a31_1708971047.png";
-import s_image8 from "@/../public/services/afb3c938fd3149d7587b59919bfc500a461693a6_1709571657.png";
-import s_image9 from "@/../public/services/bb03641a188f3a74ec493d0790da87074492f64b_1708970740.png";
-import s_image10 from "@/../public/services/d0dc0edf879e963e9cff31fd57b3f101743ddac8_1707297619.png";
+import s_image1 from "@/public/services/2f34563cf96880fc578e08fee355bc1dac50fe9c_1718718377.png";
+import s_image2 from "@/public/services/625d8883f37944f3f0c4af5fe39435600931ab22_1713343293.png";
+import s_image3 from "@/public/services/6395b5347ba5a4ba6d556f9ab3916185f2745295_1720858203.png";
+import s_image4 from "@/public/services/7493e66e491c18d699274a48a53a9dfcb8aa2e93_1717230600.png";
+import s_image5 from "@/public/services/787a330f980d0cb7583d5d3316a868757535ea79_1708970899.png";
+import s_image6 from "@/public/services/98d35f5e1706a907fe3f9019d907e3d031a6402e_1719843669.png";
+import s_image7 from "@/public/services/ac127167132653d14c758748b07824a6a7643a31_1708971047.png";
+import s_image8 from "@/public/services/afb3c938fd3149d7587b59919bfc500a461693a6_1709571657.png";
+import s_image9 from "@/public/services/bb03641a188f3a74ec493d0790da87074492f64b_1708970740.png";
+import s_image10 from "@/public/services/d0dc0edf879e963e9cff31fd57b3f101743ddac8_1707297619.png";
 import { DarkMode } from "@/src/components/ui/DarkMode";
 
 import {
