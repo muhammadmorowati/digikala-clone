@@ -1,6 +1,5 @@
 import ContactForm from "@/components/faq/ContactForm";
 import MobileStickyHeader from "@/components/ui/MobileStickyHeader";
-import { authUser } from "@/utils/auth";
 import { User } from "@/utils/types";
 import { Clock, Headset, Info, Mail } from "lucide-react";
 import Image from "next/image";
@@ -15,12 +14,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const Map = dynamic(() => import("../../../../components/faq/Map"), {
-  ssr: false,
-});
+// const Map = dynamic(() => import("@/components/faq/Map"), {
+//   ssr: false,
+// });
 
 export default async function ContactUs() {
-  const user: User = await authUser();
 
   return (
     <div className="max-lg:mb-20">
@@ -45,7 +43,6 @@ export default async function ContactUs() {
           </div>
 
           <hr className="my-5 text-neutral-50" />
-          <ContactForm user={user} />
         </div>
 
         <div className="w-full h-2 bg-neutral-100 lg:hidden dark:bg-neutral-900"></div>
@@ -152,7 +149,6 @@ export default async function ContactUs() {
 
           {/* MAP */}
           <div className="my-5">
-            <Map />
           </div>
           <hr className="my-10 text-neutral-50" />
           <div>

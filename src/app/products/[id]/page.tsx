@@ -42,7 +42,6 @@ export default async function ProductPage({
           </Link>
         </div>
       </div>
-      <ProductMain product={[]} />
     </div>
   );
 }
