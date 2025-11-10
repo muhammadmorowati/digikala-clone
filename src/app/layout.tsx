@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import Loading from "./loading";
 import { ThemeProvider } from "../components/ui/theme-provider";
 import { CartProvider } from "../utils/cartItemsContext";
+import "./globals.css";
 import { cn } from "../utils/utils";
 
 const iranSans = localFont({ src: "../fonts/IranianSans.ttf" });

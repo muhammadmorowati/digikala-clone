@@ -100,7 +100,9 @@ export default async function SearchCategoryPage({
   );
 
   // Find category for first match (if any)
-  const category = searchParamsResult[0]?.category || null;
+  const category =   typeof searchParamsResult[0]?.category === "object"
+    ? (searchParamsResult[0].category as Category)
+    : null;
   const submenu = category?.submenus?.[0] || null;
 
   return (

@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import { Button } from "../ui/button";
 import { cities, province } from "@/src/data/data";
-import { Category, City, Submenu, SubmenuItem } from "@/src/utils/types";
+import { Category, City, Submenu, SubmenuItem,Location  } from "@/src/utils/types";
 import useScroll from "@/src/utils/useScroll";
 
 const links = [

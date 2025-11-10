@@ -1,5 +1,10 @@
 export type ObjectId = string;
 
+export interface Location {
+  latitude: number;
+  longitude: number;
+}
+
 export interface Address {
   province?: string;
   city?: string;

@@ -54,24 +54,29 @@ export default function ProductsCard({
   );
   const stationeryProducts = products.filter(
     (product) =>
-      product.category._id.toString() === stationerySubmenu._id.toString()
+         typeof product.category !== "string" &&
+    product.category._id.toString() === stationeryProducts?._id.toString()
   );
 
   // Last ProductCard=> Filter Products by Submenu
   const supermarketProducts = products.filter(
     (product) =>
-      product.category._id.toString() === supermarketCategory._id.toString()
+      typeof product.category !== "string" &&
+    product.category._id.toString() === supermarketProducts?._id.toString()
   );
   const electronicProducts = products.filter(
     (product) =>
-      product.category._id.toString() === electronicCategory._id.toString()
+      typeof product.category !== "string" &&
+    product.category._id.toString() === electronicProducts?._id.toString()
   );
   const homeProducts = products.filter(
-    (product) => product.category._id.toString() === homeCategory._id.toString()
+    (product) =>  typeof product.category !== "string" &&
+    product.category._id.toString() === homeProducts?._id.toString()
   );
   const apparelProducts = products.filter(
     (product) =>
-      product.category._id.toString() === apparelCategory._id.toString()
+       typeof product.category !== "string" &&
+    product.category._id.toString() === apparelProducts?._id.toString()
   );
 
   const firstProductscard = [
