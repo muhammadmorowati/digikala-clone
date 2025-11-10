@@ -1,0 +1,20 @@
+[
+  { "_id": "1", "name": "Ali", "email": "ali@test.com", "role": "USER" },
+  { "_id": "2", "name": "Sara", "email": "sara@test.com", "role": "ADMIN" },
+    {
+    "_id": "u1",
+    "name": "کاربر نمونه",
+    "email": "user@test.com",
+    "phone": "09120000000",
+    "password": "$2a$12$exampleHashedPassword",
+    "role": "USER"
+  },
+  {
+    "_id": "u2",
+    "name": "ادمین",
+    "email": "admin@test.com",
+    "phone": "09120000001",
+    "password": "$2a$12$exampleHashedPassword",
+    "role": "ADMIN"
+  }
+]

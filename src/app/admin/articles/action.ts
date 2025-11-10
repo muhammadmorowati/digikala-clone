@@ -1,59 +1,68 @@
 "use server";
 
-import connectToDB from "@/config/mongodb";
 import { ArticleSchema, ArticleEditSchema } from "@/src/utils/validation";
-import { promises as fs, unlink, writeFile } from "fs";
+import { promises as fs } from "fs";
 import { revalidatePath } from "next/cache";
-import ArticleModel from "@/models/Article";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
-import { promisify } from "util";
 
-const unlinkAsync = promisify(unlink);
-const writeFileAsync = promisify(writeFile);
+// Paths
+const articlesFilePath = path.join(process.cwd(), "data", "articles.json");
+const articleDir = path.join(process.cwd(), "public", "articles");
 
-export async function addArticle(_state:unknown, formData: FormData) {
-  await connectToDB();
+// Helper: load articles.json
+async function loadArticles() {
+  try {
+    const data = await fs.readFile(articlesFilePath, "utf8");
+    return JSON.parse(data);
+  } catch (error: any) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+// Helper: save articles.json
+async function saveArticles(articles: any[]) {
+  await fs.mkdir(path.dirname(articlesFilePath), { recursive: true });
+  await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2), "utf8");
+}
+
+// 🧩 ADD ARTICLE
+export async function addArticle(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
 
-  // Parse tags if they are sent as a string
+  // Parse tags if they come as stringified JSON
   if (typeof entries.tags === "string") {
     try {
       entries.tags = JSON.parse(entries.tags);
-    } catch (error:unknown) {
-      console.error("Failed to parse tags:", error);
+    } catch {
       return { tags: ["Invalid tags format"] };
     }
   }
 
   const result = ArticleSchema.safeParse(entries);
-
-  if (result.success === false) {
+  if (!result.success) {
     console.log("❌ Validation errors:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
 
   const data = result.data;
 
-  // Define the directory path
-  const articleDir = path.join(process.cwd(), "public/articles");
-  try {
-    await fs.access(articleDir);
-  } catch (error:unknown) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      await fs.mkdir(articleDir, { recursive: true });
-    } else {
-      throw error;
-    }
-  }
+  // Ensure directory exists
+  await fs.mkdir(articleDir, { recursive: true });
 
+  // Save cover image
   const coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
- const ab = await data.cover.arrayBuffer();
+  const ab = await data.cover.arrayBuffer();
   const bytes = new Uint8Array(ab);
-  await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
+  await fs.writeFile(path.join("public", coverPath), bytes);
 
-  // Save category to the database
-  await ArticleModel.create({
+  // Load current articles
+  const articles = await loadArticles();
+
+  // Add new article
+  const newArticle = {
+    _id: crypto.randomUUID(),
     title: data.title,
     content: data.content,
     author: data.author,
@@ -64,91 +73,99 @@ export async function addArticle(_state:unknown, formData: FormData) {
     cover: coverPath,
     comment: [],
     categoryId: data.categoryId,
-  });
+  };
+
+  articles.push(newArticle);
+  await saveArticles(articles);
 
   revalidatePath("/");
   revalidatePath("/articles");
-
   redirect("/admin/articles");
 }
 
-export async function updateArticle(_state:unknown, formData: FormData) {
-  await connectToDB();
+// 🧩 UPDATE ARTICLE
+export async function updateArticle(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
 
-  // Parse tags if they are sent as a string
+  // Parse tags if stringified
   if (typeof entries.tags === "string") {
     try {
       entries.tags = JSON.parse(entries.tags);
-    } catch (error) {
-      console.error("Failed to parse tags:", error);
+    } catch {
       return { tags: ["Invalid tags format"] };
     }
   }
 
   const result = ArticleEditSchema.safeParse(entries);
-
-  if (result.success === false) {
-    console.log("❌❌❌", result.error.formErrors.fieldErrors);
+  if (!result.success) {
+    console.log("❌ Validation errors:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
 
   const data = result.data;
   const articleId = data._id;
 
-  // Find the existing article by ID
-  const article = await ArticleModel.findById(articleId);
-  if (!article) {
-    return notFound();
-  }
+  const articles = await loadArticles();
+  const articleIndex = articles.findIndex((a: any) => a._id === articleId);
+  if (articleIndex === -1) return notFound();
 
-  let coverPath = article.cover;
+  let coverPath = articles[articleIndex].cover;
 
-  // Check if a new cover image is provided and update it
+  // If new cover uploaded, replace it
   if (data.cover) {
-    // Remove the old cover image if it exists
-    if (coverPath) {
-      try {
-        await unlinkAsync(path.join(process.cwd(), "public", coverPath));
-      } catch (error) {
-        console.error("Failed to remove old cover:", error);
-      }
+    // Remove old cover
+    try {
+      await fs.unlink(path.join("public", coverPath));
+    } catch {
+      /* ignore if not found */
     }
 
-    // Save the new cover image
+    // Save new one
     coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-       const ab = await data.cover.arrayBuffer();
-    const bytes = new Uint8Array(ab);                         // ✅
-    await writeFileAsync(path.join(process.cwd(), "public", coverPath), bytes)
+    const ab = await data.cover.arrayBuffer();
+    const bytes = new Uint8Array(ab);
+    await fs.writeFile(path.join("public", coverPath), bytes);
   }
 
-  // Update the article in the database
-  await ArticleModel.findByIdAndUpdate(articleId, {
+  // Update article
+  articles[articleIndex] = {
+    ...articles[articleIndex],
     title: data.title,
     content: data.content,
     author: data.author,
     tags: data.tags,
     source: data.source,
     readingTime: data.readingTime,
-    publishedAt: data.publishedAt || article.publishedAt, // Preserve original published date if not changed
+    publishedAt:
+      data.publishedAt || articles[articleIndex].publishedAt,
     cover: coverPath,
-    comment: article.comment, // Keep existing comments
     categoryId: data.categoryId,
-  });
+  };
+
+  await saveArticles(articles);
 
   revalidatePath("/");
   revalidatePath("/articles");
-
   redirect("/admin/articles");
 }
 
+// 🧩 DELETE ARTICLE
 export async function deleteArticle(id: string) {
-  await connectToDB();
-  const article = await ArticleModel.findOneAndDelete({ _id: id });
+  const articles = await loadArticles();
+  const index = articles.findIndex((a: any) => a._id === id);
+  if (index === -1) return notFound();
 
-  if (article == null) return notFound();
+  const article = articles[index];
+  // Remove cover image
+  try {
+    await fs.unlink(path.join("public", article.cover));
+  } catch {
+    /* ignore if missing */
+  }
 
-  await fs.unlink(`public${article.cover}`);
+  // Remove from list
+  articles.splice(index, 1);
+  await saveArticles(articles);
 
   revalidatePath("/");
   revalidatePath("/admin/articles");

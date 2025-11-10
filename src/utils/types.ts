@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+export type ObjectId = string;
 
 export interface Address {
   province?: string;
@@ -20,6 +20,11 @@ export interface User {
   idNumber?: string;
   job?: string;
   role: "USER" | "ADMIN";
+
+    // 👇 optional fields for file-based auth and updates
+  createdAt?: string;
+  updatedAt?: string;
+  refreshToken?: string;
 }
 
 export interface RegisterFormState {
@@ -81,12 +86,14 @@ export interface Product {
   likes?: number;
   comments?: Comment[];
   questions?: Question[];
-  features?: Feature[];
-  colors?: Color[];
-  images?: ProductImage[];
-  category: Category;
+  features?: Feature[] | { key: string; value: string }[];
+  colors?: Color[] | { name: string; hex: string }[];
+  images?: string[] | ProductImage[];
+  category: Category | string;
   submenuId: string;
   submenuItemId: string;
+   createdAt?: string;
+  updatedAt?: string;
 }
 export interface ProductImage {
   _id: ObjectId;
@@ -103,14 +110,14 @@ export interface Category {
   href: string;
   description?: string;
   product?: Product;
-  submenus: Submenu[];
+  submenus?: Submenu[];
 }
 export interface Submenu {
   _id: ObjectId;
   title: string;
   href: string;
   categoryId?: ObjectId;
-  items: SubmenuItem[];
+  items?: SubmenuItem[];
 }
 export interface SubmenuItem {
   _id: ObjectId;

@@ -1,28 +1,39 @@
-import connectToDB from "@/config/mongodb";
 import AdminTable from "@/src/components/admin/AdminTable";
 import PageHeader from "@/src/components/admin/PageHeader";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import SubmenuItemModel from "@/models/SubmenuItem"
+import { Submenu } from "@/src/utils/types";
+import { promises as fs } from "fs";
+import path from "path";
 
-export default function SubmenuItemPage() {
-  return <SubmenuItemTable />;
+export default function SubmenuPage() {
+  return <SubmenuTable />;
 }
 
-async function SubmenuItemTable() {
-  await connectToDB();
-  const submenuItems = await SubmenuItemModel.find({}).lean();
-  const serializedSubmenuItems = serializeDoc(submenuItems);
+async function SubmenuTable() {
+  const submenusFilePath = path.join(process.cwd(), "data", "submenus.json");
+
+  let submenus: Submenu[] = [];
+
+  try {
+    const data = await fs.readFile(submenusFilePath, "utf8");
+    submenus = JSON.parse(data);
+  } catch (error: any) {
+    if (error.code !== "ENOENT") {
+      console.error("❌ Failed to read submenus.json:", error);
+    }
+  }
 
   return (
     <>
       <PageHeader
-        title="آیتم های زیرمجموعه دسته‌بندی ها"
-        href="/admin/categories/submenu-Item/new"
+        title="زیرمجموعه دسته‌بندی‌ها"
+        href="/admin/categories/submenu/new"
       />
-      {submenuItems.length ? (
-        <AdminTable submenuItems={serializedSubmenuItems} />
+      {submenus.length > 0 ? (
+        <AdminTable submenus={submenus} />
       ) : (
-        <div className="text-neutral-500">آیتمی برای نمایش وجود ندارد.</div>
+        <div className="text-neutral-500 p-5 text-center">
+          آیتمی برای نمایش وجود ندارد.
+        </div>
       )}
     </>
   );

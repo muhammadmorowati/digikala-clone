@@ -1,50 +1,45 @@
-import connectToDB from "@/config/mongodb";
 import PageHeader from "@/src/components/admin/PageHeader";
 import ProductForm from "@/src/components/admin/ProductForm";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import ProductModel from "@/models/Product";
-import CategoryModel from "@/models/Category";
+import { Product, Category } from "@/src/utils/types";
+import { promises as fs } from "fs";
+import path from "path";
 
 export default async function EditProductPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  await connectToDB();
-  const product = await ProductModel.findOne({ _id: id })
-    .populate("images")
-    .populate("colors")
-    .populate("features")
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
-      },
-    })
-    .lean();
+  const productsFile = path.join(process.cwd(), "data", "products.json");
+  const categoriesFile = path.join(process.cwd(), "data", "categories.json");
 
-  const categories = await CategoryModel.find({})
-    .populate({
-      path: "submenus",
-      populate: {
-        path: "items",
-      },
-    })
-    .lean();
+  let products: Product[] = [];
+  let categories: Category[] = [];
 
-  const serializedProduct = serializeDoc(product);
-  const serializedCategories = serializeDoc(categories);
+  try {
+    const productsData = await fs.readFile(productsFile, "utf8");
+    products = JSON.parse(productsData);
+  } catch (error: any) {
+    if (error.code !== "ENOENT") {
+      console.error("❌ Failed to read products.json:", error);
+    }
+  }
+
+  try {
+    const categoriesData = await fs.readFile(categoriesFile, "utf8");
+    categories = JSON.parse(categoriesData);
+  } catch (error: any) {
+    if (error.code !== "ENOENT") {
+      console.error("❌ Failed to read categories.json:", error);
+    }
+  }
+
+  // Find product by ID
+  const product = products.find((p) => p._id === id);
 
   return (
     <>
       <PageHeader title="ویرایش محصول" />
-      <ProductForm
-        product={serializedProduct}
-        categories={serializedCategories}
-      />
+      <ProductForm product={product} categories={categories} />
     </>
   );
 }

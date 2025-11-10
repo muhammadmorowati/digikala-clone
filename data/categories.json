@@ -1,0 +1,83 @@
+[
+  {
+    "_id": "1",
+    "title": "موبایل",
+    "href": "/category/mobile",
+    "cover": ["/images/categories/mobile-cover.webp"],
+    "hero": ["/images/categories/mobile-hero.webp"],
+    "banner": ["/images/categories/mobile-banner.webp"],
+    "icon": "/icons/mobile.svg",
+    "submenus": []
+  },
+  {
+    "_id": "2",
+    "title": "لپ‌تاپ",
+    "href": "/category/laptop",
+    "cover": ["/images/categories/laptop-cover.webp"],
+    "hero": ["/images/categories/laptop-hero.webp"],
+    "banner": ["/images/categories/laptop-banner.webp"],
+    "icon": "/icons/laptop.svg",
+    "submenus": []
+  },
+    {
+    "_id": "c1",
+    "title": "موبایل و تبلت",
+    "href": "/category/mobile",
+    "cover": ["/categories/mobile-cover.jpg"],
+    "icon": "/categories/mobile-icon.png",
+    "hero": ["/categories/hero1.jpg"],
+    "banner": ["/categories/banner1.jpg"],
+    "submenus": [
+      {
+        "_id": "s1",
+        "title": "گوشی موبایل",
+        "href": "/category/mobile/phones",
+        "items": [
+          { "_id": "i1", "title": "سامسونگ", "href": "/category/mobile/samsung" },
+          { "_id": "i2", "title": "شیائومی", "href": "/category/mobile/xiaomi" }
+        ]
+      }
+    ]
+  },
+  {
+    "_id": "c1",
+    "title": "موبایل و تبلت",
+    "href": "/category/mobile",
+    "submenus": [
+      {
+        "_id": "s1",
+        "title": "گوشی موبایل",
+        "items": [
+          { "_id": "i1", "title": "سامسونگ", "href": "/category/mobile/samsung" }
+        ]
+      }
+    ]
+  },
+  {
+    "_id": "c2",
+    "title": "کالای دیجیتال",
+    "href": "/category/electronics"
+  },
+   {
+    "_id": "c1",
+    "title": "موبایل و تبلت",
+    "href": "/category/mobile",
+    "submenus": [
+      {
+        "_id": "s1",
+        "title": "گوشی موبایل",
+        "items": [
+          { "_id": "i1", "title": "سامسونگ", "href": "/category/mobile/samsung" },
+          { "_id": "i2", "title": "شیائومی", "href": "/category/mobile/xiaomi" }
+        ]
+      }
+    ]
+  },
+  {
+    "_id": "c2",
+    "title": "کالای دیجیتال",
+    "href": "/category/electronics",
+    "submenus": []
+  }
+]
+

@@ -1,19 +1,23 @@
-import connectToDB from "@/config/mongodb";
 import AdminTable from "@/src/components/admin/AdminTable";
 import PageHeader from "@/src/components/admin/PageHeader";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import StoryModel from "@/models/Story"
+import path from "path";
+import { promises as fs } from "fs";
+import { Story } from "@/src/utils/types";
+import { readJSON } from "@/src/utils/fileUtils";
 
-export default async function StoriesPage() {
-  await connectToDB();
-  const stories = await StoryModel.find({}).lean();
-  const serializedStories = serializeDoc(stories);
+export default function StoriesPage() {
+  return <StoriesTable />;
+}
+
+async function StoriesTable() {
+  const filePath = path.join(process.cwd(), "data", "stories.json");
+  const stories = await readJSON<Story>(filePath);
 
   return (
     <>
-      <PageHeader title="داستان ها" href="/admin/stories/new" />
+      <PageHeader title="داستان‌ها" href="/admin/stories/new" />
       {stories.length ? (
-        <AdminTable stories={serializedStories} />
+        <AdminTable stories={stories} />
       ) : (
         <div className="text-neutral-500">آیتمی برای نمایش وجود ندارد.</div>
       )}

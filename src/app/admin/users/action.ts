@@ -1,50 +1,70 @@
 "use server";
 
-import connectToDB from "@/config/mongodb";
 import { generateAccessToken, generateRefreshToken } from "@/src/utils/auth";
-import type { RegisterFormState, LoginFormState } from "@/src/utils/types";
-import { RegisterSchema, LoginSchema, UserupdateSchema } from "@/src/utils/validation";
+import type { RegisterFormState, LoginFormState, User } from "@/src/utils/types";
+import {
+  RegisterSchema,
+  LoginSchema,
+  UserupdateSchema,
+} from "@/src/utils/validation";
 import jwt from "jsonwebtoken";
-import UserModel from "@/models/User";
 import { hash, compare } from "bcryptjs";
-import { access, mkdir, unlink, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  unlink,
+  writeFile,
+  readFile,
+  writeFile as writeJSONFile,
+} from "node:fs/promises";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import path from "node:path";
 import crypto from "node:crypto";
 
-// ---------- helpers ----------
 const toBytes = (ab: ArrayBuffer) => new Uint8Array(ab);
 const ensureDir = async (dir: string) => {
   try {
     await access(dir);
-  } catch (e: unknown) {
-    const err = e as NodeJS.ErrnoException;
-    if (err.code === "ENOENT") await mkdir(dir, { recursive: true });
+  } catch (e: any) {
+    if (e.code === "ENOENT") await mkdir(dir, { recursive: true });
     else throw e;
   }
 };
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e ?? "Unknown error"));
 const cookieOpts = { httpOnly: true, secure: true, path: "/" } as const;
 
-// ========================== SIGNUP ==========================
+// JSON helpers
+const usersFile = path.join(process.cwd(), "data", "users.json");
+async function readUsers(): Promise<User[]> {
+  try {
+    const data = await readFile(usersFile, "utf8");
+    return JSON.parse(data) as User[];
+  } catch (e: any) {
+    if (e.code === "ENOENT") return [];
+    throw e;
+  }
+}
+async function writeUsers(users: User[]) {
+  await writeJSONFile(usersFile, JSON.stringify(users, null, 2), "utf8");
+}
+
+// ─────────────────────────── SIGNUP ───────────────────────────
 export async function signup(
   state: RegisterFormState,
   formData: FormData
 ): Promise<RegisterFormState> {
   try {
-    await connectToDB();
-
     const parsed = RegisterSchema.safeParse(Object.fromEntries(formData.entries()));
     if (!parsed.success) {
       return { ...state, errors: parsed.error.formErrors.fieldErrors, success: false };
     }
 
     const { name, email, phone, password } = parsed.data;
+    const users = await readUsers();
 
-    const exists = await UserModel.findOne({ $or: [{ name }, { email }, { phone }] }).lean();
-    if (exists) {
+    if (users.find((u) => u.name === name || u.email === email || u.phone === phone)) {
       return {
         ...state,
         errors: { general: ["The username or email or phone exists already!!"] },
@@ -53,46 +73,51 @@ export async function signup(
     }
 
     const hashedPassword = await hash(password, 10);
-    const usersCount = await UserModel.countDocuments();
-    const role = usersCount > 0 ? "USER" : "ADMIN";
+    const role = users.length === 0 ? "ADMIN" : "USER";
 
-    await UserModel.create({ name, email, phone, password: hashedPassword, role });
+    const newUser: User = {
+      _id: crypto.randomUUID(),
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role,
+      createdAt: new Date().toISOString(),
+    };
 
-    const accessToken = generateAccessToken({ name });
+    users.push(newUser);
+    await writeUsers(users);
 
+    const accessToken = generateAccessToken({ email });
     const store = await cookies();
     store.set("token", accessToken, cookieOpts);
 
-    // ⚠️ مهم: errors باید شیء باشه، نه undefined/null
     return { ...state, errors: {}, success: true };
   } catch (e) {
-    console.log("Error ->", e);
     return { ...state, errors: { general: [errMsg(e)] }, success: false };
   }
 }
 
-// ========================== SIGNIN ==========================
+// ─────────────────────────── SIGNIN ───────────────────────────
 export async function signin(
   state: LoginFormState,
   formData: FormData
 ): Promise<LoginFormState> {
   try {
-    await connectToDB();
-
     const parsed = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
     if (!parsed.success) {
       return { ...state, errors: parsed.error.formErrors.fieldErrors, success: false };
     }
 
     const { email, password } = parsed.data;
+    const users = await readUsers();
+    const user = users.find((u) => u.email === email);
 
-    // lean با جنریک تا TS بدونه password هست
-    const user = await UserModel.findOne({ email }).lean<{ email: string; password: string }>();
     if (!user) {
       return { ...state, errors: { general: ["کاربری با این مشخصات یافت نشد."] }, success: false };
     }
 
-    const ok = await compare(password, user.password);
+    const ok = await compare(password, user.password ?? "");
     if (!ok) {
       return { ...state, errors: { general: ["ایمیل یا رمز کاربری اشتباه است."] }, success: false };
     }
@@ -104,20 +129,16 @@ export async function signin(
     store.set("token", accessToken, cookieOpts);
     store.set("refreshToken", refreshToken, { ...cookieOpts, maxAge: 60 * 60 * 24 * 7 });
 
-    await UserModel.findOneAndUpdate(
-      { email },
-      { $push: { refreshToken } }, // اگر مدل شما آرایه نیست، $set کنید
-      { new: true }
-    );
+    user.refreshToken = refreshToken;
+    await writeUsers(users);
 
     return { ...state, errors: {}, success: true };
   } catch (e) {
-    console.log("Error ->", e);
     return { ...state, errors: { general: [errMsg(e)] }, success: false };
   }
 }
 
-// ========================== SIGN OUT ==========================
+// ─────────────────────────── SIGN OUT ───────────────────────────
 export async function signOut() {
   const store = await cookies();
   store.set("token", "", { ...cookieOpts, maxAge: -1 });
@@ -125,10 +146,8 @@ export async function signOut() {
   redirect("/login");
 }
 
-// ========================== UPDATE USER ==========================
+// ─────────────────────────── UPDATE USER ───────────────────────────
 export async function updateUser(formData: FormData) {
-  await connectToDB();
-
   const id = formData.get("_id")?.toString();
   if (!id) throw new Error("User ID is required");
 
@@ -137,23 +156,21 @@ export async function updateUser(formData: FormData) {
   if (entries.address) {
     try {
       entries.address = JSON.parse(String(entries.address));
-    } catch (e) {
-      console.log("Invalid JSON format for address:", e);
+    } catch {
       return { address: ["Invalid address format"] };
     }
   }
 
   const parsed = UserupdateSchema.safeParse(entries);
-  if (!parsed.success) {
-    console.log("❌❌❌", parsed.error.formErrors.fieldErrors);
-    return parsed.error.formErrors.fieldErrors;
-  }
+  if (!parsed.success) return parsed.error.formErrors.fieldErrors;
+
+  const users = await readUsers();
+  const index = users.findIndex((u) => u._id === id);
+  if (index === -1) return notFound();
 
   const data = parsed.data;
-  const user = await UserModel.findById(id);
-  if (!user) return notFound();
+  const user = users[index];
 
-  // پوشه مقصد را بساز
   const usersDir = path.join(process.cwd(), "public/users");
   await ensureDir(usersDir);
 
@@ -162,9 +179,8 @@ export async function updateUser(formData: FormData) {
     if (user.avatar) {
       try {
         await unlink(path.join(process.cwd(), "public", user.avatar));
-      } catch (e) {
-        const err = e as NodeJS.ErrnoException;
-        if (err.code !== "ENOENT") console.warn("unlink old avatar failed:", err);
+      } catch (e: any) {
+        if (e.code !== "ENOENT") console.warn("unlink old avatar failed:", e);
       }
     }
     avatarPath = `/users/${crypto.randomUUID()}-${data.avatar.name}`;
@@ -174,108 +190,71 @@ export async function updateUser(formData: FormData) {
     );
   }
 
-  // فقط فیلدهای موجود را آپدیت کن تا مشکل string | undefined نداشته باشیم
-  const updateFields: Partial<{
-    name: string;
-    role: string;
-    email: string;
-    phone: string;
-    password: string;
-    avatar: string;
-    idNumber: string;
-    job: string;
-    address: {
-      street?: string;
-      plate?: string;
-      city?: string;
-      postalcode?: string;
-      province?: string;
-      unit?: string;
-    };
-  }> = {};
-
-  if (data.name) updateFields.name = data.name;
-  if (data.role) updateFields.role = data.role;
-  if (data.email) updateFields.email = data.email;
-  if (data.phone) updateFields.phone = data.phone;
-  updateFields.avatar = avatarPath; // مسیر جدید یا قبلی
-
   if (data.password && data.password.trim()) {
-    updateFields.password = await hash(data.password, 10);
+    user.password = await hash(data.password, 10);
   }
 
-  if (data.idNumber) updateFields.idNumber = data.idNumber;
-  if (data.job) updateFields.job = data.job;
-
-  if (data.address) {
-    updateFields.address = {
-      street: data.address.street || "",
-      plate: data.address.plate || "",
-      city: data.address.city || "",
-      postalcode: data.address.postalcode || "",
-      province: data.address.province || "",
-      unit: data.address.unit || "",
-    };
+  if (data.role === "ADMIN" || data.role === "USER") {
+  user.role = data.role;
   }
+  
+  users[index] = {
+    ...user,
+    ...{ ...data, role: user.role },
+    avatar: avatarPath,
+    updatedAt: new Date().toISOString(),
+  };
 
-  await UserModel.findByIdAndUpdate(id, { $set: updateFields });
+  await writeUsers(users);
 
   revalidatePath("/");
   revalidatePath("/users");
   revalidatePath("/admin/users");
 }
 
-// ========================== DELETE USER ==========================
+// ─────────────────────────── DELETE USER ───────────────────────────
 export async function deleteUser(id: string) {
-  await connectToDB();
+  const users = await readUsers();
+  const index = users.findIndex((u) => u._id === id);
+  if (index === -1) return notFound();
 
-  const user = await UserModel.findOneAndDelete({ _id: id });
-  if (!user) return notFound();
-
+  const user = users[index];
   if (user.avatar) {
     try {
       await unlink(path.join(process.cwd(), "public", user.avatar));
-    } catch (e) {
-      const err = e as NodeJS.ErrnoException;
-      if (err.code !== "ENOENT") console.warn("unlink avatar failed:", err);
+    } catch (e: any) {
+      if (e.code !== "ENOENT") console.warn("unlink avatar failed:", e);
     }
   }
+
+  users.splice(index, 1);
+  await writeUsers(users);
 
   revalidatePath("/");
   revalidatePath("/users");
 }
 
-// ========================== REFRESH TOKEN ==========================
+// ─────────────────────────── REFRESH TOKEN ───────────────────────────
 export async function refreshToken(): Promise<string | null> {
+  const store = await cookies();
+  const rt = store.get("refreshToken")?.value;
+  if (!rt) return null;
+
+  const users = await readUsers();
+  const user = users.find((u) => u.refreshToken === rt);
+  if (!user) return null;
+
+  const secret = process.env.RefreshTokenSecretKey;
+  if (!secret) return null;
+
   try {
-    await connectToDB();
-
-    const store = await cookies();
-    const rt = store.get("refreshToken")?.value;
-    if (!rt) return null;
-
-    const user = await UserModel.findOne({ refreshToken: rt }).lean<{ email: string }>();
-    if (!user) return null;
-
-    const secret = process.env.RefreshTokenSecretKey;
-    if (!secret) {
-      console.error("Missing RefreshTokenSecretKey");
-      return null;
-    }
-
-    try {
-      jwt.verify(rt, secret);
-    } catch (e) {
-      console.error("Invalid refresh token:", e);
-      return null;
-    }
-
-    const newAccessToken = generateAccessToken({ email: user.email });
-    store.set("token", newAccessToken, cookieOpts);
-
-    return newAccessToken;
-  } catch (e) {
-    console.error("Error refreshing token:", e);
+    jwt.verify(rt, secret);
+  } catch {
     return null;
   }
+
+  const newAccessToken = generateAccessToken({ email: user.email });
+  store.set("token", newAccessToken, cookieOpts);
+
+  return newAccessToken;
 }

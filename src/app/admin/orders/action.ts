@@ -1,58 +1,74 @@
 "use server";
-import connectToDB from "@/config/mongodb";
 import { OrderSchema } from "@/src/utils/validation";
 import { revalidatePath } from "next/cache";
-import OrderModel from "@/models/Order";
+import { promises as fs } from "fs";
+import path from "path";
 
+const ordersFile = path.join(process.cwd(), "data", "orders.json");
+
+// Helpers
+async function readOrders() {
+  try {
+    const data = await fs.readFile(ordersFile, "utf8");
+    return JSON.parse(data) as {
+      _id: string;
+      productId: string;
+      userId: string;
+    }[];
+  } catch (err: any) {
+    if (err.code === "ENOENT") return [];
+    throw err;
+  }
+}
+
+async function writeOrders(data: unknown) {
+  await fs.mkdir(path.dirname(ordersFile), { recursive: true });
+  await fs.writeFile(ordersFile, JSON.stringify(data, null, 2), "utf8");
+}
+
+// ────────────────────────────────────────────────
 export async function addOrder(formData: FormData) {
-  await connectToDB();
   const entries = Object.fromEntries(formData.entries());
-
   const result = OrderSchema.safeParse(entries);
+
   if (!result.success) {
-    console.log("❌❌❌", result.error.formErrors.fieldErrors);
+    console.log("❌ Validation errors:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
 
   const data = result.data;
+  const orders = await readOrders();
 
-  // Check if the order already exists for the product and user
-  const hasInOrders = await OrderModel.findOne({
-    productId: data.productId,
-    userId: data.userId,
-  });
+  // check if user already ordered this product
+  const exists = orders.some(
+    (o) => o.productId === data.productId && o.userId === data.userId
+  );
 
-  if (!hasInOrders) {
-    // Create the product record
-    await OrderModel.create({
+  if (!exists) {
+    orders.push({
+      _id: crypto.randomUUID(),
       productId: data.productId,
       userId: data.userId,
     });
-    // Revalidate paths and redirect
+    await writeOrders(orders);
+
     revalidatePath("/");
     revalidatePath("/orders");
   }
   return;
 }
 
+// ────────────────────────────────────────────────
 export async function deleteOrder(id: string) {
-  await connectToDB();
+  const orders = await readOrders();
+  const before = orders.length;
 
-  // First, try to find and delete the order by _id (order ID)
-  const orderById = await OrderModel.findOneAndDelete({ _id: id });
+  // try to remove by _id or productId
+  const updated = orders.filter((o) => o._id !== id && o.productId !== id);
 
-  if (orderById) {
+  if (updated.length !== before) {
+    await writeOrders(updated);
     revalidatePath("/");
     revalidatePath("/orders");
-    return;
-  }
-
-  // If no order was found by _id, try finding and deleting by productId (product ID)
-  const orderByProductId = await OrderModel.findOneAndDelete({ productId: id });
-
-  if (orderByProductId) {
-    revalidatePath("/");
-    revalidatePath("/orders");
-    return;
   }
 }
