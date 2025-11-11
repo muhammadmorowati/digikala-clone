@@ -167,6 +167,7 @@ export interface Article {
   readingTime: string;
   cover: string;
   categoryId?: ObjectId;
+  comment?: any[]
 }
 
 export interface CartItem {

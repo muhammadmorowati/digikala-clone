@@ -89,3 +89,21 @@ export async function authUser(): Promise<User | null> {
 
   return null;
 }
+
+import { LoginFormState } from "@/src/utils/types";
+
+export async function signin(_: LoginFormState, formData: FormData) {
+  await new Promise((r) => setTimeout(r, 500));
+
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const users = JSON.parse(localStorage.getItem("users") ?? "[]");
+
+  const found = users.find(
+    (u: any) => u.email === email && u.password === password
+  );
+
+  return found
+    ? { success: true, errors: {} }
+    : { success: false, errors: { general: ["ایمیل یا رمز عبور اشتباه است."] } };
+}

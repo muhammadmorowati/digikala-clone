@@ -9,31 +9,35 @@ export default async function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const productsFile = path.join(process.cwd(), "data", "products.json");
-  const categoriesFile = path.join(process.cwd(), "data", "categories.json");
+  const productsPath = path.join(process.cwd(), "data", "products.json");
+  const categoriesPath = path.join(process.cwd(), "data", "categories.json");
 
   let products: Product[] = [];
   let categories: Category[] = [];
 
+  // 🧩 Load products
   try {
-    const productsData = await fs.readFile(productsFile, "utf8");
-    products = JSON.parse(productsData);
+    const data = await fs.readFile(productsPath, "utf8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) products = parsed;
   } catch (error: any) {
     if (error.code !== "ENOENT") {
       console.error("❌ Failed to read products.json:", error);
     }
   }
 
+  // 🧩 Load categories
   try {
-    const categoriesData = await fs.readFile(categoriesFile, "utf8");
-    categories = JSON.parse(categoriesData);
+    const data = await fs.readFile(categoriesPath, "utf8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) categories = parsed;
   } catch (error: any) {
     if (error.code !== "ENOENT") {
       console.error("❌ Failed to read categories.json:", error);
     }
   }
 
-  // Find product by ID
+  // 🧩 Find product by ID
   const product = products.find((p) => p._id === id);
 
   return (

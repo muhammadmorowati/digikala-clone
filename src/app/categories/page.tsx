@@ -2,34 +2,30 @@ import Categories from "@/src/components/categories/Categories";
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Category, Product } from "@/src/utils/types";
 import path from "path";
-import { promises as fs } from "fs";
+import { readJSON } from "@/src/utils/fileUtils";
 
-async function readJSON<T>(file: string): Promise<T[]> {
-  try {
-    const data = await fs.readFile(file, "utf8");
-    return JSON.parse(data) as T[];
-  } catch {
-    return [];
-  }
-}
-
+// ─────────────────────────── Component ───────────────────────────
 export default async function CategoriesPage() {
-  // 🔹 Read data from JSON files instead of database
-  const categoriesFile = path.join(process.cwd(), "data", "categories.json");
-  const productsFile = path.join(process.cwd(), "data", "products.json");
+  // 🔹 Define data file paths
+  const basePath = path.join(process.cwd(), "data");
+  const categoriesFile = path.join(basePath, "categories.json");
+  const productsFile = path.join(basePath, "products.json");
 
-  const categories = await readJSON<Category>(categoriesFile);
-  const products = await readJSON<Product>(productsFile);
+  // 🔹 Read JSON files (with fallbacks handled by readJSON)
+  const [categories, products] = await Promise.all([
+    readJSON<Category>(categoriesFile),
+    readJSON<Product>(productsFile),
+  ]);
 
+  // 🔹 Serialize to prepare for client rendering (if needed)
   const serializedCategories = serializeDoc(categories);
-  const serializedProduct = serializeDoc(products);
+  const serializedProducts = serializeDoc(products);
 
+  // 🔹 Render
   return (
-    <>
-      <Categories
-        categories={serializedCategories}
-        products={serializedProduct}
-      />
-    </>
+    <Categories
+      categories={serializedCategories}
+      products={serializedProducts}
+    />
   );
 }

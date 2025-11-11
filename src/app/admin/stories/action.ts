@@ -1,12 +1,19 @@
 "use server";
 
 import { StorySchema } from "@/src/utils/validation";
-import { access, mkdir, unlink, writeFile, readFile, writeFile as writeJSONFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  unlink,
+  writeFile,
+  readFile,
+} from "node:fs/promises";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "node:path";
 import crypto from "node:crypto";
 
+// ─────────────────────────── Types ───────────────────────────
 type Story = {
   _id: string;
   title: string;
@@ -15,63 +22,64 @@ type Story = {
   createdAt: string;
 };
 
-// helpers
+// ─────────────────────────── Helpers ───────────────────────────
 const toBytes = (ab: ArrayBuffer) => new Uint8Array(ab);
 
-const ensureDir = async (dir: string) => {
+async function ensureDir(dir: string) {
   try {
     await access(dir);
-  } catch (e: any) {
-    if (e.code === "ENOENT") await mkdir(dir, { recursive: true });
-    else throw e;
+  } catch (err: any) {
+    if (err.code === "ENOENT") await mkdir(dir, { recursive: true });
+    else throw err;
   }
-};
+}
 
-async function readJSON<T>(file: string): Promise<T[]> {
+async function readJSON<T>(filePath: string): Promise<T[]> {
   try {
-    const data = await readFile(file, "utf8");
-    return JSON.parse(data) as T[];
-  } catch (e: any) {
-    if (e.code === "ENOENT") return [];
-    throw e;
+    const data = await readFile(filePath, "utf8");
+    return JSON.parse(data);
+  } catch (err: any) {
+    if (err.code === "ENOENT") return [];
+    throw err;
   }
 }
 
-async function writeJSON(file: string, data: unknown) {
-  await writeJSONFile(file, JSON.stringify(data, null, 2), "utf8");
+async function writeJSON(filePath: string, data: unknown) {
+  await writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
-// paths
+// ─────────────────────────── Constants ───────────────────────────
 const storiesFile = path.join(process.cwd(), "data", "stories.json");
+const storiesDir = path.join(process.cwd(), "public", "stories");
 
-// ───────────────────────── addStory
+// ─────────────────────────── addStory ───────────────────────────
 export async function addStory(_state: unknown, formData: FormData) {
   const parsed = StorySchema.safeParse(Object.fromEntries(formData.entries()));
+
   if (!parsed.success) {
-    console.log("❌ validation:", parsed.error.formErrors.fieldErrors);
+    console.error("❌ Validation error:", parsed.error.formErrors.fieldErrors);
     return parsed.error.formErrors.fieldErrors;
   }
+
   const data = parsed.data;
+  await ensureDir(storiesDir);
 
-  const storyDir = path.join(process.cwd(), "public/stories");
-  await ensureDir(storyDir);
-
-  // save cover
+  // Save cover
   const coverPath = `/stories/${crypto.randomUUID()}-${data.cover.name}`;
   await writeFile(
     path.join(process.cwd(), "public", coverPath),
     toBytes(await data.cover.arrayBuffer())
   );
 
-  // save post
+  // Save post
   const postPath = `/stories/${crypto.randomUUID()}-${data.post.name}`;
   await writeFile(
     path.join(process.cwd(), "public", postPath),
     toBytes(await data.post.arrayBuffer())
   );
 
+  // Read and append new story
   const stories = await readJSON<Story>(storiesFile);
-
   const newStory: Story = {
     _id: crypto.randomUUID(),
     title: data.title,
@@ -88,26 +96,29 @@ export async function addStory(_state: unknown, formData: FormData) {
   redirect("/admin/stories");
 }
 
-// ───────────────────────── deleteStory
+// ─────────────────────────── deleteStory ───────────────────────────
 export async function deleteStory(id: string) {
   const stories = await readJSON<Story>(storiesFile);
-  const index = stories.findIndex((s) => s._id === id);
+  const index = stories.findIndex((story) => story._id === id);
   if (index === -1) return notFound();
 
   const story = stories[index];
-  const files = [story.cover, story.post].filter(Boolean) as string[];
+  const filePaths = [story.cover, story.post].filter(Boolean);
 
+  // Remove files safely
   await Promise.all(
-    files.map(async (rel) => {
-      const full = path.join(process.cwd(), "public", rel);
+    filePaths.map(async (relPath) => {
+      const fullPath = path.join(process.cwd(), "public", relPath);
       try {
-        await unlink(full);
-      } catch (e: any) {
-        if (e.code !== "ENOENT") console.warn("⚠️ Failed to delete:", full);
+        await unlink(fullPath);
+      } catch (err: any) {
+        if (err.code !== "ENOENT")
+          console.warn("⚠️ Failed to delete:", fullPath);
       }
     })
   );
 
+  // Update file list
   stories.splice(index, 1);
   await writeJSON(storiesFile, stories);
 

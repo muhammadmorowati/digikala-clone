@@ -6,17 +6,19 @@ import { User, Product } from "@/src/utils/types";
 import path from "path";
 import { promises as fs } from "fs";
 
-// ✅ Helper to safely read JSON files
-async function readJSON<T>(file: string): Promise<T[]> {
+/** ✅ Reusable JSON loader */
+async function readJSON<T>(relativePath: string): Promise<T[]> {
+  const filePath = path.join(process.cwd(), "data", relativePath);
   try {
-    const data = await fs.readFile(file, "utf8");
+    const data = await fs.readFile(filePath, "utf8");
     return JSON.parse(data) as T[];
-  } catch {
+  } catch (error) {
+    console.error(`❌ Failed to read JSON: ${relativePath}`, error);
     return [];
   }
 }
 
-// ✅ Mock authentication (replaces authUser + connectToDB)
+/** ✅ Mock user authentication (replace later with real `authUser`) */
 async function mockAuthUser(): Promise<User> {
   return {
     _id: "u1" as any,
@@ -35,34 +37,35 @@ async function mockAuthUser(): Promise<User> {
   };
 }
 
+/** ✅ Main page component */
 export default async function ProfileIdPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  // 🗂 Load local product data
-  const productsFile = path.join(process.cwd(), "data", "products.json");
-  const products = await readJSON<Product>(productsFile);
-
-  // 👤 Mock user (like `authUser()`)
+  // 📦 Load local data
+  const products = await readJSON<Product>("products.json");
   const user = await mockAuthUser();
 
-  const serializedProducts = serializeDoc(products);
   const serializedUser = serializeDoc(user);
+  const serializedProducts = serializeDoc(products);
 
   return (
     <div className="grid grid-cols-12 gap-5 lg:px-20 pb-20 lg:pt-10">
-      <div className="col-span-4 border rounded-md py-5 max-lg:hidden">
+      {/* Sidebar (Desktop) */}
+      <aside className="col-span-4 hidden border rounded-md py-5 lg:block">
         <UserInfo />
         <UserList id={id} />
-      </div>
-      <div className="col-span-8 max-lg:col-span-12 gap-5">
+      </aside>
+
+      {/* Main Content */}
+      <main className="col-span-12 lg:col-span-8 flex flex-col gap-5">
         <ProfileMain
           user={serializedUser}
           products={serializedProducts}
           id={id}
         />
-      </div>
+      </main>
     </div>
   );
 }

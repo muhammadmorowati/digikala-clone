@@ -6,56 +6,48 @@ import path from "path";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect, notFound } from "next/navigation";
-import { Category, Product, ProductImage } from "@/src/utils/types";
+import { Category, Product } from "@/src/utils/types";
 
-// Helpers
+// ─────────────────────────── helpers ───────────────────────────
 const toBytes = (ab: ArrayBuffer) => new Uint8Array(ab);
-const ensureDir = async (dir: string) => {
+
+async function ensureDir(dir: string) {
   try {
     await fs.access(dir);
-  } catch (e: any) {
-    if (e.code === "ENOENT") await fs.mkdir(dir, { recursive: true });
-    else throw e;
+  } catch (err: any) {
+    if (err.code === "ENOENT") await fs.mkdir(dir, { recursive: true });
+    else throw err;
   }
-};
-const readJSON = async <T>(file: string): Promise<T[]> => {
-  try {
-    const data = await fs.readFile(file, "utf8");
-    return JSON.parse(data) as T[];
-  } catch (e: any) {
-    if (e.code === "ENOENT") return [];
-    throw e;
-  }
-};
-const writeJSON = async (file: string, data: unknown) => {
-  await fs.writeFile(file, JSON.stringify(data, null, 2), "utf8");
-};
+}
 
-// Data file paths
+async function readJSON<T>(filePath: string): Promise<T[]> {
+  try {
+    const data = await fs.readFile(filePath, "utf8");
+    return JSON.parse(data);
+  } catch (err: any) {
+    if (err.code === "ENOENT") return [];
+    throw err;
+  }
+}
+
+async function writeJSON(filePath: string, data: unknown) {
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+}
+
+// Data file path
 const productsFile = path.join(process.cwd(), "data", "products.json");
 
 type Feature = { key: string; value: string };
 type Color = { name: string; hex: string };
 
-// ───────────── addProduct
+// ─────────────────────────── addProduct ───────────────────────────
 export async function addProduct(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
-  const featureArray: Feature[] = (() => {
-    try {
-      return JSON.parse(String(entries.features ?? "[]"));
-    } catch {
-      return [];
-    }
-  })();
-  const colorArray: Color[] = (() => {
-    try {
-      return JSON.parse(String(entries.colors ?? "[]"));
-    } catch {
-      return [];
-    }
-  })();
 
-  const parsedEntries = {
+  const featureArray: Feature[] = safeParseJSON(entries.features);
+  const colorArray: Color[] = safeParseJSON(entries.colors);
+
+  const numericEntries = {
     ...entries,
     price: Number(entries.price ?? 0),
     discount: Number(entries.discount ?? 0),
@@ -64,43 +56,40 @@ export async function addProduct(_state: unknown, formData: FormData) {
     voter: Number(entries.voter ?? 0),
   };
 
-  const result = ProductSchema.safeParse(parsedEntries);
+  const result = ProductSchema.safeParse(numericEntries);
   if (!result.success) {
-    console.log("❌ Validation:", result.error.formErrors.fieldErrors);
+    console.error("❌ Validation:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
-  const data = result.data;
 
-  // Make sure folder exists
+  const data = result.data;
   const productDir = path.join(process.cwd(), "public/products");
   await ensureDir(productDir);
 
-  // Save thumbnail
+  // Thumbnail
   const thumbnailPath = `/products/${crypto.randomUUID()}-${data.thumbnail.name}`;
   await fs.writeFile(
     path.join(process.cwd(), "public", thumbnailPath),
     toBytes(await data.thumbnail.arrayBuffer())
   );
 
-  // Save extra images
+  // Extra images
   const imagePaths: string[] = [];
   const seen = new Set<string>();
-  const images = formData.getAll("image") as File[];
-  await Promise.all(
-    images.map(async (image) => {
-      if (!(image instanceof File) || seen.has(image.name)) return;
-      seen.add(image.name);
-      const p = `/products/${crypto.randomUUID()}-${image.name}`;
+  for (const file of formData.getAll("image") as File[]) {
+    if (file instanceof File && !seen.has(file.name)) {
+      seen.add(file.name);
+      const imgPath = `/products/${crypto.randomUUID()}-${file.name}`;
       await fs.writeFile(
-        path.join(process.cwd(), "public", p),
-        toBytes(await image.arrayBuffer())
+        path.join(process.cwd(), "public", imgPath),
+        toBytes(await file.arrayBuffer())
       );
-      imagePaths.push(p);
-    })
-  );
+      imagePaths.push(imgPath);
+    }
+  }
 
-  // Create product object
   const products = await readJSON<Product>(productsFile);
+
   const newProduct: Product = {
     _id: crypto.randomUUID(),
     title: data.title,
@@ -109,7 +98,7 @@ export async function addProduct(_state: unknown, formData: FormData) {
     discount: data.discount,
     discount_price: data.discount_price,
     rating: data.rating,
-    voter: data.voter, 
+    voter: data.voter,
     thumbnail: thumbnailPath,
     description: data.description ?? "",
     category: { _id: data.categoryId } as Category,
@@ -117,7 +106,7 @@ export async function addProduct(_state: unknown, formData: FormData) {
     submenuItemId: data.submenuItemId,
     features: featureArray,
     colors: colorArray,
-    images: imagePaths,
+    images: imagePaths, // all strings
     createdAt: new Date().toISOString(),
   };
 
@@ -129,27 +118,15 @@ export async function addProduct(_state: unknown, formData: FormData) {
   redirect("/admin/products");
 }
 
-// ───────────── updateProduct
+// ─────────────────────────── updateProduct ───────────────────────────
 export async function updateProduct(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
-  const featureArray: Feature[] = (() => {
-    try {
-      return JSON.parse(String(entries.features ?? "[]"));
-    } catch {
-      return [];
-    }
-  })();
-  const colorArray: Color[] = (() => {
-    try {
-      return JSON.parse(String(entries.colors ?? "[]"));
-    } catch {
-      return [];
-    }
-  })();
+  const featureArray: Feature[] = safeParseJSON(entries.features);
+  const colorArray: Color[] = safeParseJSON(entries.colors);
 
   const result = ProductSchema.safeParse(entries);
   if (!result.success) {
-    console.log("❌ Validation:", result.error.formErrors.fieldErrors);
+    console.error("❌ Validation:", result.error.formErrors.fieldErrors);
     return result.error.formErrors.fieldErrors;
   }
 
@@ -162,6 +139,7 @@ export async function updateProduct(_state: unknown, formData: FormData) {
   const productDir = path.join(process.cwd(), "public/products");
   await ensureDir(productDir);
 
+  // Thumbnail replacement
   let thumbnailPath = existing.thumbnail;
   if (data.thumbnail instanceof File && data.thumbnail.size > 0) {
     thumbnailPath = `/products/${crypto.randomUUID()}-${data.thumbnail.name}`;
@@ -171,19 +149,18 @@ export async function updateProduct(_state: unknown, formData: FormData) {
     );
   }
 
-  // handle new images
-  const imagePaths = [...(existing.images || [])];
-  const images = formData.getAll("image") as File[];
+  // Add new images
+  const imagePaths = [...(existing.images || [])] as string[];
   const seen = new Set(imagePaths);
-  for (const image of images) {
-    if (image instanceof File) {
-      const p = `/products/${crypto.randomUUID()}-${image.name}`;
-      if (!seen.has(p)) {
+  for (const file of formData.getAll("image") as File[]) {
+    if (file instanceof File) {
+      const imgPath = `/products/${crypto.randomUUID()}-${file.name}`;
+      if (!seen.has(imgPath)) {
         await fs.writeFile(
-          path.join(process.cwd(), "public", p),
-          toBytes(await image.arrayBuffer())
+          path.join(process.cwd(), "public", imgPath),
+          toBytes(await file.arrayBuffer())
         );
-        imagePaths.push(p);
+        imagePaths.push(imgPath);
       }
     }
   }
@@ -194,7 +171,7 @@ export async function updateProduct(_state: unknown, formData: FormData) {
     thumbnail: thumbnailPath,
     features: featureArray,
     colors: colorArray,
-    images: imagePaths as string[],
+    images: imagePaths,
     updatedAt: new Date().toISOString(),
   };
 
@@ -205,30 +182,39 @@ export async function updateProduct(_state: unknown, formData: FormData) {
   redirect("/admin/products");
 }
 
-// ───────────── deleteProduct
+// ─────────────────────────── deleteProduct ───────────────────────────
 export async function deleteProduct(id: string) {
   const products = await readJSON<Product>(productsFile);
   const index = products.findIndex((p) => p._id === id);
   if (index === -1) return notFound();
 
   const product = products[index];
-  const allImages = [product.thumbnail, ...(product.images || [])];
+  const allImages: string[] = [
+    product.thumbnail,
+    ...(product.images?.map((img) => (typeof img === "string" ? img : img.url)) || []),
+  ];
 
-for (const rel of allImages) {
-  const filePath =
-    typeof rel === "string"
-      ? rel
-      : (rel as ProductImage).url; // handle ProductImage object
-  try {
-    await fs.unlink(path.join(process.cwd(), "public", filePath));
-  } catch (e: any) {
-    if (e.code !== "ENOENT") console.warn("⚠️ Failed to delete:", filePath);
+  for (const rel of allImages) {
+    try {
+      await fs.unlink(path.join(process.cwd(), "public", rel));
+    } catch (err: any) {
+      if (err.code !== "ENOENT") console.warn("⚠️ Failed to delete:", rel);
+    }
   }
-}
 
   products.splice(index, 1);
   await writeJSON(productsFile, products);
 
   revalidatePath("/");
   revalidatePath("/products");
+}
+
+// ─────────────────────────── utilities ───────────────────────────
+function safeParseJSON(input: unknown) {
+  if (typeof input !== "string") return [];
+  try {
+    return JSON.parse(input);
+  } catch {
+    return [];
+  }
 }

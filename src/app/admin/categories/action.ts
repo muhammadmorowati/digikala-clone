@@ -6,36 +6,22 @@ import {
   CategorySubmenusSchema,
   CategorySubmenuItemSchema,
 } from "@/src/utils/validation";
+import { Category, Submenu, SubmenuItem } from "@/src/utils/types";
 import { access, mkdir, unlink, writeFile, readFile } from "node:fs/promises";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "node:path";
-import { Category, Submenu, SubmenuItem } from "@/src/utils/types";
 
-// ───────────────── helpers ─────────────────
-const dataDir = path.join(process.cwd(), "data");
+// ────────────────────────────── CONSTANTS ──────────────────────────────
+const DATA_DIR = path.join(process.cwd(), "data");
+const PUBLIC_DIR = path.join(process.cwd(), "public");
+const PATHS = {
+  categories: path.join(DATA_DIR, "categories.json"),
+  submenus: path.join(DATA_DIR, "submenus.json"),
+  submenuItems: path.join(DATA_DIR, "submenuItems.json"),
+};
 
-async function readJSON<T>(filename: string): Promise<T[]> {
-  try {
-    const filePath = path.join(dataDir, filename);
-    const data = await readFile(filePath, "utf8");
-    return JSON.parse(data);
-  } catch (e: any) {
-    if (e.code === "ENOENT") return [];
-    throw e;
-  }
-}
-
-async function writeJSON<T>(filename: string, data: T[]) {
-  const filePath = path.join(dataDir, filename);
-  await mkdir(dataDir, { recursive: true });
-  await writeFile(filePath, JSON.stringify(data, null, 2));
-}
-
-function toBytes(ab: ArrayBuffer) {
-  return new Uint8Array(ab);
-}
-
+// ────────────────────────────── HELPERS ──────────────────────────────
 async function ensureDir(dir: string) {
   try {
     await access(dir);
@@ -44,7 +30,27 @@ async function ensureDir(dir: string) {
   }
 }
 
-// ───────────────── addCategory ─────────────────
+async function readJSON<T>(filename: string): Promise<T[]> {
+  try {
+    const data = await readFile(filename, "utf8");
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e: any) {
+    if (e.code === "ENOENT") return [];
+    throw e;
+  }
+}
+
+async function writeJSON<T>(filename: string, data: T[]) {
+  await ensureDir(DATA_DIR);
+  await writeFile(filename, JSON.stringify(data, null, 2), "utf8");
+}
+
+function toBytes(ab: ArrayBuffer) {
+  return new Uint8Array(ab);
+}
+
+// ────────────────────────────── CATEGORY ──────────────────────────────
 export async function addCategory(_state: unknown, formData: FormData) {
   const heros = formData.getAll("hero");
   const banners = formData.getAll("banner");
@@ -54,54 +60,41 @@ export async function addCategory(_state: unknown, formData: FormData) {
     hero: heros,
     banner: banners,
   });
+
   if (!parsed.success) return parsed.error.formErrors.fieldErrors;
   const data = parsed.data;
 
-  const categoryDir = path.join(process.cwd(), "public/categories");
+  const categoryDir = path.join(PUBLIC_DIR, "categories");
   await ensureDir(categoryDir);
 
+  // Save cover and icon
   const coverPath = `/categories/${crypto.randomUUID()}-${data.cover.name}`;
-  await writeFile(
-    path.join(process.cwd(), "public", coverPath),
-    toBytes(await data.cover.arrayBuffer())
-  );
+  await writeFile(path.join(PUBLIC_DIR, coverPath), toBytes(await data.cover.arrayBuffer()));
 
   const iconPath = `/categories/${crypto.randomUUID()}-${data.icon.name}`;
-  await writeFile(
-    path.join(process.cwd(), "public", iconPath),
-    toBytes(await data.icon.arrayBuffer())
-  );
+  await writeFile(path.join(PUBLIC_DIR, iconPath), toBytes(await data.icon.arrayBuffer()));
 
+  // Save hero and banner images
   const heroPaths: string[] = [];
   const bannerPaths: string[] = [];
 
-  await Promise.all(
-    (heros as File[]).map(async (image) => {
-      if (image instanceof File) {
-        const imgPath = `/categories/hero/${crypto.randomUUID()}-${image.name}`;
-        await writeFile(
-          path.join(process.cwd(), "public", imgPath),
-          toBytes(await image.arrayBuffer())
-        );
-        heroPaths.push(imgPath);
-      }
-    })
-  );
+  for (const img of heros as File[]) {
+    if (img instanceof File && img.size > 0) {
+      const heroPath = `/categories/hero/${crypto.randomUUID()}-${img.name}`;
+      await writeFile(path.join(PUBLIC_DIR, heroPath), toBytes(await img.arrayBuffer()));
+      heroPaths.push(heroPath);
+    }
+  }
 
-  await Promise.all(
-    (banners as File[]).map(async (image) => {
-      if (image instanceof File) {
-        const imgPath = `/categories/banner/${crypto.randomUUID()}-${image.name}`;
-        await writeFile(
-          path.join(process.cwd(), "public", imgPath),
-          toBytes(await image.arrayBuffer())
-        );
-        bannerPaths.push(imgPath);
-      }
-    })
-  );
+  for (const img of banners as File[]) {
+    if (img instanceof File && img.size > 0) {
+      const bannerPath = `/categories/banner/${crypto.randomUUID()}-${img.name}`;
+      await writeFile(path.join(PUBLIC_DIR, bannerPath), toBytes(await img.arrayBuffer()));
+      bannerPaths.push(bannerPath);
+    }
+  }
 
-  const categories = await readJSON<Category>("categories.json");
+  const categories = await readJSON<Category>(PATHS.categories);
 
   const newCategory: Category = {
     _id: crypto.randomUUID(),
@@ -115,14 +108,13 @@ export async function addCategory(_state: unknown, formData: FormData) {
   };
 
   categories.push(newCategory);
-  await writeJSON("categories.json", categories);
+  await writeJSON(PATHS.categories, categories);
 
   revalidatePath("/");
   revalidatePath("/categories");
   redirect("/admin/categories");
 }
 
-// ───────────────── updateCategory ─────────────────
 export async function updateCategory(_state: unknown, formData: FormData) {
   const heros = formData.getAll("hero");
   const banners = formData.getAll("banner");
@@ -133,68 +125,53 @@ export async function updateCategory(_state: unknown, formData: FormData) {
     banner: banners,
   });
   if (!parsed.success) return parsed.error.formErrors.fieldErrors;
+
   const data = parsed.data;
+  const categories = await readJSON<Category>(PATHS.categories);
+  const index = categories.findIndex((c) => c._id === data._id);
+  if (index === -1) return notFound();
 
-  const categories = await readJSON<Category>("categories.json");
-  const categoryIndex = categories.findIndex((c) => c._id === data._id);
-  if (categoryIndex === -1) return notFound();
-
-  const category = categories[categoryIndex];
+  const category = categories[index];
   let coverPath = category.cover?.[0] || "";
   let iconPath = category.icon || "";
 
-  if (data.cover && data.cover.size > 0) {
+  // Replace images if new ones uploaded
+  if (data.cover?.size) {
     try {
-      await unlink(path.join(process.cwd(), "public", coverPath));
-    } catch {}
+      await unlink(path.join(PUBLIC_DIR, coverPath));
+    } catch (e) {}
     coverPath = `/categories/${crypto.randomUUID()}-${data.cover.name}`;
-    await writeFile(
-      path.join(process.cwd(), "public", coverPath),
-      toBytes(await data.cover.arrayBuffer())
-    );
+    await writeFile(path.join(PUBLIC_DIR, coverPath), toBytes(await data.cover.arrayBuffer()));
   }
 
-  if (data.icon && data.icon.size > 0) {
+  if (data.icon?.size) {
     try {
-      await unlink(path.join(process.cwd(), "public", iconPath));
-    } catch {}
+      await unlink(path.join(PUBLIC_DIR, iconPath));
+    } catch (e) {}
     iconPath = `/categories/${crypto.randomUUID()}-${data.icon.name}`;
-    await writeFile(
-      path.join(process.cwd(), "public", iconPath),
-      toBytes(await data.icon.arrayBuffer())
-    );
+    await writeFile(path.join(PUBLIC_DIR, iconPath), toBytes(await data.icon.arrayBuffer()));
   }
 
   const heroPaths = category.hero || [];
   const bannerPaths = category.banner || [];
 
-  await Promise.all(
-    (heros as File[]).map(async (hero) => {
-      if (hero instanceof File) {
-        const heroPath = `/categories/hero/${crypto.randomUUID()}-${hero.name}`;
-        await writeFile(
-          path.join(process.cwd(), "public", heroPath),
-          toBytes(await hero.arrayBuffer())
-        );
-        heroPaths.push(heroPath);
-      }
-    })
-  );
+  for (const img of heros as File[]) {
+    if (img instanceof File && img.size > 0) {
+      const heroPath = `/categories/hero/${crypto.randomUUID()}-${img.name}`;
+      await writeFile(path.join(PUBLIC_DIR, heroPath), toBytes(await img.arrayBuffer()));
+      heroPaths.push(heroPath);
+    }
+  }
 
-  await Promise.all(
-    (banners as File[]).map(async (banner) => {
-      if (banner instanceof File) {
-        const bannerPath = `/categories/banner/${crypto.randomUUID()}-${banner.name}`;
-        await writeFile(
-          path.join(process.cwd(), "public", bannerPath),
-          toBytes(await banner.arrayBuffer())
-        );
-        bannerPaths.push(bannerPath);
-      }
-    })
-  );
+  for (const img of banners as File[]) {
+    if (img instanceof File && img.size > 0) {
+      const bannerPath = `/categories/banner/${crypto.randomUUID()}-${img.name}`;
+      await writeFile(path.join(PUBLIC_DIR, bannerPath), toBytes(await img.arrayBuffer()));
+      bannerPaths.push(bannerPath);
+    }
+  }
 
-  categories[categoryIndex] = {
+  categories[index] = {
     ...category,
     title: data.title,
     href: data.href,
@@ -204,51 +181,39 @@ export async function updateCategory(_state: unknown, formData: FormData) {
     banner: bannerPaths,
   };
 
-  await writeJSON("categories.json", categories);
-
+  await writeJSON(PATHS.categories, categories);
   revalidatePath("/");
   revalidatePath("/categories");
   redirect("/admin/categories");
 }
 
-// ───────────────── deleteCategory ─────────────────
 export async function deleteCategory(id: string) {
-  const categories = await readJSON<Category>("categories.json");
+  const categories = await readJSON<Category>(PATHS.categories);
   const index = categories.findIndex((c) => c._id === id);
   if (index === -1) return notFound();
 
   const category = categories[index];
-  const files = [
-    category.icon,
-    ...(category.cover || []),
-    ...(category.hero || []),
-    ...(category.banner || []),
-  ];
+  const files = [category.icon, ...(category.cover || []), ...(category.hero || []), ...(category.banner || [])];
 
-  await Promise.all(
-    files.map(async (rel) => {
-      try {
-        await unlink(path.join(process.cwd(), "public", rel));
-      } catch {}
-    })
-  );
+  for (const rel of files) {
+    try {
+      await unlink(path.join(PUBLIC_DIR, rel));
+    } catch (e) {}
+  }
 
   categories.splice(index, 1);
-  await writeJSON("categories.json", categories);
-
+  await writeJSON(PATHS.categories, categories);
   revalidatePath("/");
   revalidatePath("/admin/categories");
 }
 
-// ───────────────── submenu ─────────────────
+// ────────────────────────────── SUBMENU ──────────────────────────────
 export async function addSubmenu(formData: FormData) {
-  const parsed = CategorySubmenusSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
+  const parsed = CategorySubmenusSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) return parsed.error.formErrors.fieldErrors;
 
   const data = parsed.data;
-  const submenus = await readJSON<Submenu>("submenus.json");
+  const submenus = await readJSON<Submenu>(PATHS.submenus);
 
   const newSubmenu: Submenu = {
     _id: crypto.randomUUID(),
@@ -259,48 +224,41 @@ export async function addSubmenu(formData: FormData) {
   };
 
   submenus.push(newSubmenu);
-  await writeJSON("submenus.json", submenus);
+  await writeJSON(PATHS.submenus, submenus);
 
-  const categories = await readJSON<Category>("categories.json");
+  const categories = await readJSON<Category>(PATHS.categories);
   const catIndex = categories.findIndex((c) => c._id === data.categoryId);
- if (catIndex !== -1) {
-  const cat = categories[catIndex];
-
-  const submenus = cat.submenus || [];
-  submenus.push(newSubmenu); // push the whole submenu object
-
-  cat.submenus = submenus;
-  categories[catIndex] = cat;
-
-  await writeJSON("categories.json", categories);
-}
+  if (catIndex !== -1) {
+    const cat = categories[catIndex];
+    cat.submenus = [...(cat.submenus || []), newSubmenu];
+    categories[catIndex] = cat;
+    await writeJSON(PATHS.categories, categories);
+  }
 
   revalidatePath("/");
   redirect("/admin/categories/submenu");
 }
 
 export async function deleteSubmenu(id: string) {
-  const submenus = await readJSON<Submenu>("submenus.json");
+  const submenus = await readJSON<Submenu>(PATHS.submenus);
   const index = submenus.findIndex((s) => s._id === id);
   if (index === -1) return notFound();
 
   submenus.splice(index, 1);
-  await writeJSON("submenus.json", submenus);
+  await writeJSON(PATHS.submenus, submenus);
 
   revalidatePath("/");
   redirect("/admin/categories/submenu");
 }
 
-// ───────────────── submenu-item ─────────────────
+// ────────────────────────────── SUBMENU ITEM ──────────────────────────────
 export async function addSubmenuItem(formData: FormData) {
-  const parsed = CategorySubmenuItemSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
+  const parsed = CategorySubmenuItemSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) return parsed.error.formErrors.fieldErrors;
 
   const data = parsed.data;
+  const submenuItems = await readJSON<SubmenuItem>(PATHS.submenuItems);
 
-  const submenuItems = await readJSON<SubmenuItem>("submenuItems.json");
   const newItem: SubmenuItem = {
     _id: crypto.randomUUID(),
     title: data.title,
@@ -309,33 +267,28 @@ export async function addSubmenuItem(formData: FormData) {
   };
 
   submenuItems.push(newItem);
-  await writeJSON("submenuItems.json", submenuItems);
+  await writeJSON(PATHS.submenuItems, submenuItems);
 
-  const submenus = await readJSON<Submenu>("submenus.json");
+  const submenus = await readJSON<Submenu>(PATHS.submenus);
   const smIndex = submenus.findIndex((s) => s._id === data.submenuId);
- if (smIndex !== -1) {
-  const submenu = submenus[smIndex];
-
-  const items = submenu.items || [];
-  items.push(newItem); // push the full SubmenuItem object
-
-  submenu.items = items;
-  submenus[smIndex] = submenu;
-
-  await writeJSON("submenus.json", submenus);
-}
+  if (smIndex !== -1) {
+    const submenu = submenus[smIndex];
+    submenu.items = [...(submenu.items || []), newItem];
+    submenus[smIndex] = submenu;
+    await writeJSON(PATHS.submenus, submenus);
+  }
 
   revalidatePath("/");
   redirect("/admin/categories/submenu-item");
 }
 
 export async function deleteSubmenuItem(id: string) {
-  const submenuItems = await readJSON<SubmenuItem>("submenuItems.json");
+  const submenuItems = await readJSON<SubmenuItem>(PATHS.submenuItems);
   const index = submenuItems.findIndex((s) => s._id === id);
   if (index === -1) return notFound();
 
   submenuItems.splice(index, 1);
-  await writeJSON("submenuItems.json", submenuItems);
+  await writeJSON(PATHS.submenuItems, submenuItems);
 
   revalidatePath("/");
   redirect("/admin/categories/submenu-item");

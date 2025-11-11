@@ -5,7 +5,7 @@ import UserList from "@/src/components/profile/UserList";
 import UserOrders from "@/src/components/profile/UserOrders";
 import WarnSection from "@/src/components/profile/WarnSection";
 
-
+/** ✅ Profile main page */
 export default function ProfilePage({
   params: { id },
 }: {
@@ -13,6 +13,7 @@ export default function ProfilePage({
 }) {
   return (
     <div>
+      {/* Mobile View */}
       <div className="flex flex-col gap-10 lg:hidden">
         <ProfileHeader />
         <UserInfo />
@@ -24,8 +25,10 @@ export default function ProfilePage({
         </div>
       </div>
 
-      {/* Desktop Size */}
-      <ProfileScreenSize id={id} />
+      {/* Desktop View */}
+      <div className="hidden lg:block">
+        <ProfileScreenSize id={id} />
+      </div>
     </div>
   );
 }

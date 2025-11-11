@@ -5,13 +5,14 @@ import { promises as fs } from "fs";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
+import { Article } from "@/src/utils/types";
 
 // Paths
 const articlesFilePath = path.join(process.cwd(), "data", "articles.json");
 const articleDir = path.join(process.cwd(), "public", "articles");
 
-// Helper: load articles.json
-async function loadArticles() {
+// Helpers
+async function loadArticles(): Promise<Article[]> {
   try {
     const data = await fs.readFile(articlesFilePath, "utf8");
     return JSON.parse(data);
@@ -21,47 +22,49 @@ async function loadArticles() {
   }
 }
 
-// Helper: save articles.json
-async function saveArticles(articles: any[]) {
+async function saveArticles(articles: Article[]) {
   await fs.mkdir(path.dirname(articlesFilePath), { recursive: true });
   await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2), "utf8");
+}
+
+async function safeUnlink(filePath: string) {
+  try {
+    await fs.unlink(filePath);
+  } catch (err: any) {
+    if (err.code !== "ENOENT") throw err;
+  }
+}
+
+function safeParseTags(tags: any) {
+  if (!tags) return [];
+  if (typeof tags !== "string") return tags;
+  try {
+    return JSON.parse(tags);
+  } catch {
+    throw new Error("Invalid tags format");
+  }
 }
 
 // 🧩 ADD ARTICLE
 export async function addArticle(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
-
-  // Parse tags if they come as stringified JSON
-  if (typeof entries.tags === "string") {
-    try {
-      entries.tags = JSON.parse(entries.tags);
-    } catch {
-      return { tags: ["Invalid tags format"] };
-    }
-  }
+  entries.tags = safeParseTags(entries.tags);
 
   const result = ArticleSchema.safeParse(entries);
   if (!result.success) {
-    console.log("❌ Validation errors:", result.error.formErrors.fieldErrors);
-    return result.error.formErrors.fieldErrors;
+    return { success: false, errors: result.error.formErrors.fieldErrors };
   }
 
   const data = result.data;
-
-  // Ensure directory exists
   await fs.mkdir(articleDir, { recursive: true });
 
-  // Save cover image
-  const coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-  const ab = await data.cover.arrayBuffer();
-  const bytes = new Uint8Array(ab);
-  await fs.writeFile(path.join("public", coverPath), bytes);
+  const coverFileName = `${crypto.randomUUID()}-${data.cover.name}`;
+  const coverPath = `/articles/${coverFileName}`;
+  const bytes = new Uint8Array(await data.cover.arrayBuffer());
+  await fs.writeFile(path.join(articleDir, coverFileName), bytes);
 
-  // Load current articles
   const articles = await loadArticles();
-
-  // Add new article
-  const newArticle = {
+  const newArticle: Article = {
     _id: crypto.randomUUID(),
     title: data.title,
     content: data.content,
@@ -77,93 +80,59 @@ export async function addArticle(_state: unknown, formData: FormData) {
 
   articles.push(newArticle);
   await saveArticles(articles);
-
   revalidatePath("/");
   revalidatePath("/articles");
+
   redirect("/admin/articles");
 }
 
 // 🧩 UPDATE ARTICLE
 export async function updateArticle(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
-
-  // Parse tags if stringified
-  if (typeof entries.tags === "string") {
-    try {
-      entries.tags = JSON.parse(entries.tags);
-    } catch {
-      return { tags: ["Invalid tags format"] };
-    }
-  }
+  entries.tags = safeParseTags(entries.tags);
 
   const result = ArticleEditSchema.safeParse(entries);
   if (!result.success) {
-    console.log("❌ Validation errors:", result.error.formErrors.fieldErrors);
-    return result.error.formErrors.fieldErrors;
+    return { success: false, errors: result.error.formErrors.fieldErrors };
   }
 
   const data = result.data;
-  const articleId = data._id;
-
   const articles = await loadArticles();
-  const articleIndex = articles.findIndex((a: any) => a._id === articleId);
-  if (articleIndex === -1) return notFound();
+  const index = articles.findIndex((a) => a._id === data._id);
+  if (index === -1) return notFound();
 
-  let coverPath = articles[articleIndex].cover;
-
-  // If new cover uploaded, replace it
+  let coverPath = articles[index].cover;
   if (data.cover) {
-    // Remove old cover
-    try {
-      await fs.unlink(path.join("public", coverPath));
-    } catch {
-      /* ignore if not found */
-    }
-
-    // Save new one
-    coverPath = `/articles/${crypto.randomUUID()}-${data.cover.name}`;
-    const ab = await data.cover.arrayBuffer();
-    const bytes = new Uint8Array(ab);
-    await fs.writeFile(path.join("public", coverPath), bytes);
+    await safeUnlink(path.join("public", coverPath));
+    const coverFileName = `${crypto.randomUUID()}-${data.cover.name}`;
+    coverPath = `/articles/${coverFileName}`;
+    const bytes = new Uint8Array(await data.cover.arrayBuffer());
+    await fs.writeFile(path.join(articleDir, coverFileName), bytes);
   }
 
-  // Update article
-  articles[articleIndex] = {
-    ...articles[articleIndex],
-    title: data.title,
-    content: data.content,
-    author: data.author,
-    tags: data.tags,
-    source: data.source,
-    readingTime: data.readingTime,
-    publishedAt:
-      data.publishedAt || articles[articleIndex].publishedAt,
+  articles[index] = {
+    ...articles[index],
+    ...data,
     cover: coverPath,
-    categoryId: data.categoryId,
+    publishedAt: data.publishedAt ?? articles[index].publishedAt,
   };
 
   await saveArticles(articles);
-
   revalidatePath("/");
   revalidatePath("/articles");
+
   redirect("/admin/articles");
 }
 
 // 🧩 DELETE ARTICLE
 export async function deleteArticle(id: string) {
   const articles = await loadArticles();
-  const index = articles.findIndex((a: any) => a._id === id);
+  const index = articles.findIndex((a) => a._id === id);
   if (index === -1) return notFound();
 
   const article = articles[index];
-  // Remove cover image
-  try {
-    await fs.unlink(path.join("public", article.cover));
-  } catch {
-    /* ignore if missing */
-  }
+  await safeUnlink(path.join("public", article.cover));
 
-  // Remove from list
   articles.splice(index, 1);
   await saveArticles(articles);
 

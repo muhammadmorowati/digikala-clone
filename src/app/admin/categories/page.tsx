@@ -4,19 +4,15 @@ import { Category } from "@/src/utils/types";
 import { promises as fs } from "fs";
 import path from "path";
 
-export default function AdminCategoriesPage() {
-  return <CategoryTable />;
-}
-
-async function CategoryTable() {
-  // Path to JSON file
+export default async function AdminCategoriesPage() {
   const categoriesPath = path.join(process.cwd(), "data", "categories.json");
 
   let categories: Category[] = [];
 
   try {
     const data = await fs.readFile(categoriesPath, "utf8");
-    categories = JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) categories = parsed;
   } catch (error: any) {
     if (error.code !== "ENOENT") {
       console.error("❌ Failed to read categories.json:", error);
@@ -30,7 +26,7 @@ async function CategoryTable() {
         <AdminTable categories={categories} />
       ) : (
         <div className="text-neutral-500 p-5 text-center">
-          آیتمی برای نمایش وجود ندارد.
+          هیچ موردی برای نمایش وجود ندارد.
         </div>
       )}
     </>

@@ -1,34 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPayment } from "@/src/utils/zarinpal";
+import { readJSON } from "@/src/utils/fileUtils";
 import path from "path";
 import { promises as fs } from "fs";
+import crypto from "crypto";
 
-type CreatePaymentResult = {
+interface Checkout {
+  _id: string;
+  totalPrice: number;
   authority: string;
-  paymentUrl: string;
-};
+  user: string;
+  createdAt: string;
+}
 
-type Body = {
+interface Body {
   totalPrice: number;
   user: { _id: string; phone?: string };
-};
+}
+
+interface CreatePaymentResult {
+  authority: string;
+  paymentUrl: string;
+}
 
 const filePath = path.join(process.cwd(), "data", "checkouts.json");
 
+// ─────────────────────────── POST /api/payment
 export const POST = async (req: NextRequest) => {
   try {
     const body = (await req.json()) as Body;
     const { totalPrice, user } = body ?? {};
 
-    // 🔸 Validate incoming data
+    // 🔸 Validate input
     if (typeof totalPrice !== "number" || !user?._id) {
       return NextResponse.json(
-        { message: "Invalid payload: totalPrice (number) and user._id are required." },
+        { message: "پارامترهای ارسالی معتبر نیستند." },
         { status: 400 }
       );
     }
 
-    // 🔹 Create Zarinpal payment request
+    // 🔹 Request payment from Zarinpal
     const payment = (await createPayment({
       amountInRial: totalPrice,
       description: "پرداخت با شناسه 99812",
@@ -37,41 +48,41 @@ export const POST = async (req: NextRequest) => {
 
     if (!payment?.authority || !payment?.paymentUrl) {
       return NextResponse.json(
-        { message: "Invalid payment response from gateway." },
+        { message: "پاسخ نامعتبر از درگاه پرداخت دریافت شد." },
         { status: 502 }
       );
     }
 
-    // 🔹 Read existing checkouts
-    const data = await fs.readFile(filePath, "utf8").catch(() => "[]");
-    const checkouts = JSON.parse(data);
+    // 🔹 Read existing checkouts (or start empty)
+    const checkouts = await readJSON<Checkout>(filePath);
 
-    // 🔹 Create new checkout object
-    const newCheckout = {
-      _id: Date.now().toString(),
+    // 🔹 Create new checkout
+    const newCheckout: Checkout = {
+      _id: crypto.randomUUID(),
       totalPrice,
       authority: payment.authority,
       user: user._id,
       createdAt: new Date().toISOString(),
     };
 
-    // 🔹 Append and save to JSON file
+    // 🔹 Append and save
     checkouts.push(newCheckout);
-    await fs.writeFile(filePath, JSON.stringify(checkouts, null, 2));
+    await fs.writeFile(filePath, JSON.stringify(checkouts, null, 2), "utf8");
 
-    // 🔹 Return success
+    // 🔹 Respond
     return NextResponse.json(
       {
-        message: "Checkout created successfully :))",
+        message: "پرداخت با موفقیت ایجاد شد.",
         checkout: newCheckout,
         paymentUrl: payment.paymentUrl,
       },
       { status: 201 }
     );
   } catch (err) {
+    console.error("❌ Payment creation failed:", err);
     return NextResponse.json(
       {
-        message: "Internal Server Error !!",
+        message: "خطای داخلی سرور",
         error: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }

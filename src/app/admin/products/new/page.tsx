@@ -5,13 +5,14 @@ import { promises as fs } from "fs";
 import path from "path";
 
 export default async function NewProductPage() {
-  const categoriesFile = path.join(process.cwd(), "data", "categories.json");
+  const categoriesPath = path.join(process.cwd(), "data", "categories.json");
 
   let categories: Category[] = [];
 
   try {
-    const data = await fs.readFile(categoriesFile, "utf8");
-    categories = JSON.parse(data);
+    const data = await fs.readFile(categoriesPath, "utf8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) categories = parsed;
   } catch (error: any) {
     if (error.code !== "ENOENT") {
       console.error("❌ Failed to read categories.json:", error);

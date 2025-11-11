@@ -4,15 +4,15 @@ import { Order } from "@/src/utils/types";
 import { promises as fs } from "fs";
 import path from "path";
 
-export default async function AdminUsersPage() {
-  // Path to local JSON file
-  const ordersFile = path.join(process.cwd(), "data", "orders.json");
+export default async function AdminOrdersPage() {
+  const ordersPath = path.join(process.cwd(), "data", "orders.json");
 
   let orders: Order[] = [];
 
   try {
-    const data = await fs.readFile(ordersFile, "utf8");
-    orders = JSON.parse(data);
+    const data = await fs.readFile(ordersPath, "utf8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) orders = parsed;
   } catch (error: any) {
     if (error.code !== "ENOENT") {
       console.error("❌ Failed to read orders.json:", error);
@@ -26,7 +26,7 @@ export default async function AdminUsersPage() {
         <AdminTable orders={orders} />
       ) : (
         <div className="text-neutral-500 text-center p-5">
-          آیتمی برای نمایش وجود ندارد.
+          هیچ سفارشی برای نمایش وجود ندارد.
         </div>
       )}
     </>

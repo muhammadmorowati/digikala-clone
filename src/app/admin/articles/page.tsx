@@ -4,14 +4,15 @@ import { Article } from "@/src/utils/types";
 import { promises as fs } from "fs";
 import path from "path";
 
-export default async function AdminArticlesPage() {
-  const articlesFilePath = path.join(process.cwd(), "data", "articles.json");
+const ARTICLES_FILE_PATH = path.join(process.cwd(), "data", "articles.json");
 
+export default async function AdminArticlesPage() {
   let articles: Article[] = [];
 
   try {
-    const data = await fs.readFile(articlesFilePath, "utf8");
-    articles = JSON.parse(data);
+    const data = await fs.readFile(ARTICLES_FILE_PATH, "utf8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) articles = parsed;
   } catch (error: any) {
     if (error.code !== "ENOENT") {
       console.error("❌ Failed to read articles.json:", error);
@@ -25,7 +26,11 @@ export default async function AdminArticlesPage() {
         <AdminTable articles={articles} />
       ) : (
         <div className="text-neutral-500 p-5 text-center">
-          آیتمی برای نمایش وجود ندارد.
+          هنوز مقاله‌ای ثبت نشده است.
+          <br />
+          <span className="text-sm">
+            برای افزودن مقاله جدید، از دکمه بالا استفاده کنید.
+          </span>
         </div>
       )}
     </>

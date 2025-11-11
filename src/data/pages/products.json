@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "1",
+    "title": "گوشی موبایل سامسونگ مدل Galaxy A55",
+    "description": "گوشی موبایل سامسونگ با صفحه‌نمایش Super AMOLED و باتری قدرتمند.",
+    "price": 14500000,
+    "thumbnail": "/products/a55.webp",
+    "category": {
+      "title": "موبایل",
+      "submenus": [
+        {
+          "title": "گوشی سامسونگ",
+          "items": [{ "title": "Galaxy A55" }]
+        }
+      ]
+    }
+  }
+]

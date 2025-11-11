@@ -3,10 +3,9 @@ import MobileFooter from "@/src/components/mobile-footer/MobileFooter";
 import { redirect } from "next/navigation";
 import { User } from "@/src/utils/types";
 
-// ✅ Mock authentication (instead of authUser + DB)
+/** ✅ Simulated authentication (replace with real auth logic later) */
 async function mockAuthUser(): Promise<User | null> {
-  // You can extend this later with cookie/session logic
-  const isLoggedIn = true; // toggle to false to simulate logged-out user
+  const isLoggedIn = true; // toggle for testing logged-in / logged-out state
   if (!isLoggedIn) return null;
 
   return {
@@ -26,6 +25,7 @@ async function mockAuthUser(): Promise<User | null> {
   };
 }
 
+/** ✅ Layout wrapper for all profile-related pages */
 export default async function ProfileLayout({
   children,
 }: {
@@ -33,17 +33,23 @@ export default async function ProfileLayout({
 }) {
   const user = await mockAuthUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  // 🚪 Redirect to login if no user (simulate auth guard)
+  if (!user) redirect("/login");
 
   return (
-    <div>
-      <div className="max-lg:hidden">
+    <div className="flex min-h-screen flex-col">
+      {/* Desktop header */}
+      <header className="hidden max-lg:block">
         <Header />
-      </div>
-      {children}
-      <MobileFooter />
+      </header>
+
+      {/* Main content */}
+      <main className="flex-grow">{children}</main>
+
+      {/* Mobile footer (persistent) */}
+      <footer>
+        <MobileFooter />
+      </footer>
     </div>
   );
 }

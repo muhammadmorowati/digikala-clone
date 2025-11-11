@@ -1,23 +1,15 @@
 import CartContainer from "@/src/components/cart/CartContainer";
 import FreeShipping from "@/src/components/cart/FreeShipping";
 import RecentViews from "@/src/components/cart/RecentViews";
-import ShoppincartItems from "@/src/components/cart/ShoppincartItems";
+import ShoppingCartItems from "@/src/components/cart/ShoppincartItems"; // corrected name
 import { serializeDoc } from "@/src/utils/serializeDoc";
 import { Product, User } from "@/src/utils/types";
+import { readJSON } from "@/src/utils/fileUtils";
 import path from "path";
-import { promises as fs } from "fs";
 
-async function readJSON<T>(file: string): Promise<T[]> {
-  try {
-    const data = await fs.readFile(file, "utf8");
-    return JSON.parse(data) as T[];
-  } catch {
-    return [];
-  }
-}
-
+// ─────────────────────────── Mock Auth (replaceable later) ───────────────────────────
 async function mockAuthUser(): Promise<User> {
-  // You can replace this mock with localStorage or cookie-based logic if needed.
+  // Replace with cookie / token logic in future
   return {
     _id: "u1" as any,
     name: "کاربر آزمایشی",
@@ -34,30 +26,37 @@ async function mockAuthUser(): Promise<User> {
   };
 }
 
-export default async function Cart() {
-  // 🔹 Read mock product data instead of fetching from database
+// ─────────────────────────── Component ───────────────────────────
+export default async function CartPage() {
   const filePath = path.join(process.cwd(), "data", "products.json");
-  const products = await readJSON<Product>(filePath);
 
-  const user = await mockAuthUser();
+  // Read all products in parallel (only one file now, but scalable)
+  const [products, user] = await Promise.all([
+    readJSON<Product>(filePath),
+    mockAuthUser(),
+  ]);
 
   const serializedProducts = serializeDoc(products);
   const serializedUser = serializeDoc(user);
 
   return (
     <CartContainer>
+      {/* Header */}
       <div className="border-b">
-        <h5 className="text-red-500 border-b-4 px-2 w-1/2 lg:w-fit font-irsansb text-center border-b-red-500 pb-2">
+        <h5 className="w-1/2 border-b-4 border-b-red-500 px-2 pb-2 text-center font-irsansb text-red-500 lg:w-fit">
           سبد خرید
         </h5>
       </div>
 
+      {/* Sections */}
       <FreeShipping />
-      <ShoppincartItems user={serializedUser} />
-      <div className="border-b-8"></div>
+      <ShoppingCartItems user={serializedUser} />
 
-      <div className="border rounded-lg max-lg:mx-4 py-5">
-        <h5 className="border-b-2 text-sm mx-5 w-fit font-irsansb border-b-red-500 pb-2">
+      <div className="border-b-8" />
+
+      {/* Recently Viewed */}
+      <div className="max-lg:mx-4 rounded-lg border py-5">
+        <h5 className="mx-5 w-fit border-b-2 border-b-red-500 pb-2 text-sm font-irsansb">
           بازدیدهای اخیر
         </h5>
         <RecentViews products={serializedProducts} />
