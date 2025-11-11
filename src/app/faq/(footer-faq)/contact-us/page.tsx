@@ -8,16 +8,13 @@ import Link from "next/link";
 
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
+import MapClient from "@/src/components/faq/MapClient";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "تماس با ما",
   };
 }
-
-const Map = dynamic(() => import("../../../../components/faq/Map"), {
-  ssr: false,
-});
 
 export default async function ContactUs() {
   const user: User = await authUser();
@@ -152,7 +149,7 @@ export default async function ContactUs() {
 
           {/* MAP */}
           <div className="my-5">
-            <Map />
+             <MapClient />
           </div>
           <hr className="my-10 text-neutral-50" />
           <div>

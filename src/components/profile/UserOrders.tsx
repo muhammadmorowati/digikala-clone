@@ -1,20 +1,30 @@
-import connectToDB from "@/config/mongodb";
-import { authUser } from "@/src/utils/auth";
 import { Order } from "@/src/utils/types";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-export default async function UserOrders() {
-  await connectToDB();
-  const user = await authUser();
-  const orders: Order[] = await OrderModel.find({ userId: user._id });
+export default function UserOrders() {
+  // Mock user data
+  const mockUserId = "1";
 
+  // Mock order data
+  const mockOrders: Order[] = [
+    {
+      _id: "order1",
+      userId: mockUserId,
+      productId: "product1",
+      totalAmount: 120000,
+      status: "processing",
+      date: new Date()
+    },
+  ];
+
+  // Example order status counts
   const ordersList = [
     {
       title: "جاری",
       src: "/profile/status-processing.svg",
-      value: orders.length,
+      value: mockOrders.length,
     },
     { title: "تحویل شده", src: "/profile/status-delivered.svg", value: 0 },
     { title: "مرجوع شده", src: "/profile/status-returned.svg", value: 0 },
@@ -25,7 +35,7 @@ export default async function UserOrders() {
       <div>
         <div className="flex items-center justify-between text-xs font-irsansb">
           <p className="whitespace-nowrap border-b-2 border-b-red-500 pb-3">
-            سفارش های من
+            سفارش‌های من
           </p>
           <button className="w-full justify-end text-sky-500 flex items-center gap-1">
             مشاهده همه
@@ -54,6 +64,7 @@ export default async function UserOrders() {
                 <p className="text-xs mt-1">{order.title}</p>
               </div>
             </div>
+
             {ordersList.length > index + 1 && (
               <div className="w-0.5 h-20 bg-neutral-100 dark:bg-neutral-800"></div>
             )}

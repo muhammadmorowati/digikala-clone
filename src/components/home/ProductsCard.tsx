@@ -44,39 +44,39 @@ export default function ProductsCard({
 
   // First ProductCard=> Filter Products by Submenu
   const mobileProducts = products.filter(
-    (product) => product.submenuId === mobileSubmenu._id.toString()
+    (product) => product.submenuId === mobileSubmenu?._id?.toString()
   );
   const mobileAccessoriesProducts = products.filter(
-    (product) => product.submenuId === electronicSubmenu._id.toString()
+    (product) => product.submenuId === electronicSubmenu?._id?.toString()
   );
   const gadgetProducts = products.filter(
-    (product) => product.submenuId === gadgetSubmenu._id.toString()
+    (product) => product.submenuId === gadgetSubmenu?._id?.toString()
   );
   const stationeryProducts = products.filter(
     (product) =>
          typeof product.category !== "string" &&
-    product.category._id.toString() === stationeryProducts?._id.toString()
+    product.category._id?.toString() === stationerySubmenu?._id?.toString()
   );
 
   // Last ProductCard=> Filter Products by Submenu
   const supermarketProducts = products.filter(
     (product) =>
       typeof product.category !== "string" &&
-    product.category._id.toString() === supermarketProducts?._id.toString()
+    product.category?._id?.toString() === supermarketCategory?._id?.toString()
   );
   const electronicProducts = products.filter(
     (product) =>
       typeof product.category !== "string" &&
-    product.category._id.toString() === electronicProducts?._id.toString()
+    product.category?._id?.toString() === electronicCategory?._id?.toString()
   );
   const homeProducts = products.filter(
     (product) =>  typeof product.category !== "string" &&
-    product.category._id.toString() === homeProducts?._id.toString()
+    product.category?._id?.toString() === homeCategory?._id?.toString()
   );
   const apparelProducts = products.filter(
     (product) =>
        typeof product.category !== "string" &&
-    product.category._id.toString() === apparelProducts?._id.toString()
+    product.category?._id?.toString() === apparelCategory?._id?.toString()
   );
 
   const firstProductscard = [

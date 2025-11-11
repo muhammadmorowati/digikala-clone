@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import persianLogo from "../../../public/logo/digi.svg";
 import CartLengthPseudo from "../cart/CartLengthPseudo";
-import { DarkMode } from "../ui/DarkMode";
 import ProfileButton from "../ui/ProfileButton";
 import Searchbar from "./Searchbar";
 import TopbarContainer from "./TopbarContainer";
@@ -60,7 +59,6 @@ export default function Topbar() {
             </div>
 
             <div className="w-[0.5px] h-6 bg-gray-300"></div>
-            <DarkMode />
           </div>
         </div>
       </div>

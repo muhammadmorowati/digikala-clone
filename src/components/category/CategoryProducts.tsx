@@ -1,7 +1,5 @@
-
 import NotFound from "@/src/app/not-found";
-import { serializeDoc } from "@/src/utils/serializeDoc";
-import { Category, Product } from "@/src/utils/types";
+import { Category, Product, Article } from "@/src/utils/types";
 import Image from "next/image";
 import Link from "next/link";
 import Articles from "../home/Articles";
@@ -11,82 +9,115 @@ import Offers from "../home/Offers";
 import SelectedProducts from "../home/SelectedProducts";
 import CategoryHero from "./CategoryHero";
 
-export default async function CategoryProducts({ id }: { id: string }) {
-  const category: Category = await CategoryModel.findOne({
+export default function CategoryProducts({ id }: { id: string }) {
+  // 🧩 Mock category data — now includes `cover` and `hero`
+  const mockCategory: Category = {
+    _id: "category1",
+    title: "لوازم تحریر",
     href: `/category/${id}`,
-  })
-    .populate({
-      path: "submenus",
-      populate: {
-        path: "items",
+    cover: ["/banners/category-cover.jpg"],
+    hero: ["/banners/category-hero.jpg"],
+    banner: ["/banners/banner1.jpg", "/banners/banner2.jpg"],
+    submenus: [
+      {
+        _id: "submenu1",
+        title: "دفتر و کاغذ",
+        href: "/category/stationery/paper",
+        items: [
+          { _id: "item1", title: "دفتر", href: "/category/stationery/paper/notebooks" },
+          { _id: "item2", title: "کاغذ", href: "/category/stationery/paper/sheets" },
+        ],
       },
-    })
-    .lean();
-
-  if (!category) {
-    return NotFound();
-  }
-
-  const articles = await ArticleModel.find({
-    categoryId: category?._id,
-  }).lean();
-
-  const products: Product[] = await ProductModel.find({})
-    .populate({
-      path: "category",
-      populate: {
-        path: "submenus",
-        populate: {
-          path: "items",
-        },
+      {
+        _id: "submenu2",
+        title: "نوشت‌افزار",
+        href: "/category/stationery/pen",
+        items: [
+          { _id: "item3", title: "خودکار", href: "/category/stationery/pen/ballpen" },
+          { _id: "item4", title: "مداد", href: "/category/stationery/pen/pencil" },
+        ],
       },
-    })
-    .lean();
+    ],
+  };
 
-  // Category Products
-  const categoryProducts = products.filter(
-    (product) => product.category.href === `/category/${id}`
+  // 🛍️ Mock products — removed unsupported `href`
+  const mockProducts: Product[] = [
+    {
+      _id: "product1",
+      title: "دفتر 80 برگ",
+      price: 25000,
+      discount: 10,
+       discount_price: 22500,
+      thumbnail: "/products/notebook.jpg",
+      category: mockCategory,
+      submenuId: "submenu1",
+      description: "",
+      submenuItemId: ""
+    },
+    {
+      _id: "product2",
+      title: "خودکار آبی",
+      price: 15000,
+      discount: 0,
+       discount_price: 15000,
+      thumbnail: "/products/pen.jpg",
+      category: mockCategory,
+      submenuId: "submenu2",
+      description: "",
+      submenuItemId: ""
+    },
+  ];
+
+  // 📰 Mock articles — removed unsupported `image` and `href`
+  const mockArticles: Article[] = [
+    {
+      _id: "article1",
+      title: "چطور دفتر مناسب انتخاب کنیم؟",
+      content: "راهنمای انتخاب دفتر و کاغذ مناسب برای شما.",
+      categoryId: "category1",
+      author: "",
+      publishedAt: undefined,
+      tags: [],
+      source: "",
+      readingTime: "",
+      cover: ""
+    },
+  ];
+
+  if (!mockCategory) return NotFound();
+
+  const categoryProducts = mockProducts.filter(
+    (product) =>  typeof product.category !== "string" &&
+    product.category.href === `/category/${id}`
   );
 
-  // Discount Products
-  const discountProducts = categoryProducts.filter(
-    (product) => product.discount > 0
-  );
-
+  const discountProducts = categoryProducts.filter((p) => p.discount > 0);
   const offerProducts = discountProducts
-    ?.slice()
+    .slice()
     .sort((a, b) => b.discount - a.discount)
     .slice(0, 12);
 
-  // Mapping submenus to their first product's thumbnail
-  const submenuProductImages = category?.submenus.map((submenu) => {
-    // Find the first product associated with the current submenu
+  const submenuProductImages = mockCategory.submenus.map((submenu) => {
     const firstProduct = categoryProducts.find(
-      (product) => product.submenuId === submenu._id.toString()
+      (product) => product.submenuId === submenu._id
     );
     return firstProduct?.thumbnail || "";
   });
 
-  const serializedCategory = serializeDoc(category);
-  const serializedcategoryProducts = serializeDoc(categoryProducts);
-  const serializedArticles = serializeDoc(articles);
-  const serializedOfferProducts = serializeDoc(offerProducts);
-
   return (
     <div className="space-y-10">
-      <CategoryHero category={serializedCategory} />
-      <Offers products={serializedOfferProducts} />
+      <CategoryHero category={mockCategory} />
+      <Offers products={offerProducts} />
 
-      {/* Shopping by category */}
-      {category.submenus.length > 0 && (
+      {mockCategory.submenus.length > 0 && (
         <div>
           <h3 className="font-irsansb text-lg text-center">
             خرید بر اساس دسته‌بندی
           </h3>
           <div className="mt-10 px-4 flex gap-10 items-center lg:justify-center flex-wrap">
-            {category.submenus?.map((submenu, index) =>
+            {mockCategory.submenus.map((submenu, index) =>
               submenuProductImages[index] ? (
-                <div key={submenu._id.toString()}>
+                <div key={submenu._id}>
                   <Link
                     href={submenu.href}
                     className="relative mb-5 flex flex-col items-center gap-2"
@@ -108,11 +139,10 @@ export default async function CategoryProducts({ id }: { id: string }) {
 
       <Brands />
 
-      {/* Banners */}
       <div className="grid grid-cols-12 gap-4 mx-3">
-        {category.banner?.map((item, index) => (
+        {mockCategory.banner?.map((item, index) => (
           <div className="col-span-6 max-lg:col-span-12" key={index}>
-            <Link href="">
+            <Link href="#">
               <Image
                 width={1700}
                 height={1700}
@@ -125,10 +155,8 @@ export default async function CategoryProducts({ id }: { id: string }) {
         ))}
       </div>
 
-      <Bestseller
-        products={serializedcategoryProducts}
-        title="پرفروش‌ترین کالاها"
-      />
+      <Bestseller products={categoryProducts} title="پرفروش‌ترین کالاها" />
+
       <div>
         <Image
           alt="زنگ تفریح دیجی‌کالا"
@@ -139,10 +167,10 @@ export default async function CategoryProducts({ id }: { id: string }) {
         />
       </div>
 
-      <SelectedProducts products={serializedcategoryProducts} />
+      <SelectedProducts products={categoryProducts} />
 
-      {articles.length > 0 && (
-        <Articles articles={serializedArticles} title="مطالب مرتبط" />
+      {mockArticles.length > 0 && (
+        <Articles articles={mockArticles} title="مطالب مرتبط" />
       )}
     </div>
   );

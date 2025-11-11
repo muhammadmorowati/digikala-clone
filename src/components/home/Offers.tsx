@@ -290,7 +290,9 @@ export default async function Offers({ products }: { products: Product[] }) {
 
                         <div className="text-right">
                           <div className="text-sm font-bold dark:font-normal text-gray-800 dark:text-white flex gap-1 items-center">
-                            {product.discount_price.toLocaleString()}
+                            {product.discount_price != null
+                            ? product.discount_price.toLocaleString()
+                             : "—"}
                             <svg
                               width="18"
                               height="18"
@@ -305,7 +307,9 @@ export default async function Offers({ products }: { products: Product[] }) {
                           </div>
                           {product.discount != 0 && (
                             <span className="text-gray-400 dark:text-gray-300 line-through text-sm text-right">
-                              {product.price.toLocaleString()}
+                              {product.discount_price != null
+                                ? product.discount_price.toLocaleString()
+                                : "—"}
                             </span>
                           )}
                         </div>
