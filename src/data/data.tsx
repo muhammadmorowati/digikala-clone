@@ -46,6 +46,7 @@ import {
   User,
   UserCheck,
 } from "lucide-react";
+import { GuaranteeQuestion, PaymentQuestion, ReturnQuestion } from "../utils/types";
 
 type LogoProps = {
   width?: number;
@@ -59,6 +60,38 @@ export default function Logo({ width = 110, height = 80 }: LogoProps) {
     </svg>
   );
 }
+
+export const guaranteeQuestions: GuaranteeQuestion[] = [
+  { q: "چطور از گارانتی استفاده کنم؟", a: "برای استفاده از گارانتی..." },
+  { q: "کالا در چه شرایطی شامل گارانتی نمی‌شود؟", a: "اگر کالا آسیب فیزیکی..." },
+];
+
+export const paymentQuestions: PaymentQuestion[] = [
+  { q: "چطور هزینه سفارش را پرداخت کنم؟", a: "می‌توانید از کارت بانکی عضو شتاب استفاده کنید." },
+  { q: "آیا پرداخت در محل امکان‌پذیر است؟", a: "بله، در برخی شهرها پرداخت در محل فعال است." },
+];
+
+export const returnQuestions: ReturnQuestion[] = [
+  { q: "چگونه کالای خریداری‌شده را مرجوع کنم؟", a: "برای مرجوعی وارد بخش سفارش‌ها شوید و گزینه بازگشت را انتخاب کنید." },
+  { q: "چه کالاهایی قابل مرجوع نیستند؟", a: "کالاهای بهداشتی و مصرفی پس از باز شدن بسته قابل مرجوع نیستند." },
+];
+
+import { TermsSection } from "@/src/components/accordions/TermsAccordion";
+
+export const termsSections: TermsSection[] = [
+  {
+    id: "1",
+    title: "شرایط عمومی",
+    content:
+      "کلیه اصول و رویه‌های دیجی‌کالا مطابق با قوانین جمهوری اسلامی ایران است.",
+  },
+  {
+    id: "2",
+    title: "حریم خصوصی",
+    content:
+      "دیجی‌کالا متعهد به حفظ و نگهداری اطلاعات شخصی کاربران خود می‌باشد.",
+  },
+];
 
 export const partners = [
   {

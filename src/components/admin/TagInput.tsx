@@ -21,15 +21,19 @@ const TagInput: React.FC<TagInputProps> = ({
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      addTag(inputValue);
+      addTag(inputValue.trim());
     }
   };
 
   const addTag = (tag: string) => {
-    if (tag && !tags.includes(tag)) {
-      onTagsChange([...tags, tag]);
-      setInputValue("");
-    }
+    if (!tag) return;
+
+    // Prevent duplicates (case-insensitive but preserves display)
+    const exists = tags.some((t) => t.toLowerCase() === tag.toLowerCase());
+    if (exists) return;
+
+    onTagsChange([...tags, tag]);
+    setInputValue("");
   };
 
   const removeTag = (tag: string) => {
@@ -37,30 +41,43 @@ const TagInput: React.FC<TagInputProps> = ({
   };
 
   return (
-    <div className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500">
+    <div
+      className="
+        peer block w-full appearance-none rounded-t-lg 
+        border-0 border-b-2 border-neutral-300 
+        bg-neutral-50 px-2.5 pb-2.5 pt-5 
+        text-sm text-neutral-900 
+        focus:border-blue-600 focus:outline-none focus:ring-0 
+        dark:border-neutral-600 dark:bg-neutral-900 dark:text-white 
+        dark:focus:border-blue-500
+      "
+    >
       <div className="flex flex-wrap items-center gap-2">
         {tags.map((tag, index) => (
           <div
             key={index}
-            className="bg-neutral-200 dark:bg-neutral-700 rounded-md p-2 flex items-center"
+            className="bg-neutral-200 dark:bg-neutral-700 rounded-md px-2 py-1 flex items-center"
           >
-            {tag}
+            <span>{tag}</span>
+
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="mr-4 cursor-pointer text-red-500 bg-none border-none font-irsansb"
+              aria-label={`remove ${tag}`}
+              className="ml-2 text-red-500 hover:text-red-700"
             >
               <X size={13} />
             </button>
           </div>
         ))}
+
         <input
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="border-none bg-transparent outline-none p-3"
+          className="bg-transparent outline-none p-2 min-w-[120px]"
         />
       </div>
     </div>

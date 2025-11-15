@@ -1,5 +1,9 @@
+// Shared
 export type ObjectId = string;
 
+// -----------------------------
+// 📍 Location / Address
+// -----------------------------
 export interface Location {
   latitude: number;
   longitude: number;
@@ -14,6 +18,9 @@ export interface Address {
   postalcode?: string;
 }
 
+// -----------------------------
+// 👤 User
+// -----------------------------
 export interface User {
   _id: ObjectId;
   name: string;
@@ -21,17 +28,20 @@ export interface User {
   email: string;
   phone: string;
   password: string;
+  role: "USER" | "ADMIN";
   address?: Address;
   idNumber?: string;
   job?: string;
-  role: "USER" | "ADMIN";
 
-    // 👇 optional fields for file-based auth and updates
+  // Static system optional fields
   createdAt?: string;
   updatedAt?: string;
   refreshToken?: string;
 }
 
+// -----------------------------
+// 📄 Auth Form States
+// -----------------------------
 export interface RegisterFormState {
   errors: {
     name?: string[];
@@ -52,11 +62,9 @@ export interface LoginFormState {
   success: boolean;
 }
 
-export interface Location {
-  latitude: number;
-  longitude: number;
-}
-
+// -----------------------------
+// 🏙️ Provinces / Cities
+// -----------------------------
 export interface City {
   id: number;
   title: string;
@@ -65,8 +73,10 @@ export interface City {
   latitude: number;
   longitude: number;
 }
-[];
 
+// -----------------------------
+// 📰 Stories
+// -----------------------------
 export interface Story {
   _id: string;
   title: string;
@@ -74,102 +84,151 @@ export interface Story {
   post: string;
 }
 
+// -----------------------------
+// ❓ FAQ Types
+// -----------------------------
+export interface GuaranteeQuestion {
+  q: string;
+  a: string;
+}
+
+export interface PaymentQuestion {
+  q: string;
+  a: string;
+}
+
+export interface ReturnQuestion {
+  q: string;
+  a: string;
+}
+
+// -----------------------------
+// 🛒 Product (STATIC MODE)
+// -----------------------------
+export interface Feature {
+  key: string;
+  value: string;
+}
+
+export interface Color {
+  name: string;
+  hex: string;
+}
+
+export interface ProductImage {
+  url: string;
+}
+
 export interface Product {
   _id: ObjectId;
   title: string;
   en_title?: string;
+
   rating?: number;
   voter?: number;
-  sizes?: string;
-  thumbnail: string;
+  sizes?: string[];
+
   price: number;
   discount?: number;
   discount_price?: number;
+
   description: string;
-  recommended_percent?: number;
   guarantee?: string;
+
+  recommended_percent?: number;
   likes?: number;
+
+  thumbnail: string;
+  images: string[];
+
+  features: Feature[];
+  colors: Color[];
+
+  categoryId: string;
+  submenuId?: string;
+  submenuItemId?: string;
+
   comments?: Comment[];
   questions?: Question[];
-  features?: Feature[] | { key: string; value: string }[];
-  colors?: Color[] | { name: string; hex: string }[];
-  images?: string[] | ProductImage[];
-  category: Category | string;
-  submenuId: string;
-  submenuItemId: string;
-   createdAt?: string;
+
+  createdAt?: string;
   updatedAt?: string;
 }
-export interface ProductImage {
-  _id: ObjectId;
-  url: string;
-  productId?: ObjectId;
-}
-export interface Category {
-  _id: ObjectId;
-  title: string;
-  icon?: string;
-  cover: string[];
-  hero: string[];
-  banner: string[];
-  href: string;
-  description?: string;
-  product?: Product;
-  submenus?: Submenu[];
-}
-export interface Submenu {
-  _id: ObjectId;
-  title: string;
-  href: string;
-  categoryId?: ObjectId;
-  items?: SubmenuItem[];
-}
+
+// -----------------------------
+// 👇 Category / Submenu
+// -----------------------------
 export interface SubmenuItem {
   _id: ObjectId;
   title: string;
   href: string;
-  submenuId?: ObjectId;
 }
+
+export interface Submenu {
+  _id: ObjectId;
+  title: string;
+  href: string;
+  items: SubmenuItem[];
+}
+
+export interface Category {
+  _id: ObjectId;
+  title: string;
+  href: string;
+
+  icon?: string;
+  description?: string;
+
+  cover: string[];
+  hero: string[];
+  banner: string[];
+
+  submenus: Submenu[];
+}
+
+// -----------------------------
+// 💬 Product Comments / Questions
+// -----------------------------
 export interface Question {
   _id: ObjectId;
   username: string;
   body: string;
   email: string;
-  date: Date;
-  productId: ObjectId;
+  date: string;
 }
-export interface Feature {
-  key: string;
-  value: string;
-  productId: ObjectId;
-}
-export interface Color {
-  name: string;
-  hex: string;
-  productId: ObjectId;
-}
+
+// -----------------------------
+// 🧾 Orders (STATIC MODE)
+// -----------------------------
 export interface Order {
   _id: ObjectId;
   totalAmount: number;
-  date: Date;
+  date: string;
   status: string;
-  productId: ObjectId;
-  userId: ObjectId;
+  productIds: string[];
+  userId: string;
 }
+
+// -----------------------------
+// 📰 Articles
+// -----------------------------
 export interface Article {
   _id: ObjectId;
   title: string;
   content: string;
   author: string;
-  publishedAt: Date;
+  publishedAt: string;
   tags: string[];
   source: string;
   readingTime: string;
   cover: string;
   categoryId?: ObjectId;
-  comment?: any[]
+  comment?: any[];
 }
 
+// -----------------------------
+// 🛒 Cart Item
+// -----------------------------
 export interface CartItem {
   _id: ObjectId;
   title: string;
@@ -181,6 +240,9 @@ export interface CartItem {
   count: number;
 }
 
+// -----------------------------
+// 🚚 Shipping
+// -----------------------------
 export interface ShippingFormState {
   errors: {
     address?: string[];

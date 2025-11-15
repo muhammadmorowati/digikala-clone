@@ -6,13 +6,17 @@ import { useTransition } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
-import { deleteArticle } from "@/src/app/admin/articles/action";
-import { deleteCategory, deleteSubmenu, deleteSubmenuItem } from "@/src/app/admin/categories/action";
-import { deleteProduct } from "@/src/app/admin/products/action";
-import { deleteStory } from "@/src/app/admin/stories/action";
-import { deleteUser } from "@/src/app/admin/users/action";
 import { useCart } from "@/src/utils/cartItemsContext";
 import { Order } from "@/src/utils/types";
+import {
+  removeCategory,
+  removeSubmenu,
+  removeSubmenuItem,
+  removeProduct,
+  removeStory,
+  removeUser,
+  removeArticle,
+} from "@/src/utils/mockActions"; // ✅ new local utility functions
 
 export function DeleteDropdownItem({
   categoryId,
@@ -41,55 +45,47 @@ export function DeleteDropdownItem({
     toast((t) => (
       <div>
         حذف{" "}
-        {`${
-          productId
-            ? "محصول"
-            : categoryId
-            ? "دسته‌بندی"
-            : userId
-            ? "کاربر"
-            : submenuId
-            ? "زیرمجموعه"
-            : itemId
-            ? "آیتم زیرمجموعه"
-            : storyId
-            ? "داستان"
-            : articleId
-            ? "مقاله"
-            : order
-            ? "سفارش"
-            : ""
-        }`}
+        {productId
+          ? "محصول"
+          : categoryId
+          ? "دسته‌بندی"
+          : userId
+          ? "کاربر"
+          : submenuId
+          ? "زیرمجموعه"
+          : itemId
+          ? "آیتم زیرمجموعه"
+          : storyId
+          ? "داستان"
+          : articleId
+          ? "مقاله"
+          : order
+          ? "سفارش"
+          : ""}
         :
         <Button
           className="ml-1 mr-5"
-          variant={"secondary"}
+          variant="secondary"
           onClick={() => toast.dismiss(t.id)}
         >
           انصراف
         </Button>
         <Button
-          variant={"destructive"}
+          variant="destructive"
           onClick={() => {
-            startTransition(async () => {
+            startTransition(() => {
               toast.dismiss(t.id);
-              if (userId) {
-                await deleteUser(userId);
-              } else if (productId) {
-                await deleteProduct(productId);
-              } else if (categoryId) {
-                await deleteCategory(categoryId);
-              } else if (submenuId) {
-                await deleteSubmenu(submenuId);
-              } else if (itemId) {
-                await deleteSubmenuItem(itemId);
-              } else if (storyId) {
-                await deleteStory(storyId);
-              } else if (articleId) {
-                await deleteArticle(articleId);
-              } else if (order) {
-                deleteFromCart(order.productId.toString());
-              }
+
+              // ✅ use local data actions
+              if (userId) removeUser(userId);
+              else if (productId) removeProduct(productId);
+              else if (categoryId) removeCategory(categoryId);
+              else if (submenuId) removeSubmenu(submenuId);
+              else if (itemId) removeSubmenuItem(itemId);
+              else if (storyId) removeStory(storyId);
+              else if (articleId) removeArticle(articleId);
+              else if (order) deleteFromCart(order.productId.toString());
+
               router.refresh();
               toast.success(
                 productId
@@ -99,15 +95,15 @@ export function DeleteDropdownItem({
                   : userId
                   ? "کاربر با موفقیت حذف شد!"
                   : submenuId
-                  ? "زیرمجموعه با موفقیت حذف شد"
+                  ? "زیرمجموعه با موفقیت حذف شد!"
                   : itemId
-                  ? "آیتم زیرمجموعه با موفقیت حذف شد"
+                  ? "آیتم زیرمجموعه با موفقیت حذف شد!"
                   : storyId
-                  ? "داستان با موفقیت حذف شد"
+                  ? "داستان با موفقیت حذف شد!"
                   : articleId
-                  ? "مقاله با موفقیت حذف شد"
+                  ? "مقاله با موفقیت حذف شد!"
                   : order
-                  ? "سفارش با موفقیت حذف شد"
+                  ? "سفارش با موفقیت حذف شد!"
                   : ""
               );
             });

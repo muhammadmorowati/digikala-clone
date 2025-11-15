@@ -1,3 +1,5 @@
+"use client";
+
 import { signOut } from "@/src/app/admin/users/action";
 import {
   BringToFront,
@@ -17,18 +19,19 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Logo from "../Logo";
 import { Button } from "../ui/button";
-import { DarkMode } from "../ui/DarkMode";
+import { ReactNode } from "react";
 
-const sidebarMenu = [
+interface MenuItem {
+  label: string;
+  icon: ReactNode;
+  href: string;
+}
+
+const sidebarMenu: MenuItem[] = [
   { label: "پیشخوان", icon: <LayoutDashboard />, href: "/admin" },
   { label: "محصولات", icon: <PackageOpen />, href: "/admin/products" },
-  // { label: "محصول جدید", icon: <Plus />, href: "/admin/products/new" },
   { label: "سفارشات", icon: <ShoppingBasket />, href: "/admin/orders" },
-  {
-    label: "دسته‌بندی ها",
-    icon: <LayoutTemplate />,
-    href: "/admin/categories",
-  },
+  { label: "دسته‌بندی ها", icon: <LayoutTemplate />, href: "/admin/categories" },
   {
     label: "زیرمجموعه دسته‌بندی ها",
     icon: <Layers3 />,
@@ -37,9 +40,8 @@ const sidebarMenu = [
   {
     label: "آیتم های زیرمجموعه ها",
     icon: <BringToFront />,
-    href: "/admin/categories/submenu-Item",
+    href: "/admin/categories/submenu-item",
   },
-
   { label: "مقالات", icon: <Newspaper />, href: "/admin/articles" },
   { label: "داستان ها", icon: <CircleFadingPlus />, href: "/admin/stories" },
   { label: "کاربران", icon: <Users2 />, href: "/admin/users" },
@@ -53,24 +55,24 @@ export default function SidebarList({
   const router = useRouter();
 
   const signoutHandler = () => {
-    closeSheet;
     toast(
       (t) => (
         <div>
           از حساب کاربری خود خارج می شوید؟
-          <div className="flex justify-end mt-3">
+          <div className="flex justify-end mt-3 gap-3">
             <Button
-              className="ml-1 mr-5 "
-              variant={"secondary"}
+              variant="secondary"
               onClick={() => toast.dismiss(t.id)}
             >
               انصراف
             </Button>
+
             <Button
-              variant={"destructive"}
+              variant="destructive"
               onClick={async () => {
                 await signOut();
                 toast.dismiss(t.id);
+                closeSheet?.(); // <-- FIXED
                 toast.success("از حساب خود خارج شدید.");
               }}
             >
@@ -85,49 +87,46 @@ export default function SidebarList({
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="py-4 mb-2 flex items-center justify-center gap-2">
-        <DarkMode />
-        <h1 onClick={closeSheet}>
+      {/* Logo */}
+      <div className="py-5 flex items-center justify-center">
+        <h1 onClick={() => closeSheet?.()}>
           <Logo />
         </h1>
       </div>
-      <div>
-        <ul>
-          {sidebarMenu.map((item, index: number) => (
-            <li
-              onClick={closeSheet}
-              key={index}
-              className="px-5 dark:hover:bg-neutral-900 hover:bg-neutral-100"
+
+      {/* Menu List */}
+      <ul>
+        {sidebarMenu.map((item, index) => (
+          <li
+            key={index}
+            onClick={() => closeSheet?.()}
+            className="px-5 hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer"
+          >
+            <Link
+              href={item.href}
+              className="flex items-center justify-between border-t py-[18px]"
             >
-              <Link
-                href={item.href}
-                className="flex items-center border-t py-[18px] justify-between"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-neutral-500">{item.icon}</span>
-                  <p>{item.label}</p>
-                </div>
-                <span>
-                  <ChevronLeft size={14} />
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Button
-          asChild
-          variant={"secondary"}
-          onClick={signoutHandler}
-          className="dark:hover:bg-neutral-700 hover:bg-neutral-200 cursor-pointer flex justify-start w-full py-7 text-right"
-        >
-          <div className="flex gap-4">
-            <span className="text-neutral-500">
-              <LogOut />
-            </span>
-            <span>خروج از حساب کاربری</span>
-          </div>
-        </Button>
-      </div>
+              <div className="flex items-center gap-4">
+                <span className="text-neutral-500">{item.icon}</span>
+                <p>{item.label}</p>
+              </div>
+              <ChevronLeft size={14} />
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {/* Logout Button */}
+      <Button
+        variant="secondary"
+        onClick={signoutHandler}
+        className="hover:bg-neutral-200 dark:hover:bg-neutral-700 w-full justify-start py-6 flex gap-4 cursor-pointer"
+      >
+        <span className="text-neutral-500">
+          <LogOut />
+        </span>
+        <span>خروج از حساب کاربری</span>
+      </Button>
     </div>
   );
 }

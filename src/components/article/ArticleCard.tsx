@@ -3,71 +3,66 @@ import { Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-function getRelativeTime(dateString) {
-  // Convert the input date string to a Date object
-  const date = new Date(dateString);
+function getRelativeTime(dateInput: string | Date): string {
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
   const now = new Date();
 
-  // Ensure both 'date' and 'now' are valid Date objects
-  if (isNaN(date.getTime()) || isNaN(now.getTime())) {
-    throw new Error("Invalid date format");
-  }
+  if (isNaN(date.getTime())) return "تاریخ نامعتبر";
 
-  // Calculate the difference in milliseconds
-  const diffInMs = now.getTime() - date.getTime();
+  const diff = now.getTime() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (isNaN(diffInMs)) {
-    throw new Error("Invalid time difference calculation");
-  }
-
-  // Convert milliseconds to different time units
-  const diffInMinutes = Math.floor(diffInMs / 60000);
-  const diffInHours = Math.floor(diffInMs / 3600000);
-  const diffInDays = Math.floor(diffInMs / 86400000);
-
-  // Format the time difference to a human-readable string
-  if (diffInMinutes < 1) return "چند ثانیه قبل";
-  if (diffInMinutes < 60) return `${diffInMinutes} دقیقه قبل`;
-  if (diffInHours < 24) return `${diffInHours} ساعت قبل`;
-  return `${diffInDays} روز قبل`;
+  if (minutes < 1) return "چند ثانیه قبل";
+  if (minutes < 60) return `${minutes} دقیقه قبل`;
+  if (hours < 24) return `${hours} ساعت قبل`;
+  return `${days} روز قبل`;
 }
 
 export default function ArticleCard({ article }: { article: Article }) {
+  const { _id, title, author, cover, publishedAt } = article;
+
+  const slugAuthor = author.trim().replace(/\s+/g, "-");
+
   return (
     <div className="shadow border rounded-md w-64 overflow-hidden flex-grow sm:flex-grow-0">
-      <Link href={`/articles/${article._id}`}>
+      <Link href={`/articles/${_id}`}>
         <Image
-          src={article.cover}
+          src={cover}
           width={600}
           height={600}
-          alt={article.title}
+          alt={title}
           className="object-cover"
         />
       </Link>
+
       <div className="p-3 pb-6 flex flex-col justify-between h-40">
         <Link
-          href={`/articles/${article._id}`}
-          className="font-irsansb leading-7 text-neutral-600 dark:text-neutral-100 text-sm"
+          href={`/articles/${_id}`}
+          className="font-irsansb leading-7 text-neutral-600 dark:text-neutral-100 text-sm line-clamp-2"
         >
-          {article.title}
+          {title}
         </Link>
+
         <div className="text-neutral-400 dark:text-neutral-300 mt-3 flex gap-5 justify-between items-center">
           <Link
-            href={`/articles/user/${article.author.replaceAll(" ", "-")}`}
+            href={`/articles/user/${slugAuthor}`}
             className="flex items-center gap-1"
           >
             <Image
-              alt="default_author_profile"
+              alt="author avatar"
               width={30}
               height={30}
               src="/default_author.jpg"
               className="rounded-full grayscale"
             />
-            <p className="text-xs">{article.author}</p>
+            <p className="text-xs">{author}</p>
           </Link>
+
           <span className="flex text-xs items-center gap-2">
             <Clock size={16} />
-            {getRelativeTime(article.publishedAt.toDateString())}
+            {getRelativeTime(publishedAt)}
           </span>
         </div>
       </div>

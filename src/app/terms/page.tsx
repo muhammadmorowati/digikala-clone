@@ -1,5 +1,7 @@
 import Image from "next/image";
-import TermsAccordion from "@/src/components/accordions/TermsAccordion";
+import TermsAccordion, {
+  TermsSection,
+} from "@/src/components/accordions/TermsAccordion";
 import { termsData } from "@/src/data/terms";
 
 const paragraphClass =
@@ -7,11 +9,23 @@ const paragraphClass =
 
 /** ✅ Dynamic Terms & Conditions Page */
 export default function Terms() {
-  const { title, intro, sections } = termsData;
+  const { title, intro, sections } = termsData as {
+    title: string;
+    intro: string[];
+    sections: TermsSection[];
+  };
+
+  if (!title && !intro?.length && !sections?.length) {
+    return (
+      <div className="p-10 text-center text-sm text-neutral-500">
+        محتوایی برای نمایش وجود ندارد.
+      </div>
+    );
+  }
 
   return (
     <div className="max-lg:pb-20">
-      {/* Hero Banner */}
+      {/* 🖼️ Hero Banner */}
       <div className="w-full h-10 bg-red-500">
         <Image
           src="/privacy-page.gif"
@@ -23,9 +37,9 @@ export default function Terms() {
         />
       </div>
 
-      {/* Main Content */}
+      {/* 📄 Main Content */}
       <div className="px-5 lg:px-20 my-5">
-        {/* Icon (unchanged SVG) */}
+        {/* 📘 Icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="35"
@@ -35,22 +49,22 @@ export default function Terms() {
           aria-hidden="true"
           className="mb-2"
         >
-          {/* ...existing SVG content... */}
+          {/* ... existing SVG content ... */}
         </svg>
 
-        {/* Title */}
+        {/* 🏷️ Title */}
         <h1 className="font-irsansb my-5 text-lg lg:text-xl">{title}</h1>
 
-        {/* Intro Paragraphs */}
+        {/* 📝 Intro Paragraphs */}
         <section className="space-y-4">
-          {intro.map((text, i) => (
+          {intro?.map((text, i) => (
             <p key={i} className={paragraphClass}>
               {text}
             </p>
           ))}
         </section>
 
-        {/* Dynamic Accordion */}
+        {/* 📚 Dynamic Accordion */}
         <section className="mt-10">
           <TermsAccordion sections={sections} />
         </section>
