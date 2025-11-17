@@ -153,6 +153,10 @@ export interface Product {
 
   createdAt?: string;
   updatedAt?: string;
+
+    // Filters
+  inStock?: boolean;
+  isDKWarehouse?: boolean;
 }
 
 // -----------------------------

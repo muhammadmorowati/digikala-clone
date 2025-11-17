@@ -10,7 +10,10 @@ import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 export default function CategoryHero({ category }: { category: Category }) {
-  if (category.hero == null) return null;
+  const heroImages = Array.isArray(category.hero) ? category.hero : [];
+
+  // If no images, nothing to show
+  if (!heroImages.length) return null;
 
   return (
     <div className="relative my-5 px-4 rounded-2xl">
@@ -29,35 +32,27 @@ export default function CategoryHero({ category }: { category: Category }) {
         }}
         modules={[Pagination, Navigation]}
       >
-        {/* {loading && (
-          <>
-            {Array.from({ length: 6 }).map((_, index) => (
-              <SwiperSlide key={index}>
-                <OfferSkeleton />
-              </SwiperSlide>
-            ))}
-          </>
-        )} */}
-
-        {category.hero?.map((item, index: number) => (
+        {heroImages.map((img, index) => (
           <SwiperSlide key={index}>
-            <Link href="">
+            <Link href={category.href || "#"}>
               <Image
-                alt={`Banner ${index + 1}`}
+                alt={`Hero Banner ${index + 1}`}
                 width={1700}
-                height={1700}
-                src={item}
+                height={600}
+                src={img}
                 className="rounded-lg w-full h-full object-cover object-[60%] max-lg:h-52"
+                priority={index === 0}
               />
             </Link>
           </SwiperSlide>
         ))}
-        {/* Pagination element */}
+
+        {/* Pagination bullets */}
         <div className="swiper-pagination"></div>
 
-        {/* Navigation buttons */}
-        <div className="swiper-button-next bg-white rounded-r-full after:text-red-500 after:!text-sm after:!font-extrabold shadow-md !left-0 !w-12 !h-12"></div>
-        <div className="swiper-button-prev bg-white rounded-l-full after:text-red-500 after:!text-sm after:!font-extrabold shadow-md !right-0 !w-12 !h-12"></div>
+        {/* Next / Prev buttons */}
+        <div className="swiper-button-next bg-white rounded-r-full shadow-md after:text-red-500 after:text-sm after:font-extrabold !left-0 !w-12 !h-12"></div>
+        <div className="swiper-button-prev bg-white rounded-l-full shadow-md after:text-red-500 after:text-sm after:font-extrabold !right-0 !w-12 !h-12"></div>
       </Swiper>
     </div>
   );

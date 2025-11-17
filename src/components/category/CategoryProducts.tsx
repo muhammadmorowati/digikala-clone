@@ -10,7 +10,7 @@ import SelectedProducts from "../home/SelectedProducts";
 import CategoryHero from "./CategoryHero";
 
 export default function CategoryProducts({ id }: { id: string }) {
-  // 🧩 Mock category data — now includes `cover` and `hero`
+  // 🧩 Mock category data
   const mockCategory: Category = {
     _id: "category1",
     title: "لوازم تحریر",
@@ -24,8 +24,16 @@ export default function CategoryProducts({ id }: { id: string }) {
         title: "دفتر و کاغذ",
         href: "/category/stationery/paper",
         items: [
-          { _id: "item1", title: "دفتر", href: "/category/stationery/paper/notebooks" },
-          { _id: "item2", title: "کاغذ", href: "/category/stationery/paper/sheets" },
+          {
+            _id: "item1",
+            title: "دفتر",
+            href: "/category/stationery/paper/notebooks",
+          },
+          {
+            _id: "item2",
+            title: "کاغذ",
+            href: "/category/stationery/paper/sheets",
+          },
         ],
       },
       {
@@ -33,62 +41,78 @@ export default function CategoryProducts({ id }: { id: string }) {
         title: "نوشت‌افزار",
         href: "/category/stationery/pen",
         items: [
-          { _id: "item3", title: "خودکار", href: "/category/stationery/pen/ballpen" },
-          { _id: "item4", title: "مداد", href: "/category/stationery/pen/pencil" },
+          {
+            _id: "item3",
+            title: "خودکار",
+            href: "/category/stationery/pen/ballpen",
+          },
+          {
+            _id: "item4",
+            title: "مداد",
+            href: "/category/stationery/pen/pencil",
+          },
         ],
       },
     ],
   };
 
-  // 🛍️ Mock products — removed unsupported `href`
+  // 🛍️ Mock products — use categoryId (NOT category) and add required fields
   const mockProducts: Product[] = [
     {
       _id: "product1",
       title: "دفتر 80 برگ",
       price: 25000,
       discount: 10,
-       discount_price: 22500,
+      discount_price: 22500,
       thumbnail: "/products/notebook.jpg",
-      category: mockCategory,
+      categoryId: mockCategory._id,
       submenuId: "submenu1",
+      submenuItemId: "item1",
       description: "",
-      submenuItemId: ""
+      images: [],     // required by Product
+      features: [],   // required by Product
+      colors: [],     // required by Product
     },
     {
       _id: "product2",
       title: "خودکار آبی",
       price: 15000,
       discount: 0,
-       discount_price: 15000,
+      discount_price: 15000,
       thumbnail: "/products/pen.jpg",
-      category: mockCategory,
+      categoryId: mockCategory._id,
       submenuId: "submenu2",
+      submenuItemId: "item3",
       description: "",
-      submenuItemId: ""
+      images: [],
+      features: [],
+      colors: [],
     },
   ];
 
-  // 📰 Mock articles — removed unsupported `image` and `href`
+  // 📰 Mock articles
   const mockArticles: Article[] = [
     {
       _id: "article1",
       title: "چطور دفتر مناسب انتخاب کنیم؟",
       content: "راهنمای انتخاب دفتر و کاغذ مناسب برای شما.",
-      categoryId: "category1",
+      categoryId: mockCategory._id,
       author: "",
       publishedAt: undefined,
       tags: [],
       source: "",
       readingTime: "",
-      cover: ""
+      cover: "",
     },
   ];
 
   if (!mockCategory) return NotFound();
 
   const categoryProducts = mockProducts.filter(
-    (product) =>  typeof product.category !== "string" &&
-    product.category.href === `/category/${id}`
+    (product) =>
+      typeof product.categoryId === "string" &&
+      product.categoryId === mockCategory._id &&
+      mockCategory.href === `/category/${id}`
   );
 
   const discountProducts = categoryProducts.filter((p) => p.discount > 0);

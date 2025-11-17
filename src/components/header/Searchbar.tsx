@@ -1,8 +1,11 @@
 import SearchbarForm from "./SearchbarForm";
-import { Product } from "@/src/utils/types";
+import { Category, Product } from "@/src/utils/types";
 
+type ProductSearch = Product & {
+  category: Category;
+}
 // 🧩 Mock product data (for local development)
-const mockProducts: Product[] = [
+const mockProducts: ProductSearch[] = [
   {
     _id: "p1" as any,
     title: "گوشی سامسونگ Galaxy S24 Ultra",
@@ -20,9 +23,11 @@ const mockProducts: Product[] = [
       _id: "1" as any,
       title: "موبایل",
       href: "/category/mobile",
+      icon: "/icons/mobile.svg",
       cover: ["/images/categories/mobile-cover.webp"],
       hero: ["/images/categories/mobile-hero.webp"],
       banner: ["/images/categories/mobile-banner.webp"],
+      submenus: []
     },
     submenuId: "11",
     submenuItemId: "111",
