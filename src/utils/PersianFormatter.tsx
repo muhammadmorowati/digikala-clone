@@ -1,5 +1,14 @@
-export const formatDateToPersian = (date) => {
-  // Formatter for the date part
+export const formatDateToPersian = (input: string | number | Date): string => {
+  if (!input) return "";
+
+  // Convert input to Date safely
+  const date = input instanceof Date ? input : new Date(input);
+
+  if (isNaN(date.getTime())) {
+    console.warn("❗ Invalid date passed to formatDateToPersian:", input);
+    return "";
+  }
+
   const dateFormatter = new Intl.DateTimeFormat("fa-IR", {
     calendar: "persian",
     day: "numeric",
@@ -7,16 +16,10 @@ export const formatDateToPersian = (date) => {
     year: "numeric",
   });
 
-  // Formatter for the time part
   const timeFormatter = new Intl.DateTimeFormat("fa-IR", {
     hour: "2-digit",
     minute: "2-digit",
   });
 
-  // Format date and time separately
-  const formattedDate = dateFormatter.format(date);
-  const formattedTime = timeFormatter.format(date);
-
-  // Combine with a separator
-  return `${formattedDate} | ${formattedTime}`;
+  return `${dateFormatter.format(date)} | ${timeFormatter.format(date)}`;
 };

@@ -1,11 +1,13 @@
 import { StaticImageData } from "next/image";
 
+// -------------------------------------
 // Shared
+// -------------------------------------
 export type ObjectId = string;
 
-// -----------------------------
+// -------------------------------------
 // 📍 Location / Address
-// -----------------------------
+// -------------------------------------
 export interface Location {
   latitude: number;
   longitude: number;
@@ -33,30 +35,33 @@ export interface Address {
   postalcode?: string;
 }
 
-// -----------------------------
+// -------------------------------------
 // 👤 User
-// -----------------------------
+// -------------------------------------
 export interface User {
   _id: ObjectId;
   name: string;
   avatar?: string;
+
   email: string;
   phone: string;
   password: string;
+
   role: "USER" | "ADMIN";
+
   address?: Address;
   idNumber?: string;
   job?: string;
 
-  // Static system optional fields
   createdAt?: string;
   updatedAt?: string;
+
   refreshToken?: string;
 }
 
-// -----------------------------
+// -------------------------------------
 // 📄 Auth Form States
-// -----------------------------
+// -------------------------------------
 export interface RegisterFormState {
   errors: {
     name?: string[];
@@ -77,9 +82,9 @@ export interface LoginFormState {
   success: boolean;
 }
 
-// -----------------------------
+// -------------------------------------
 // 🏙️ Provinces / Cities
-// -----------------------------
+// -------------------------------------
 export interface City {
   id: number;
   title: string;
@@ -89,9 +94,9 @@ export interface City {
   longitude: number;
 }
 
-// -----------------------------
+// -------------------------------------
 // 📰 Stories
-// -----------------------------
+// -------------------------------------
 export interface Story {
   _id: string;
   title: string;
@@ -99,9 +104,9 @@ export interface Story {
   post: string;
 }
 
-// -----------------------------
+// -------------------------------------
 // ❓ FAQ Types
-// -----------------------------
+// -------------------------------------
 export interface GuaranteeQuestion {
   q: string;
   a: string;
@@ -117,9 +122,9 @@ export interface ReturnQuestion {
   a: string;
 }
 
-// -----------------------------
+// -------------------------------------
 // 🛒 Product (STATIC MODE)
-// -----------------------------
+// -------------------------------------
 export interface Feature {
   key: string;
   value: string;
@@ -131,12 +136,13 @@ export interface Color {
 }
 
 export interface ProductImage {
-   _id: string;
+  _id: string;
   url: string;
 }
 
 export interface Product {
   _id: ObjectId;
+
   title: string;
   en_title?: string;
 
@@ -155,7 +161,9 @@ export interface Product {
   likes?: number;
 
   thumbnail: string;
-  images: string[];
+
+  /** Changed: allow future migration to real image struct */
+  images: string[]; // If you want → change to ProductImage[]
 
   features: Feature[];
   colors: Color[];
@@ -170,18 +178,19 @@ export interface Product {
   createdAt?: string;
   updatedAt?: string;
 
-    // Filters
+  // Filters
   inStock?: boolean;
   isDKWarehouse?: boolean;
 }
 
+// Useful for search UI
 export type ProductSearch = Product & {
   category: Category;
 };
 
-// -----------------------------
+// -------------------------------------
 // 👇 Category / Submenu
-// -----------------------------
+// -------------------------------------
 export interface SubmenuItem {
   _id: ObjectId;
   title: string;
@@ -211,9 +220,9 @@ export interface Category {
   submenus: Submenu[];
 }
 
-// -----------------------------
-// 💬 Product Comments / Questions
-// -----------------------------
+// -------------------------------------
+// 💬 Questions
+// -------------------------------------
 export interface Question {
   _id: ObjectId;
   username: string;
@@ -222,21 +231,22 @@ export interface Question {
   date: string;
 }
 
-// -----------------------------
+// -------------------------------------
 // 🧾 Orders (STATIC MODE)
-// -----------------------------
+// -------------------------------------
 export interface Order {
   _id: ObjectId;
   totalAmount: number;
   date: string;
   status: string;
+
   productIds: string[];
   userId: string;
 }
 
-// -----------------------------
+// -------------------------------------
 // 📰 Articles
-// -----------------------------
+// -------------------------------------
 export interface Article {
   _id: ObjectId;
   title: string;
@@ -247,27 +257,30 @@ export interface Article {
   source: string;
   readingTime: string;
   cover: string;
+
   categoryId?: ObjectId;
-  comment?: any[];
+  comment?: Comment[];
 }
 
-// -----------------------------
+// -------------------------------------
 // 🛒 Cart Item
-// -----------------------------
+// -------------------------------------
 export interface CartItem {
   _id: ObjectId;
   title: string;
   thumbnail: string;
   guarantee: string;
+
   price: number;
   discount_price: number;
   discount: number;
+
   count: number;
 }
 
-// -----------------------------
+// -------------------------------------
 // 🚚 Shipping
-// -----------------------------
+// -------------------------------------
 export interface ShippingFormState {
   errors: {
     address?: string[];

@@ -55,9 +55,11 @@ export async function refreshToken(): Promise<string | null> {
     if (!decoded?.email) return null;
 
     // ✅ Generate a new access token
-    const newAccessToken = generateAccessToken({ email: decoded.email });
-    cookieStore.set("token", newAccessToken, { httpOnly: true, path: "/" });
-
+    const newAccessToken = await generateAccessToken({ email: decoded.email });
+cookieStore.set("token", newAccessToken, {
+  httpOnly: true,
+  path: "/",
+});
     return newAccessToken;
   } catch {
     return null;

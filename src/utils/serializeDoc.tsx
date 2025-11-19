@@ -1,31 +1,49 @@
 /**
- * Recursively serializes any JavaScript object, removing
- * non-JSON-safe values such as Buffers or custom classes.
+ * Recursively serializes any JavaScript object into JSON-safe data.
+ * Converts:
+ *  - Date → ISO string
+ *  - Buffer → base64
+ *  - plain objects → deeply serialized
+ *  - arrays → deeply serialized
+ * Skips:
+ *  - functions
+ *  - class instances (converted to plain objects if possible)
  */
-export function serializeDoc(doc: any): any {
-  if (doc == null) return doc;
+export function serializeDoc<T = any>(input: T): any {
+  if (input == null) return input;
 
-  // Handle simple primitives
-  if (typeof doc !== "object") return doc;
+  // Primitive values (string, number, boolean, bigint, symbol)
+  if (typeof input !== "object") return input;
 
-  // Convert Dates to ISO strings
-  if (doc instanceof Date) return doc.toISOString();
+  // Date → ISO string
+  if (input instanceof Date) return input.toISOString();
 
-  // Convert Buffers to base64
-  if (Buffer.isBuffer(doc)) return doc.toString("base64");
-
-  // Recursively handle arrays
-  if (Array.isArray(doc)) {
-    return doc.map((item) => serializeDoc(item));
+  // Buffer → base64
+  if (typeof Buffer !== "undefined" && Buffer.isBuffer(input)) {
+    return input.toString("base64");
   }
 
-  // For plain objects
-  if (Object.prototype.toString.call(doc) === "[object Object]") {
-    return Object.fromEntries(
-      Object.entries(doc).map(([key, value]) => [key, serializeDoc(value)])
-    );
+  // Arrays → recursively serialize each item
+  if (Array.isArray(input)) {
+    return input.map((item) => serializeDoc(item));
   }
 
-  // Default fallback
-  return doc;
+  // Plain objects only (avoid serializing class instances)
+  const isPlainObject =
+    Object.prototype.toString.call(input) === "[object Object]";
+
+  if (isPlainObject) {
+    const entries = Object.entries(input).map(([key, value]) => [
+      key,
+      serializeDoc(value),
+    ]);
+    return Object.fromEntries(entries);
+  }
+
+  // Fallback: convert unsupported object types safely
+  try {
+    return JSON.parse(JSON.stringify(input));
+  } catch {
+    return String(input);
+  }
 }

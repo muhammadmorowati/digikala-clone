@@ -1,33 +1,72 @@
-const { default: axios } = require("axios");
+import axios from "axios";
 
 const zarinpal = axios.create({
   baseURL: process.env.ZARINPAL_API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const createPayment = async ({ amountInRial, mobile, description }) => {
+interface CreatePaymentInput {
+  amountInRial: number;
+  mobile?: string;
+  description: string;
+}
+
+export const createPayment = async ({
+  amountInRial,
+  mobile,
+  description,
+}: CreatePaymentInput) => {
   try {
+    const callbackUrl = process.env.ZARINPAL_PAYMENT_CALLBACK_URL;
+
+    if (!callbackUrl) {
+      throw new Error("Missing ZARINPAL_PAYMENT_CALLBACK_URL");
+    }
+
     const response = await zarinpal.post("/request.json", {
       merchant_id: process.env.ZARINPAL_PAYMENT_MERCHANT_ID,
       amount: amountInRial,
       description,
-      callback_url: process.env.ZARINPAL_PAYMENT_CALLBACK_URL,
+      callback_url: callbackUrl,
       metadata: {
         mobile,
       },
     });
 
-    const data = response.data.data;
+    const result = response.data;
+
+    if (result.data?.code !== 100) {
+      return {
+        success: false,
+        error: result.errors || "Payment request failed",
+        code: result.data?.code,
+      };
+    }
 
     return {
-      paymentUrl: `${process.env.ZARINPAL_PAYMENT_BASE_URL}/${data.authority}`,
-      authority: data.authority,
+      success: true,
+      authority: result.data.authority,
+      paymentUrl: `${process.env.ZARINPAL_PAYMENT_BASE_URL}/${result.data.authority}`,
     };
-  } catch (err) {
-    return err;
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.response?.data || err.message,
+    };
   }
 };
 
-export const verifyPayment = async ({ amountInRial, authority }) => {
+interface VerifyPaymentInput {
+  amountInRial: number;
+  authority: string;
+}
+
+export const verifyPayment = async ({
+  amountInRial,
+  authority,
+}: VerifyPaymentInput) => {
   try {
     const response = await zarinpal.post("/verify.json", {
       merchant_id: process.env.ZARINPAL_PAYMENT_MERCHANT_ID,
@@ -35,8 +74,26 @@ export const verifyPayment = async ({ amountInRial, authority }) => {
       authority,
     });
 
-    return response.data;
-  } catch (err) {
-    return err.response?.data || err;
+    const result = response.data;
+
+    if (result.data?.code !== 100) {
+      return {
+        success: false,
+        message: "Payment verification failed",
+        code: result.data?.code,
+        raw: result,
+      };
+    }
+
+    return {
+      success: true,
+      refId: result.data.ref_id,
+      raw: result,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.response?.data || err.message,
+    };
   }
 };

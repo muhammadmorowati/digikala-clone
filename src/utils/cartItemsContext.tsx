@@ -1,6 +1,5 @@
 "use client";
 
-import { deleteOrder } from "@/src/app/admin/orders/action";
 import { CartItem } from "@/src/utils/types";
 import {
   createContext,
@@ -30,56 +29,66 @@ function CartProvider({ children }: { children: ReactNode }) {
   const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
   const [totalDiscount, setTotalDiscount] = useState(0);
 
+  // Load cart from localStorage once
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCart(storedCart);
   }, []);
 
+  // Recalculate totals when cart changes
   useEffect(() => {
-    const discount = cart.reduce((total, item) => total + item.discount, 0);
-    const price = cart.reduce(
-      (total, item) => total + item.price * item.count,
-      0
-    );
-    const discountPrice = cart.reduce(
-      (total, item) => total + item.discount_price * item.count,
+    const totalPrice = cart.reduce(
+      (sum, item) => sum + item.price * item.count,
       0
     );
 
-    setTotalDiscount(discount);
-    setTotalPrice(price);
-    setTotalDiscountPrice(discountPrice);
+    const totalDiscountPrice = cart.reduce(
+      (sum, item) => sum + item.discount_price * item.count,
+      0
+    );
+
+    const totalDiscount = cart.reduce(
+      (sum, item) =>
+        sum + (item.price - item.discount_price) * item.count,
+      0
+    );
+
+    setTotalPrice(totalPrice);
+    setTotalDiscountPrice(totalDiscountPrice);
+    setTotalDiscount(totalDiscount);
   }, [cart]);
 
+  // Sync cart with localStorage
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const updateLocalStorage = (items: CartItem[]) => {
-    localStorage.setItem("cart", JSON.stringify(items));
+  const updateCart = (items: CartItem[]) => {
     setCart(items);
+    localStorage.setItem("cart", JSON.stringify(items));
   };
 
   const decreaseCount = (product: CartItem) => {
-    const updatedCartItems = cart.map((item) =>
+    const updated = cart.map((item) =>
       item._id === product._id && item.count > 1
         ? { ...item, count: item.count - 1 }
         : item
     );
-    updateLocalStorage(updatedCartItems);
+    updateCart(updated);
   };
 
   const increaseCount = (product: CartItem) => {
-    const updatedCartItems = cart.map((item) =>
-      item._id === product._id ? { ...item, count: item.count + 1 } : item
+    const updated = cart.map((item) =>
+      item._id === product._id
+        ? { ...item, count: item.count + 1 }
+        : item
     );
-    updateLocalStorage(updatedCartItems);
+    updateCart(updated);
   };
 
-  const deleteFromCart = (productID) => {
-    deleteOrder(productID);
-    const updatedCartItems = cart.filter((item) => item._id !== productID);
-    updateLocalStorage(updatedCartItems);
+  const deleteFromCart = (productID: string) => {
+    const updated = cart.filter((item) => item._id !== productID);
+    updateCart(updated);
   };
 
   const clearCart = () => {
@@ -93,8 +102,8 @@ function CartProvider({ children }: { children: ReactNode }) {
         cart,
         setCart,
         totalPrice,
-        totalDiscount,
         totalDiscountPrice,
+        totalDiscount,
         decreaseCount,
         increaseCount,
         deleteFromCart,
@@ -107,9 +116,9 @@ function CartProvider({ children }: { children: ReactNode }) {
 }
 
 function useCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used within a CartProvider");
-  return context;
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
 }
 
 export { CartProvider, useCart };

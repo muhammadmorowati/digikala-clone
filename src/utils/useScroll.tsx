@@ -1,33 +1,30 @@
 "use client";
-import { useEffect, useState } from "react";
 
-function useScroll() {
+import { useEffect, useRef, useState } from "react";
+
+export default function useScroll() {
   const [isVisible, setIsVisible] = useState(true);
-  const [prevScrollPos, setPrevScrollPos] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      return window.pageYOffset;
-    }
-    return 0; // Default value for server-side rendering
-  });
+
+  // Using ref avoids re-rendering and stale closures
+  const prevScrollPosRef = useRef(0);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    prevScrollPosRef.current = window.pageYOffset;
+
     const handleScroll = () => {
-      if (typeof window !== "undefined") {
-        const currentScrollPos = window.pageYOffset;
-        const isScrollingDown = prevScrollPos < currentScrollPos;
+      const currentScrollPos = window.pageYOffset;
+      const isScrollingDown = prevScrollPosRef.current < currentScrollPos;
 
-        setIsVisible(!isScrollingDown);
-        setPrevScrollPos(currentScrollPos);
-      }
+      setIsVisible(!isScrollingDown);
+      prevScrollPosRef.current = currentScrollPos;
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [prevScrollPos]);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return { isVisible };
 }
-
-export default useScroll;

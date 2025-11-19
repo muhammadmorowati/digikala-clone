@@ -7,130 +7,107 @@ import { mockStories } from "@/src/data/stories";
 import { mockArticles } from "@/src/data/articles";
 import { mockUsers } from "@/src/data/users";
 import { productsData } from "@/src/data/productsData";
-import { Product } from "@/src/utils/types";
-import { Story } from "./types";
-import { User } from "@/src/utils/types";
 
-/** Remove a category by ID */
-export function removeCategory(id: string) {
-  const index = mockCategories.findIndex(c => c._id === id);
-  if (index !== -1) mockCategories.splice(index, 1);
+import { Product, Story, User } from "@/src/utils/types";
+
+/* -------------------------------------------------------
+   Generic item remover
+------------------------------------------------------- */
+function removeById<T extends { _id: string }>(collection: T[], id: string) {
+  const index = collection.findIndex((item) => item._id === id);
+  if (index !== -1) collection.splice(index, 1);
 }
 
-/** Remove a submenu by ID */
-export function removeSubmenu(id: string) {
-  const index = mockSubmenus.findIndex(s => s._id === id);
-  if (index !== -1) mockSubmenus.splice(index, 1);
-}
+/* -------------------------------------------------------
+   Category / Submenu / Product / Story / Article / User
+   Delete operations (clean + reusable)
+------------------------------------------------------- */
 
-/** Remove a submenu item by ID */
-export function removeSubmenuItem(id: string) {
-  const index = mockSubmenuItems.findIndex(i => i._id === id);
-  if (index !== -1) mockSubmenuItems.splice(index, 1);
-}
+export const removeCategory = (id: string) => removeById(mockCategories, id);
+export const removeSubmenu = (id: string) => removeById(mockSubmenus, id);
+export const removeSubmenuItem = (id: string) => removeById(mockSubmenuItems, id);
+export const removeProduct = (id: string) => removeById(mockProducts, id);
+export const removeStory = (id: string) => removeById(mockStories, id);
+export const removeArticle = (id: string) => removeById(mockArticles, id);
+export const removeUser = (id: string) => removeById(mockUsers, id);
 
-/** Remove a product by ID */
-export function removeProduct(id: string) {
-  const index = mockProducts.findIndex(p => p._id === id);
-  if (index !== -1) mockProducts.splice(index, 1);
-}
+/* -------------------------------------------------------
+   Product Add / Update (mock DB)
+------------------------------------------------------- */
 
-/** Remove a story by ID */
-export function removeStory(id: string) {
-  const index = mockStories.findIndex(story => story._id === id);
-  if (index !== -1) mockStories.splice(index, 1);
-}
-
-/** Remove an article by ID */
-export function removeArticle(id: string) {
-  const index = mockArticles.findIndex(a => a._id === id);
-  if (index !== -1) mockArticles.splice(index, 1);
-}
-
-/** Remove a user by ID */
-export function removeUser(id: string) {
-  const index = mockUsers.findIndex(u => u._id === id);
-  if (index !== -1) mockUsers.splice(index, 1);
-}
-
-export const addProductMock = async (product: Product) => {
+export async function addProductMock(product: Product) {
   productsData.push(product);
-};
+  return { success: true, product };
+}
 
-export const updateProductMock = async (product: Product) => {
+export async function updateProductMock(product: Product) {
   const index = productsData.findIndex((p) => p._id === product._id);
-  if (index !== -1) productsData[index] = product;
-};
-
-
-// Mock story storage (replace with real DB later)
-let stories: Story[] = [];
-
-export async function addStory(formData: FormData): Promise<{ success: boolean }> {
-  const title = formData.get("title") as string;
-  const cover = formData.get("cover") as File;
-  const post = formData.get("post") as File;
-
-  if (!title || !cover || !post) {
-    return { success: false };
+  if (index === -1) {
+    return { success: false, error: "Product not found" };
   }
 
-  // Convert files to fake URLs (mock mode)
-  const coverUrl = URL.createObjectURL(cover);
-  const postUrl = URL.createObjectURL(post);
+  productsData[index] = product;
+  return { success: true, product };
+}
+
+/* -------------------------------------------------------
+   Mock Story storage
+------------------------------------------------------- */
+
+let localStories: Story[] = [];
+
+export async function addStory(formData: FormData) {
+  const title = formData.get("title") as string;
+  const cover = formData.get("cover") as File | null;
+  const post = formData.get("post") as File | null;
+
+  if (!title || !cover || !post) return { success: false };
 
   const newStory: Story = {
     _id: crypto.randomUUID(),
     title,
-    cover: coverUrl,
-    post: postUrl,
+    cover: URL.createObjectURL(cover),
+    post: URL.createObjectURL(post),
   };
 
-  stories.push(newStory);
-
-  return { success: true };
+  localStories.push(newStory);
+  return { success: true, story: newStory };
 }
 
-// Optional: export these to show the data
-export function getStories() {
-  return stories;
-}
+export const getStories = () => localStories;
+export const deleteStory = (id: string) => {
+  localStories = localStories.filter((s) => s._id !== id);
+};
 
-export function deleteStory(id: string) {
-  stories = stories.filter((s) => s._id !== id);
-}
+/* -------------------------------------------------------
+   Update User (mock DB)
+------------------------------------------------------- */
 
-// ✅ Update a user in flat-file storage
 export async function updateUser(formData: FormData) {
   const id = formData.get("_id") as string;
-
   const name = formData.get("name") as string;
   const phone = formData.get("phone") as string;
-  const role = formData.get("role") as string;
+  const role = formData.get("role") as User["role"];
   const avatar = formData.get("avatar") as File | null;
 
-  const index = mockUsers.findIndex((u) => u._id === id);
-  if (index === -1) {
-    return { success: false, error: "User not found" };
-  }
+  const user = mockUsers.find((u) => u._id === id);
+  if (!user) return { success: false, error: "User not found" };
 
-  let avatarUrl = mockUsers[index].avatar;
+  let avatarUrl = user.avatar;
 
-  // If new avatar uploaded → convert to base64 (file-based systems need this)
   if (avatar instanceof File) {
-    const arrayBuffer = await avatar.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    const base64 = Buffer.from(await avatar.arrayBuffer()).toString("base64");
     avatarUrl = `data:${avatar.type};base64,${base64}`;
   }
 
-  mockUsers[index] = {
-    ...mockUsers[index],
+  Object.assign(user, {
     name,
     phone,
-    role: role as User["role"],
+    role,
     avatar: avatarUrl,
     updatedAt: new Date().toISOString(),
-  };
+  });
 
-  return { success: true, user: mockUsers[index] };
+  return { success: true, user };
 }
+ 
