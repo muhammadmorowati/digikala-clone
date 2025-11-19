@@ -3,7 +3,7 @@
 import { ProductImage } from "@/src/utils/types";
 import { ChevronLeft, ChevronRight, LayoutGrid } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
@@ -11,181 +11,178 @@ import "swiper/css/thumbs";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 
-function FullSizeImage({
-  image,
-  isOpen,
-  closeModal,
-}: {
-  image: ProductImage[];
+interface FullSizeImageProps {
+  images: ProductImage[];
+  activeId?: string;
   isOpen: string;
-  closeModal: () => void;
-}) {
-  const [showAllImages, setShowAllImages] = useState(false);
+  onClose: () => void;
+}
+
+export default function FullSizeImage({
+  images,
+  activeId,
+  isOpen,
+  onClose,
+}: FullSizeImageProps) {
+  const [showAll, setShowAll] = useState(false);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
-  const [swiperInstance, setSwiperInstance] = useState<SwiperClass | null>(
-    null
+
+  const initialIndex = useMemo(
+    () => images.findIndex((img) => img._id.toString() === activeId),
+    [images, activeId]
   );
 
-  const handleToggleImages = () => {
-    setShowAllImages((prev) => !prev);
-  };
-
-  // Determine the initial slide index based on the `isOpen` prop
-  const initialSlideIndex = image.findIndex(
-    (img) => img._id.toString() === isOpen
-  );
-
-  useEffect(() => {
-    if (swiperInstance && initialSlideIndex >= 0) {
-      swiperInstance.slideTo(initialSlideIndex);
-    }
-  }, [initialSlideIndex, swiperInstance]);
+  if (!isOpen) return null;
 
   return (
     <div
-      className={`fixed right-0 top-0 z-50 h-full w-full cursor-default flex-col items-center bg-neutral-950 transition-all duration-500 ${
-        isOpen ? "visible opacity-100" : "invisible opacity-0"
-      }`}
-      onClick={closeModal}
+      className="fixed inset-0 z-50 bg-neutral-950 flex flex-col"
+      onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`h-full flex flex-col justify-between pb-5 w-screen transition-all ${
-          isOpen ? "scale-100" : "scale-0"
-        }`}
+        className="relative flex flex-col h-full w-full"
       >
+        {/* Close Button */}
         <button
-          className="absolute w-5 h-5 top-5 left-8 font-vazirMedium text-3xl text-white"
-          onClick={closeModal}
+          className="absolute top-5 left-8 text-3xl text-white"
+          onClick={onClose}
         >
           &times;
         </button>
 
+        {/* Main Swiper */}
         <Swiper
-          onSwiper={(swiper) => {
-            setSwiperInstance(swiper);
-            if (initialSlideIndex >= 0) {
-              swiper.slideTo(initialSlideIndex);
-            }
-          }}
           slidesPerView={1}
-          noSwipingClass="swiper-slide"
+          centeredSlides
+          allowTouchMove
+          navigation={{
+            nextEl: ".fs-next",
+            prevEl: ".fs-prev",
+          }}
           thumbs={{ swiper: thumbsSwiper }}
           modules={[FreeMode, Thumbs, Navigation]}
-          centeredSlides={true}
-          allowTouchMove={true}
-          navigation={{
-            nextEl: ".fullSizeImage-swiper-button-next",
-            prevEl: ".fullSizeImage-swiper-button-prev",
+          onSwiper={(swiper) => {
+            if (initialIndex >= 0) swiper.slideTo(initialIndex);
           }}
-          className="cursor-pointer relative mt-20 md:w-96 w-full h-96 mx-auto flex items-center rounded-lg justify-between bg-white overflow-hidden"
+          className="mt-20 md:w-96 w-full h-96 mx-auto bg-white rounded-lg overflow-hidden"
         >
-          {/* Swiper Navigation Buttons */}
-          <div className="max-lg:hidden fullSizeImage-swiper-button-next absolute top-44 z-40 left-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white shadow shadow-neutral-700/50 transition-all">
-            <ChevronLeft size={22} className="text-neutral-700" />
-          </div>
-          <div className="max-lg:hidden fullSizeImage-swiper-button-prev absolute top-44 z-40 flex right-2 h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white shadow shadow-neutral-700/50 transition-all">
-            <ChevronRight size={22} className="text-neutral-700" />
-          </div>
+          {/* Desktop Navigation */}
+          <NavArrow className="fs-next left-2" icon={<ChevronLeft />} />
+          <NavArrow className="fs-prev right-2" icon={<ChevronRight />} />
 
-          {image.map((img, index) => (
-            <SwiperSlide
-              key={index}
-              className="items-center w-full h-full justify-center m-auto"
-            >
+          {images.map((img) => (
+            <SwiperSlide key={img._id.toString()} className="flex items-center">
               <Image
+                src={img.url}
                 width={500}
                 height={500}
-                src={img.url}
-                className="w-full h-full rounded-xl object-cover"
                 alt="Product Image"
+                className="w-full h-full object-cover rounded-xl"
               />
             </SwiperSlide>
           ))}
         </Swiper>
-        <div className="flex items-center mx-5">
-          <div
-            onClick={() => setShowAllImages(true)}
-            className="cursor-pointer w-16 text-center font-irsansb text-xs text-white border rounded-lg p-2 !ml-5 h-full"
-          >
-            <LayoutGrid size={20} className="mx-auto mb-2" />
-            <span>همه تصاویر</span>
-          </div>
 
-          {/* Swiper Thumbs */}
+        {/* Thumbs + All Images Toggle */}
+        <div className="flex items-center gap-4 px-5 mt-4">
+          <button
+            className="text-white text-center border rounded-lg p-2 w-16"
+            onClick={() => setShowAll(true)}
+          >
+            <LayoutGrid size={20} className="mx-auto mb-1" />
+            <span className="text-xs">همه تصاویر</span>
+          </button>
+
+          {/* Thumbs */}
           <Swiper
             onSwiper={setThumbsSwiper}
-            spaceBetween={0}
-            freeMode={true}
-            breakpoints={{
-              0: {
-                slidesPerView: 6,
-              },
-              800: {
-                slidesPerView: 8,
-              },
-              1024: {
-                slidesPerView: 18,
-              },
-            }}
-            watchSlidesProgress={true}
             modules={[FreeMode, Navigation, Thumbs]}
-            className="mySwiper relative h-20 flex-1 bg-neutral-950"
+            freeMode
+            watchSlidesProgress
+            spaceBetween={0}
+            breakpoints={{
+              0: { slidesPerView: 6 },
+              800: { slidesPerView: 8 },
+              1024: { slidesPerView: 18 },
+            }}
+            className="flex-1 h-20 bg-neutral-950"
           >
-            <div className="!mx-10">
-              {image.map((img, index) => (
-                <SwiperSlide key={img._id.toString()}>
-                  <Image
-                    width={150}
-                    height={150}
-                    src={img.url}
-                    className={`cursor-pointer !w-full !px-1 h-full object-cover bg-white ${
-                      image.length === index + 1 ? "rounded-l-lg" : ""
-                    }${index === 0 ? "rounded-r-lg" : ""}
-                
-                `}
-                    alt="Product Image"
-                  />
-                </SwiperSlide>
-              ))}
-            </div>
+            {images.map((img) => (
+              <SwiperSlide key={img._id.toString()}>
+                <Image
+                  src={img.url}
+                  width={150}
+                  height={150}
+                  alt="Product Thumb"
+                  className="w-full h-full object-cover bg-white rounded-md cursor-pointer"
+                />
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
 
-        {/* All Images Section */}
-        {showAllImages && (
-          <div className="bg-white dark:bg-black absolute top-0 right-0 w-full h-screen z-50">
-            <div className="flex justify-end w-full">
-              <button
-                className="w-5 h-5 font-vazirMedium text-3xl mt-5 ml-8"
-                onClick={handleToggleImages}
-              >
-                &times;
-              </button>
-            </div>
-            <div className="h-screen overflow-y-scroll mt-10 p-5  mx-auto max-w-5xl">
-              <div className="grid grid-cols-12 justify-between gap-3 mb-28">
-                <div className="flex col-span-12 mb-3 px-3 font-bold text-neutral-600 dark:text-neutral-200 items-center justify-between text-sm w-full">
-                  <span>تصاویر رسمی</span>
-                  <span>{image.length} مورد</span>
-                </div>
-                {image.map((img) => (
-                  <Image
-                    key={img._id.toString()}
-                    alt="Product Image"
-                    width={350}
-                    height={350}
-                    src={img.url}
-                    className="lg:col-span-4 h-80 object-cover col-span-6 border rounded-lg"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* All Images */}
+        {showAll && (
+          <AllImagesGrid images={images} onClose={() => setShowAll(false)} />
         )}
       </div>
     </div>
   );
 }
 
-export default FullSizeImage;
+/* --- Components --- */
+
+function NavArrow({
+  className,
+  icon,
+}: {
+  className?: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`hidden lg:flex absolute top-44 z-40 h-10 w-10 items-center justify-center bg-white rounded-full shadow cursor-pointer ${className}`}
+    >
+      {icon}
+    </div>
+  );
+}
+
+function AllImagesGrid({
+  images,
+  onClose,
+}: {
+  images: ProductImage[];
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-white dark:bg-black z-50">
+      <div className="flex justify-end p-5">
+        <button className="text-3xl" onClick={onClose}>
+          &times;
+        </button>
+      </div>
+
+      <div className="max-w-5xl mx-auto overflow-y-scroll h-[85vh] p-5">
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 flex justify-between text-neutral-600 dark:text-neutral-200 font-bold text-sm mb-3">
+            <span>تصاویر رسمی</span>
+            <span>{images.length} مورد</span>
+          </div>
+
+          {images.map((img) => (
+            <Image
+              key={img._id.toString()}
+              src={img.url}
+              width={350}
+              height={350}
+              alt="Product Image"
+              className="lg:col-span-4 col-span-6 h-80 object-cover rounded-lg border"
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

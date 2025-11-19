@@ -3,8 +3,9 @@ import { Category, Product } from "@/src/utils/types";
 
 type ProductSearch = Product & {
   category: Category;
-}
-// 🧩 Mock product data (for local development)
+};
+
+// 🧩 Mock product data (complete according to Product interface)
 const mockProducts: ProductSearch[] = [
   {
     _id: "p1" as any,
@@ -19,6 +20,13 @@ const mockProducts: ProductSearch[] = [
     description: "قدرتمندترین گوشی سامسونگ با دوربین فوق‌العاده",
     recommended_percent: 95,
     guarantee: "۱۸ ماه گارانتی سامسونگ",
+
+    // ✅ REQUIRED FIELDS added
+    images: [],
+    features: [],
+    colors: [],
+    categoryId: "1",
+
     category: {
       _id: "1" as any,
       title: "موبایل",
@@ -27,8 +35,9 @@ const mockProducts: ProductSearch[] = [
       cover: ["/images/categories/mobile-cover.webp"],
       hero: ["/images/categories/mobile-hero.webp"],
       banner: ["/images/categories/mobile-banner.webp"],
-      submenus: []
+      submenus: [],
     },
+
     submenuId: "11",
     submenuItemId: "111",
   },
@@ -45,21 +54,29 @@ const mockProducts: ProductSearch[] = [
     description: "لپ‌تاپی قدرتمند برای کار و تحصیل",
     recommended_percent: 90,
     guarantee: "۱۲ ماه گارانتی ایسوس",
+
+    // ✅ REQUIRED FIELDS added
+    images: [],
+    features: [],
+    colors: [],
+    categoryId: "2",
+
     category: {
       _id: "2" as any,
       title: "لپ‌تاپ",
       href: "/category/laptop",
+      icon: "/icons/laptop.svg",
       cover: ["/images/categories/laptop-cover.webp"],
       hero: ["/images/categories/laptop-hero.webp"],
       banner: ["/images/categories/laptop-banner.webp"],
+      submenus: [],
     },
+
     submenuId: "21",
     submenuItemId: "211",
   },
 ];
 
 export default function Searchbar({ placeholder }: { placeholder?: string }) {
-  const products = mockProducts;
-
-  return <SearchbarForm placeholder={placeholder} products={products} />;
+  return <SearchbarForm placeholder={placeholder} products={mockProducts} />;
 }

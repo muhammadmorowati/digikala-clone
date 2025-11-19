@@ -33,20 +33,23 @@ export const incredibleOfferCategories: Category[] = [  {
   },];
   
 export const incredibleOfferProducts: Product[] = [{
-    _id: "p1" as any,
-    title: "گوشی موبایل سامسونگ مدل Galaxy S24 Ultra",
-    thumbnail: "/images/galaxy-s24.jpg",
-    price: 52000000,
-    discount: 8,
-    discount_price: 47800000,
-    rating: 4.8,
-    voter: 340,
-    description: "گوشی پرچمدار سامسونگ با طراحی جدید و دوربین قدرتمند.",
-    recommended_percent: 96,
-    category: incredibleOfferProducts[0],
-    submenuId: "mobile",
-    submenuItemId: "samsung",
-  },
+  _id: "p1" as any,
+  title: "گوشی موبایل سامسونگ مدل Galaxy S24 Ultra",
+  thumbnail: "/images/galaxy-s24.jpg",
+  price: 52000000,
+  discount: 8,
+  discount_price: 47800000,
+  rating: 4.8,
+  voter: 340,
+  description: "گوشی پرچمدار سامسونگ با طراحی جدید و دوربین قدرتمند.",
+  recommended_percent: 96,
+  categoryId: "1",
+  submenuId: "mobile",
+  submenuItemId: "samsung",
+  images: [],
+  features: [],
+  colors: []
+},
   {
     _id: "p2" as any,
     title: "لپ‌تاپ اپل MacBook Air M3 2024",
@@ -58,9 +61,12 @@ export const incredibleOfferProducts: Product[] = [{
     voter: 210,
     description: "لپ‌تاپ سبک و قدرتمند اپل با چیپ M3 و شارژدهی طولانی.",
     recommended_percent: 92,
-    category: incredibleOfferProducts[1],
+    categoryId: "2",
     submenuId: "laptop",
     submenuItemId: "macbook",
+    images: [],
+    features: [],
+    colors: []
   },
   {
     _id: "p3" as any,
@@ -73,7 +79,10 @@ export const incredibleOfferProducts: Product[] = [{
     voter: 150,
     description: "هدفون نویزکنسلینگ فوق‌العاده از برند سونی.",
     recommended_percent: 89,
-    category: incredibleOfferProducts[0],
+    categoryId: "1",
     submenuId: "accessories",
     submenuItemId: "headphones",
+    images: [],
+    features: [],
+    colors: []
   },];

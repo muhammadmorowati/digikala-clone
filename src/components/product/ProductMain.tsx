@@ -11,20 +11,33 @@ import ProductTab from "./ProductTab";
 export default function ProductMain({ product }: { product: Product }) {
   const featureRef = useRef<HTMLDivElement>(null);
 
-  // Local Storage Functions
-  const addRecentView = (productId) => {
-    const existingViews = JSON.parse(localStorage.getItem("recentViews")) || [];
-    const updatedViews = [
-      productId,
-      ...existingViews.filter((id) => id !== productId),
-    ].slice(0, 10);
-    localStorage.setItem("recentViews", JSON.stringify(updatedViews));
+  // Safely add product to recent views
+  const addRecentView = (productId: string) => {
+    if (typeof window === "undefined") return; // SSR safety
+
+    try {
+      const existingViews: string[] =
+        JSON.parse(localStorage.getItem("recentViews") || "[]");
+
+      const updatedViews = [
+        productId,
+        ...existingViews.filter((id) => id !== productId),
+      ].slice(0, 10);
+
+      localStorage.setItem("recentViews", JSON.stringify(updatedViews));
+    } catch (err) {
+      console.error("Error updating recent views:", err);
+    }
   };
 
-  // Use effect to add product to recent views
+  // Add this product to recent views once loaded
   useEffect(() => {
-    addRecentView(product._id);
-  }, [product._id]);
+    if (product?._id) {
+      addRecentView(product._id);
+    }
+  }, [product?._id]);
+
+  if (!product) return null; // Safety guard
 
   return (
     <>
@@ -33,10 +46,12 @@ export default function ProductMain({ product }: { product: Product }) {
         <ProductInfo product={product} featureRef={featureRef} />
         <ProductSeller product={product} />
       </div>
+
       <div className="border-b-4 grayscale opacity-70">
         <hr />
         <FooterFaq featureRef={featureRef} />
       </div>
+
       <ProductTab product={product} />
     </>
   );

@@ -3,6 +3,17 @@ import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+interface ProductCardItem {
+  title: string;
+  href: string;
+  products: Product[];
+}
+
+interface ProductCardProps {
+  item: ProductCardItem;
+  index: number;
+}
+
 export default function ProductsCard({
   products,
   submenus,
@@ -14,7 +25,7 @@ export default function ProductsCard({
   categories: Category[];
   cardNum: string;
 }) {
-  // First ProductCard=>  Find Submenu by title
+  // SUBMENUS FOR FIRST CARD
   const mobileSubmenu = submenus.find(
     (submenu) => submenu.title === "برندهای مختلف گوشی موبایل"
   );
@@ -24,11 +35,13 @@ export default function ProductsCard({
   const electronicSubmenu = submenus.find(
     (submenu) => submenu.title === "لوازم جانبی موبایل"
   );
-  const stationerySubmenu = categories.find(
+
+  // CATEGORIES FOR FIRST CARD
+  const stationeryCategory = categories.find(
     (category) => category.title === "کتاب، لوازم تحریر و هنر"
   );
 
-  // Last ProductCard=>  Find Submenu by title
+  // CATEGORIES FOR LAST CARD
   const supermarketCategory = categories.find(
     (category) => category.title === "کالای خوراکی و اساسی"
   );
@@ -42,44 +55,40 @@ export default function ProductsCard({
     (category) => category.title === "مد و پوشاک"
   );
 
-  // First ProductCard=> Filter Products by Submenu
+  // FILTER PRODUCTS
   const mobileProducts = products.filter(
-    (product) => product.submenuId === mobileSubmenu?._id?.toString()
+    (p) => p.submenuId === mobileSubmenu?._id.toString()
   );
+
   const mobileAccessoriesProducts = products.filter(
-    (product) => product.submenuId === electronicSubmenu?._id?.toString()
+    (p) => p.submenuId === electronicSubmenu?._id.toString()
   );
+
   const gadgetProducts = products.filter(
-    (product) => product.submenuId === gadgetSubmenu?._id?.toString()
+    (p) => p.submenuId === gadgetSubmenu?._id.toString()
   );
+
   const stationeryProducts = products.filter(
-    (product) =>
-         typeof product.category !== "string" &&
-    product.category._id?.toString() === stationerySubmenu?._id?.toString()
+    (p) => p.categoryId === stationeryCategory?._id.toString()
   );
 
-  // Last ProductCard=> Filter Products by Submenu
   const supermarketProducts = products.filter(
-    (product) =>
-      typeof product.category !== "string" &&
-    product.category?._id?.toString() === supermarketCategory?._id?.toString()
-  );
-  const electronicProducts = products.filter(
-    (product) =>
-      typeof product.category !== "string" &&
-    product.category?._id?.toString() === electronicCategory?._id?.toString()
-  );
-  const homeProducts = products.filter(
-    (product) =>  typeof product.category !== "string" &&
-    product.category?._id?.toString() === homeCategory?._id?.toString()
-  );
-  const apparelProducts = products.filter(
-    (product) =>
-       typeof product.category !== "string" &&
-    product.category?._id?.toString() === apparelCategory?._id?.toString()
+    (p) => p.categoryId === supermarketCategory?._id.toString()
   );
 
-  const firstProductscard = [
+  const electronicProducts = products.filter(
+    (p) => p.categoryId === electronicCategory?._id.toString()
+  );
+
+  const homeProducts = products.filter(
+    (p) => p.categoryId === homeCategory?._id.toString()
+  );
+
+  const apparelProducts = products.filter(
+    (p) => p.categoryId === apparelCategory?._id.toString()
+  );
+
+  const firstProductCards: ProductCardItem[] = [
     {
       title: "گوشی موبایل",
       href: "/category/mobile/mobile-brands",
@@ -102,7 +111,7 @@ export default function ProductsCard({
     },
   ];
 
-  const lastProductscard = [
+  const lastProductCards: ProductCardItem[] = [
     {
       title: "کالاهای سوپرمارکتی",
       href: "/category/food-beverage",
@@ -125,52 +134,55 @@ export default function ProductsCard({
     },
   ];
 
+  const selectedCards =
+    cardNum === "first" ? firstProductCards : lastProductCards;
+
   return (
     <div className="border rounded-xl my-5 mx-3 overflow-hidden">
       <div className="border-l">
         <div className="grid grid-cols-12">
-          {cardNum === "first" &&
-            firstProductscard.map((item, index) => (
-              <ProductCard key={index} item={item} index={index} />
-            ))}
-          {cardNum === "last" &&
-            lastProductscard.map((item, index) => (
-              <ProductCard key={index} item={item} index={index} />
-            ))}
+          {selectedCards.map((item, index) => (
+            <ProductCard key={index} item={item} index={index} />
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-const ProductCard = ({ item, index }) => {
+function ProductCard({ item }: ProductCardProps) {
   return (
     <div className="col-span-3 max-lg:col-span-12 border-l p-5">
       <h3 className="font-irsansb text-neutral-800 dark:text-white">
         {item.title}
       </h3>
+
       <small className="text-neutral-500 dark:text-neutral-400 text-xs">
         بر اساس سلیقه شما
       </small>
+
       <div className="grid grid-cols-12 mt-5">
-        {item.products.slice(0, 4)?.map((product, index) => (
+        {item.products.slice(0, 4).map((product, index) => (
           <Link
-            key={index}
+            key={product._id}
             href={`/products/${product._id}`}
-            className="col-span-6 w-full"
+            className="col-span-6"
           >
             <Image
-              alt="Product Image"
+              alt={product.title}
               width={500}
               height={500}
               src={product.thumbnail}
-              className={`p-2 ${index === 0 && "border-b border-l"} ${
-                index === 1 && "border-b"
-              } ${index === 2 && "border-l"}`}
+              className={`p-2 ${
+                index === 0 && "border-b border-l"
+              } ${index === 1 && "border-b"} ${
+                index === 2 && "border-l"
+              }`}
             />
           </Link>
         ))}
       </div>
+
       <button className="text-xs mt-5 text-sky-500 flex justify-center w-full">
         <Link href={item.href} className="flex items-center">
           مشاهده <ChevronLeft size={20} />
@@ -178,4 +190,4 @@ const ProductCard = ({ item, index }) => {
       </button>
     </div>
   );
-};
+}

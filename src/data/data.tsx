@@ -46,7 +46,7 @@ import {
   User,
   UserCheck,
 } from "lucide-react";
-import { GuaranteeQuestion, PaymentQuestion, ReturnQuestion } from "../utils/types";
+import { GuaranteeQuestion, PaymentQuestion, ReturnQuestion, ServiceItem } from "../utils/types";
 
 type LogoProps = {
   width?: number;
@@ -4119,7 +4119,7 @@ export const hero = [
   { title: "سامسونگ", cover: image9, href: "/category/mobile" },
 ];
 
-export const services = [
+export const services: ServiceItem[] = [
   { title: "گیف کارت", image: s_image1 },
   { title: "دیجی‌کالا مهر", image: s_image2 },
   { title: "حراج دیجی استایل", image: s_image3 },

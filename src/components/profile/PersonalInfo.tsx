@@ -1,3 +1,5 @@
+"use client";
+
 import { updateUser } from "@/src/app/admin/users/action";
 import { User } from "@/src/utils/types";
 import { Edit2, Plus, X } from "lucide-react";
@@ -6,94 +8,121 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import Modal from "../ui/Modal";
 
+type EditableField = "email" | "name" | "phone" | "password" | "job" | "idNumber";
+
 export default function PersonalInfo({ user }: { user: User }) {
+  const [activeModal, setActiveModal] = useState<EditableField | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Form data state
   const [formData, setFormData] = useState({
     email: user.email || "",
     name: user.name || "",
     phone: user.phone || "",
-    password: user.password || "",
+    password: "", // never pre-fill passwords
     job: user.job || "",
     idNumber: user.idNumber || "",
     role: user.role,
   });
 
-  const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
   const closeModalHandler = () => setActiveModal(null);
 
-  const handleInputChange = (field: string, value: string) =>
+  const handleInputChange = (field: EditableField, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
+    if (!activeModal) return;
+
     setLoading(true);
+
     const data = new FormData();
-    data.append("_id", user._id.toString());
-    Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, value);
-    });
+    data.append("_id", user._id);
+
+    // Only update the one field being edited
+    data.append(activeModal, formData[activeModal]);
 
     await updateUser(data);
+
     setLoading(false);
     closeModalHandler();
   };
 
+  // Data-driven UI configuration
+  const fieldsLeft: { label: string; value: string; field: EditableField }[] = [
+    { label: "نام و نام خانوادگی", value: user.name, field: "name" },
+    { label: "شماره موبایل", value: user.phone, field: "phone" },
+    { label: "رمز عبور", value: "•••••••", field: "password" },
+  ];
+
+  const fieldsRight: { label: string; value: string; field: EditableField }[] = [
+    { label: "کد ملی", value: user.idNumber, field: "idNumber" },
+    { label: "ایمیل", value: user.email, field: "email" },
+    { label: "شغل", value: user.job, field: "job" },
+  ];
+
+  const modalConfig: Record<EditableField, string> = {
+    email: "پست الکترونیکی خود را وارد کنید",
+    name: "نام و نام خانوادگی خود را وارد کنید",
+    phone: "شماره موبایل خود را وارد کنید",
+    job: "شغل خود را وارد کنید",
+    idNumber: "کد ملی خود را وارد کنید",
+    password: "رمز عبور جدید خود را وارد کنید",
+  };
+
   return (
     <>
+      {/* MAIN GRID */}
       <div className="flex border rounded-md px-5 flex-col lg:flex-row mx-4 lg:mx-0">
+        {/* LEFT SIDE */}
         <div className="flex-1 divide-y-2 divide-neutral-100 dark:divide-neutral-900">
-          {[
-            { label: "نام و نام خانوادگی", value: user.name, modal: "name" },
-            { label: "شماره موبایل", value: user.phone, modal: "phone" },
-            { label: "رمز عبور", value: "•••••••", modal: "password" },
-          ].map(({ label, value, modal }) => (
+          {fieldsLeft.map(({ label, value, field }) => (
             <div
-              key={modal}
+              key={field}
               className="p-5 h-20 flex justify-between items-center"
             >
               <div className="flex flex-col gap-3">
                 <span className="text-neutral-400 text-sm">{label}</span>
                 <span
                   className={`text-neutral-700 dark:text-white ${
-                    modal === "password" ? "opacity-50" : ""
+                    field === "password" ? "opacity-50" : ""
                   }`}
                 >
                   {value}
                 </span>
               </div>
+
               <Edit2
-                onClick={() => setActiveModal(modal)}
+                onClick={() => setActiveModal(field)}
                 size={20}
-                className={`text-neutral-500 ${
-                  modal === "password" ? "opacity-50" : ""
+                className={`text-neutral-500 cursor-pointer ${
+                  field === "password" ? "opacity-50" : ""
                 }`}
               />
             </div>
           ))}
         </div>
 
+        {/* DIVIDER */}
         <div className="lg:w-0.5 w-full max-lg:h-0.5 bg-neutral-100 dark:bg-neutral-900"></div>
 
+        {/* RIGHT SIDE */}
         <div className="flex-1 divide-y-2 divide-neutral-100 dark:divide-neutral-900">
-          {[
-            { label: "کد ملی", value: user.idNumber, modal: "idNumber" },
-            { label: "ایمیل", value: user.email, modal: "email" },
-            { label: "شغل", value: user.job, modal: "job" },
-          ].map(({ label, value, modal }) => (
+          {fieldsRight.map(({ label, value, field }) => (
             <div
-              key={modal}
+              key={field}
               className="p-5 h-20 flex justify-between items-center"
             >
               <div className="flex flex-col gap-3">
                 <span className="text-neutral-400 text-sm">{label}</span>
                 <span className="text-neutral-700 dark:text-white">
-                  {value}
+                  {value || "—"}
                 </span>
               </div>
+
               <span
                 className="text-neutral-500 cursor-pointer"
-                onClick={() => setActiveModal(modal)}
+                onClick={() => setActiveModal(field)}
               >
                 {value ? <Edit2 size={20} /> : <Plus size={20} />}
               </span>
@@ -102,57 +131,36 @@ export default function PersonalInfo({ user }: { user: User }) {
         </div>
       </div>
 
-      {[
-        {
-          modal: "email",
-          title: "پست الکترونیکی خود را وارد کنید",
-          field: "email",
-        },
-        {
-          modal: "name",
-          title: "نام و نام خانوادگی خود را وارد کنید",
-          field: "name",
-        },
-        {
-          modal: "phone",
-          title: "شماره موبایل خود را وارد کنید",
-          field: "phone",
-        },
-        { modal: "job", title: "شغل خود را وارد کنید", field: "job" },
-        {
-          modal: "idNumber",
-          title: "کد ملی خود را وارد کنید",
-          field: "idNumber",
-        },
-      ].map(({ modal, title, field }) => (
-        <Modal
-          key={modal}
-          isOpen={activeModal === modal}
-          closeModalHandler={closeModalHandler}
-        >
+      {/* MODALS */}
+      {activeModal && (
+        <Modal isOpen={!!activeModal} closeModalHandler={closeModalHandler}>
           <div className="border-b dark:border-b-neutral-700 py-3 text-neutral-800 dark:text-white flex justify-between items-center">
-            <h2 className="text-lg font-irsansb">{title}</h2>
+            <h2 className="text-lg font-irsansb">{modalConfig[activeModal]}</h2>
             <Button variant="ghost" onClick={closeModalHandler}>
               <X />
             </Button>
           </div>
+
           <form onSubmit={submitHandler} className="flex flex-col gap-5 my-5">
             <Input
               type="text"
-              value={formData[field]}
-              onChange={(e) => handleInputChange(field, e.target.value)}
+              value={formData[activeModal]}
+              onChange={(e) => handleInputChange(activeModal, e.target.value)}
               disabled={loading}
             />
+
             <Button
               type="submit"
-              variant={formData[field].trim() ? "default" : "disabled"}
-              disabled={loading}
+              disabled={loading || !formData[activeModal].trim()}
+              variant={
+                formData[activeModal].trim() ? "default" : "disabled"
+              }
             >
               {loading ? "در حال ارسال..." : "تایید"}
             </Button>
           </form>
         </Modal>
-      ))}
+      )}
     </>
   );
 }

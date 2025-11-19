@@ -8,9 +8,10 @@ export default function TopbarContainer({ children }: { children: ReactNode }) {
 
   return (
     <header
-      className={`sticky top-0 bg-white dark:bg-neutral-950 w-full z-40 p-4 ${
-        isVisible ? "" : "shadow-sm border-b"
-      }`}
+      className={`sticky top-0 w-full z-40 p-4 transition-all duration-300
+        bg-white dark:bg-neutral-950
+        ${isVisible ? "shadow-sm border-b" : ""}
+      `}
     >
       {children}
     </header>

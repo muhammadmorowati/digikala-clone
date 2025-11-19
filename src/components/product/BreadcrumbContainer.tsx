@@ -16,32 +16,50 @@ interface BreadcrumbContainerProps {
   title?: string;
 }
 
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
 export default function BreadcrumbContainer({
   category,
   submenu,
   item,
   title,
 }: BreadcrumbContainerProps) {
-  const breadcrumbs = [
+  const breadcrumbs: Crumb[] = [
     { label: "دیجی‌کالا", href: "/" },
     { label: category.title, href: category.href },
     { label: submenu.title, href: submenu.href },
-    { label: item?.title, href: item?.href },
-  ].filter((breadcrumb) => breadcrumb.label);
+  ];
+
+  if (item) {
+    breadcrumbs.push({ label: item.title, href: item.href });
+  }
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {breadcrumbs.map((breadcrumb, index) => (
-          <React.Fragment key={index}>
-            <BreadcrumbItem className="text-xs">
-              <BreadcrumbLink href={breadcrumb.href}>
-                {breadcrumb.label}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}{" "}
-          </React.Fragment>
-        ))}
+        {breadcrumbs.map((crumb, index) => {
+          const isLast = index === breadcrumbs.length - 1 && !title;
+
+          return (
+            <React.Fragment key={index}>
+              <BreadcrumbItem className="text-xs">
+                {isLast ? (
+                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink href={crumb.href ?? "#"}>
+                    {crumb.label}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+
+              {!isLast && <BreadcrumbSeparator />}
+            </React.Fragment>
+          );
+        })}
+
         {title && (
           <>
             <BreadcrumbSeparator />

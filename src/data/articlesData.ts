@@ -28,7 +28,7 @@ export const mockArticles: Article[] = [
     content:
       "<p>پرچم‌دار جدید سامسونگ با دوربین فوق‌العاده معرفی شد...</p>",
     author: "علی رضایی",
-    publishedAt: new Date("2025-10-01"),
+    publishedAt: "2025-10-01",
     tags: ["موبایل", "سامسونگ"],
     source: "https://www.digikala.com/mag",
     readingTime: "6",
@@ -41,7 +41,7 @@ export const mockArticles: Article[] = [
     content:
       "<p>برای خرید لپ‌تاپ مناسب، باید به پردازنده و رم توجه کنید...</p>",
     author: "مریم احمدی",
-    publishedAt: new Date("2025-09-15"),
+    publishedAt: "2025-09-15",
     tags: ["لپ‌تاپ", "راهنما"],
     source: "https://www.digikala.com/mag",
     readingTime: "5",

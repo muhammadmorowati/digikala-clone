@@ -19,32 +19,35 @@ interface StorySliderProps {
 
 export default function StorySlider({ stories }: StorySliderProps) {
   const [isShowStory, setIsShowStory] = useState(false);
-  const [selectedStory, setSelectedStory] = useState<Story | undefined>();
+  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
 
   const closeModalHandler = () => setIsShowStory(false);
 
-  const nextStoryHandler = () => {
-    if (selectedStory) {
-      const currentIndex = stories.findIndex(
-        (story) => story._id === selectedStory._id
-      );
-      const nextIndex = (currentIndex + 1) % stories.length;
-      setSelectedStory(stories[nextIndex]);
-    }
+  const goToNextStory = () => {
+    if (!selectedStory) return;
+
+    const currentIndex = stories.findIndex(
+      (story) => story._id === selectedStory._id
+    );
+
+    const nextIndex = (currentIndex + 1) % stories.length;
+    setSelectedStory(stories[nextIndex]);
   };
 
-  const prevStoryHandler = () => {
-    if (selectedStory) {
-      const currentIndex = stories.findIndex(
-        (story) => story._id === selectedStory._id
-      );
-      const prevIndex = (currentIndex - 1 + stories.length) % stories.length;
-      setSelectedStory(stories[prevIndex]);
-    }
+  const goToPrevStory = () => {
+    if (!selectedStory) return;
+
+    const currentIndex = stories.findIndex(
+      (story) => story._id === selectedStory._id
+    );
+
+    const prevIndex = (currentIndex - 1 + stories.length) % stories.length;
+    setSelectedStory(stories[prevIndex]);
   };
 
   return (
     <>
+      {/* Slider */}
       <div className="mt-5">
         <Carousel
           opts={{
@@ -80,46 +83,50 @@ export default function StorySlider({ stories }: StorySliderProps) {
               </CarouselItem>
             ))}
           </CarouselContent>
+
           <CarouselNext className="right-3 top-20 w-10 h-10" />
           <CarouselPrevious className="left-3 top-20 w-10 h-10" />
         </Carousel>
       </div>
-      <div>
-        <Modal
-          isStory={true}
-          isOpen={isShowStory}
-          closeModalHandler={closeModalHandler}
-        >
-          {selectedStory != null && (
-            <div className="relative">
-              <div className="w-full h-[29rem] pt-5">
-                <Image
-                  src={selectedStory?.post}
-                  width={700}
-                  height={700}
-                  alt={selectedStory.title}
-                  className="h-full w-full object-cover"
-                />
-                <div className="text-lg text-white font-irsansb pt-5 text-center">
-                  {selectedStory.title}
-                </div>
+
+      {/* Modal */}
+      <Modal
+        isStory={true}
+        isOpen={isShowStory}
+        closeModalHandler={closeModalHandler}
+      >
+        {selectedStory && (
+          <div className="relative">
+            <div className="w-full h-[29rem] pt-5">
+              <Image
+                src={selectedStory.post}
+                width={700}
+                height={700}
+                alt={selectedStory.title}
+                className="h-full w-full object-cover"
+              />
+
+              <div className="text-lg text-white font-irsansb pt-5 text-center">
+                {selectedStory.title}
               </div>
-              <button
-                onClick={nextStoryHandler}
-                className="absolute w-10 h-10 sm:-right-32 max-sm:-right-3 top-64 bg-white p-2 rounded-full"
-              >
-                <ChevronRight />
-              </button>
-              <button
-                onClick={prevStoryHandler}
-                className="absolute w-10 h-10 sm:-left-32 max-sm:-left-3 top-64 bg-white p-2 rounded-full"
-              >
-                <ChevronLeft />
-              </button>
             </div>
-          )}
-        </Modal>
-      </div>
+
+            <button
+              onClick={goToNextStory}
+              className="absolute w-10 h-10 sm:-right-32 max-sm:-right-3 top-64 bg-white p-2 rounded-full"
+            >
+              <ChevronRight />
+            </button>
+
+            <button
+              onClick={goToPrevStory}
+              className="absolute w-10 h-10 sm:-left-32 max-sm:-left-3 top-64 bg-white p-2 rounded-full"
+            >
+              <ChevronLeft />
+            </button>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

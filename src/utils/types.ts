@@ -1,3 +1,5 @@
+import { StaticImageData } from "next/image";
+
 // Shared
 export type ObjectId = string;
 
@@ -7,6 +9,19 @@ export type ObjectId = string;
 export interface Location {
   latitude: number;
   longitude: number;
+}
+
+export interface Comment {
+  _id: string;
+  authorId: string;
+  content: string;
+  rating?: number;
+  createdAt?: string;
+}
+
+export interface ServiceItem {
+  title: string;
+  image: string | StaticImageData;
 }
 
 export interface Address {
@@ -116,6 +131,7 @@ export interface Color {
 }
 
 export interface ProductImage {
+   _id: string;
   url: string;
 }
 
@@ -159,6 +175,10 @@ export interface Product {
   isDKWarehouse?: boolean;
 }
 
+export type ProductSearch = Product & {
+  category: Category;
+};
+
 // -----------------------------
 // 👇 Category / Submenu
 // -----------------------------
@@ -172,6 +192,7 @@ export interface Submenu {
   _id: ObjectId;
   title: string;
   href: string;
+  categoryId?: string;
   items: SubmenuItem[];
 }
 

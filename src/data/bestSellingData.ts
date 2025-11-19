@@ -45,8 +45,11 @@ export const mockProducts: Product[] = [
     voter: 340,
     description: "گوشی پرچمدار سامسونگ با طراحی جدید و دوربین قدرتمند.",
     recommended_percent: 96,
-    category: mockCategories[0],
+    categoryId: mockCategories[0]._id,
     submenuId: "mobile",
     submenuItemId: "samsung",
+    images: [],
+    features: [],
+    colors: []
   },
 ];

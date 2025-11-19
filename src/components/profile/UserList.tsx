@@ -1,17 +1,20 @@
-"use client";
-
 import { profileList } from "@/src/data/data";
 import { ChevronLeft, House } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SignoutFunction } from "../ui/SignoutFunction";
+import type { ProfileSectionId } from "./ProfileScreenSize";
 
-export default function UserList({ id }: { id?: string }) {
-  const [activeItem, setActiveItem] = useState(id);
+export default function UserList({ id }: { id?: ProfileSectionId }) {
+  const [activeItem, setActiveItem] = useState<ProfileSectionId | undefined>(
+    id
+  );
 
   useEffect(() => {
     setActiveItem(id);
   }, [id]);
+
+  const isOverviewActive = !activeItem; // "" or undefined => home
 
   return (
     <ul className="divide-y-2 divide-neutral-100 dark:divide-neutral-900">
@@ -21,7 +24,7 @@ export default function UserList({ id }: { id?: string }) {
       >
         <div
           className={`px-5 hover:bg-neutral-100 dark:hover:bg-neutral-900 w-full flex items-center gap-5 text-neutral-700 dark:text-neutral-200 border-t py-4 mt-5 border-y-neutral-100 dark:border-neutral-900 ${
-            id === undefined
+            isOverviewActive
               ? "font-irsansb after:absolute transition-all relative after:h-full after:w-1 after:top-0 after:right-0 after:border-r-4 after:border-r-red-500"
               : ""
           }`}
@@ -32,6 +35,7 @@ export default function UserList({ id }: { id?: string }) {
           </p>
         </div>
       </Link>
+
       {profileList.map((item, index) => (
         <li key={index}>
           {item.en_title ? (
@@ -40,7 +44,9 @@ export default function UserList({ id }: { id?: string }) {
               className="w-full flex items-center justify-between hover:bg-neutral-100 dark:hover:bg-neutral-900 max-lg:pl-5"
             >
               <div
-                onClick={() => setActiveItem(item.en_title)}
+                onClick={() =>
+                  setActiveItem(item.en_title as ProfileSectionId)
+                }
                 className={`px-5 w-full flex items-center gap-5 text-neutral-700 dark:text-neutral-200 py-4 ${
                   activeItem === item.en_title
                     ? "font-irsansb after:absolute transition-all relative after:h-full after:w-1 after:top-0 after:right-0 after:border-r-4 after:border-r-red-500"

@@ -18,7 +18,7 @@ export default function ProductInfo({
   product: Product;
   featureRef: RefObject<HTMLDivElement>;
 }) {
-  const [sizeValue, setSizeValue] = useState(product?.sizes);
+  const [sizeValue, setSizeValue] = useState(product?.sizes?.[0] ?? '');
   const [chosenColor, setChosenColor] = useState<Color>(product.colors[0]);
 
   if (!product) return null;
@@ -161,7 +161,7 @@ export default function ProductInfo({
           ))}
         </div>
       </div>
-      {product.sizes != "-1" && (
+      {product.sizes && product.sizes.length > 0 && (
         <div className="mb-4">
           <p className="text-lg font-irsansb">سایز: {product.sizes}</p>
           <select

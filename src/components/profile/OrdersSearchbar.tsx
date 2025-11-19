@@ -7,20 +7,21 @@ export default function OrdersSearchbar() {
   const [search, setSearch] = useState("");
 
   return (
-    <label
-      htmlFor="search"
-      className="relative w-full h-12 flex items-center bg-gray-100 dark:bg-neutral-700 border-0 rounded-lg"
-    >
-      <SearchIcon size={20} className="z-10 text-gray-400 mr-5" />
+    <div className="relative w-full">
+      <SearchIcon
+        size={20}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+      />
+
       <input
+        id="orders-search"
         type="text"
-        id="search"
-        autoComplete="false"
+        autoComplete="off"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="جستجو در سفارش‌ها"
-        className="placeholder:text-sm z-10 border-0 h-full bg-transparent px-3 w-full outline-none"
+        className="w-full h-12 pr-12 pl-4 bg-gray-100 dark:bg-neutral-700 rounded-lg outline-none border-0 placeholder:text-sm"
       />
-    </label>
+    </div>
   );
 }
