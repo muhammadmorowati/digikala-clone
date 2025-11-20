@@ -263,7 +263,6 @@ export async function addSubmenuItem(formData: FormData) {
     _id: crypto.randomUUID(),
     title: data.title,
     href: data.href,
-    submenuId: data.submenuId,
   };
 
   submenuItems.push(newItem);

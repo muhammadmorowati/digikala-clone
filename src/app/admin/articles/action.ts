@@ -5,16 +5,17 @@ import { promises as fs } from "fs";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import path from "path";
-import { Article } from "@/src/utils/types";
+import crypto from "crypto";
+import { Article, Comment } from "@/src/utils/types";
 
 // Paths
-const articlesFilePath = path.join(process.cwd(), "data", "articles.json");
-const articleDir = path.join(process.cwd(), "public", "articles");
+const ARTICLES_FILE = path.join(process.cwd(), "data", "articles.json");
+const ARTICLE_DIR = path.join(process.cwd(), "public", "articles");
 
 // Helpers
 async function loadArticles(): Promise<Article[]> {
   try {
-    const data = await fs.readFile(articlesFilePath, "utf8");
+    const data = await fs.readFile(ARTICLES_FILE, "utf8");
     return JSON.parse(data);
   } catch (error: any) {
     if (error.code === "ENOENT") return [];
@@ -22,9 +23,9 @@ async function loadArticles(): Promise<Article[]> {
   }
 }
 
-async function saveArticles(articles: Article[]) {
-  await fs.mkdir(path.dirname(articlesFilePath), { recursive: true });
-  await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2), "utf8");
+async function saveArticles(list: Article[]) {
+  await fs.mkdir(path.dirname(ARTICLES_FILE), { recursive: true });
+  await fs.writeFile(ARTICLES_FILE, JSON.stringify(list, null, 2), "utf8");
 }
 
 async function safeUnlink(filePath: string) {
@@ -45,7 +46,28 @@ function safeParseTags(tags: any) {
   }
 }
 
-// 🧩 ADD ARTICLE
+async function handleCoverUpload(coverFile?: File, oldPath?: string) {
+  if (!coverFile) return oldPath;
+
+  // Remove the old file
+  if (oldPath) {
+    await safeUnlink(path.join("public", oldPath));
+  }
+
+  // Save new file
+  await fs.mkdir(ARTICLE_DIR, { recursive: true });
+  const filename = `${crypto.randomUUID()}-${coverFile.name}`;
+  const filePath = path.join(ARTICLE_DIR, filename);
+
+  const bytes = new Uint8Array(await coverFile.arrayBuffer());
+  await fs.writeFile(filePath, bytes);
+
+  return `/articles/${filename}`;
+}
+
+/* =====================
+   🧩 ADD ARTICLE
+===================== */
 export async function addArticle(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
   entries.tags = safeParseTags(entries.tags);
@@ -56,14 +78,11 @@ export async function addArticle(_state: unknown, formData: FormData) {
   }
 
   const data = result.data;
-  await fs.mkdir(articleDir, { recursive: true });
 
-  const coverFileName = `${crypto.randomUUID()}-${data.cover.name}`;
-  const coverPath = `/articles/${coverFileName}`;
-  const bytes = new Uint8Array(await data.cover.arrayBuffer());
-  await fs.writeFile(path.join(articleDir, coverFileName), bytes);
+  // Upload cover
+  const coverPath = await handleCoverUpload(data.cover);
 
-  const articles = await loadArticles();
+  // Create fresh article
   const newArticle: Article = {
     _id: crypto.randomUUID(),
     title: data.title,
@@ -72,21 +91,25 @@ export async function addArticle(_state: unknown, formData: FormData) {
     tags: data.tags,
     source: data.source,
     readingTime: data.readingTime,
-    publishedAt: new Date(),
-    cover: coverPath,
-    comment: [],
     categoryId: data.categoryId,
+    publishedAt: new Date().toISOString(),
+    cover: coverPath!,
+    comment: [] as Comment[], // FIXED TYPE
   };
 
+  const articles = await loadArticles();
   articles.push(newArticle);
   await saveArticles(articles);
+
   revalidatePath("/");
   revalidatePath("/articles");
 
   redirect("/admin/articles");
 }
 
-// 🧩 UPDATE ARTICLE
+/* =====================
+   🧩 UPDATE ARTICLE
+===================== */
 export async function updateArticle(_state: unknown, formData: FormData) {
   const entries = Object.fromEntries(formData.entries());
   entries.tags = safeParseTags(entries.tags);
@@ -97,43 +120,49 @@ export async function updateArticle(_state: unknown, formData: FormData) {
   }
 
   const data = result.data;
+
   const articles = await loadArticles();
   const index = articles.findIndex((a) => a._id === data._id);
   if (index === -1) return notFound();
 
-  let coverPath = articles[index].cover;
-  if (data.cover) {
-    await safeUnlink(path.join("public", coverPath));
-    const coverFileName = `${crypto.randomUUID()}-${data.cover.name}`;
-    coverPath = `/articles/${coverFileName}`;
-    const bytes = new Uint8Array(await data.cover.arrayBuffer());
-    await fs.writeFile(path.join(articleDir, coverFileName), bytes);
-  }
+  const article = articles[index];
 
+  // Handle cover update
+  const newCover = await handleCoverUpload(data.cover, article.cover);
+
+  // Apply updates
   articles[index] = {
-    ...articles[index],
+    ...article,
     ...data,
-    cover: coverPath,
-    publishedAt: data.publishedAt ?? articles[index].publishedAt,
+    cover: newCover ?? article.cover,
+    publishedAt:
+      data.publishedAt instanceof Date
+        ? data.publishedAt.toISOString()
+        : data.publishedAt || article.publishedAt,
+    comment: article.comment as Comment[], // FIXED TYPE
   };
 
   await saveArticles(articles);
+
   revalidatePath("/");
   revalidatePath("/articles");
 
   redirect("/admin/articles");
 }
 
-// 🧩 DELETE ARTICLE
+/* =====================
+   🧩 DELETE ARTICLE
+===================== */
 export async function deleteArticle(id: string) {
   const articles = await loadArticles();
   const index = articles.findIndex((a) => a._id === id);
   if (index === -1) return notFound();
 
   const article = articles[index];
-  await safeUnlink(path.join("public", article.cover));
 
+  await safeUnlink(path.join("public", article.cover));
   articles.splice(index, 1);
+
   await saveArticles(articles);
 
   revalidatePath("/");

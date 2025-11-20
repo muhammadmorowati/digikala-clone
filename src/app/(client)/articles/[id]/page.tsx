@@ -39,7 +39,7 @@ const mockArticles: Article[] = [
       تولیدکنندگان به رقابت برای جلب رضایت کاربران ادامه می‌دهند.</p>
       <p>در این مقاله نگاهی به ۵ ترند مهم در دنیای موبایل خواهیم انداخت.</p>
     `,
-    publishedAt: new Date("2025-10-20"),
+    publishedAt: "2025-10-20",
     tags: ["موبایل", "فناوری", "جدیدترین‌ها"],
     source: "https://www.digikala.com/mag",
     readingTime: "5",
@@ -54,7 +54,7 @@ const mockArticles: Article[] = [
       <p>برای برنامه‌نویسان، انتخاب لپ‌تاپ مناسب اهمیت زیادی دارد. 
       قدرت پردازش، اندازه صفحه‌نمایش و راحتی کیبورد از معیارهای اصلی هستند.</p>
     `,
-    publishedAt: new Date("2025-10-10"),
+    publishedAt: "2025-10-10",
     tags: ["لپ‌تاپ", "برنامه‌نویسی", "راهنما"],
     source: "https://www.digikala.com/mag",
     readingTime: "7",

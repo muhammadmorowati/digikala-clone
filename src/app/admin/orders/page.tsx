@@ -23,7 +23,7 @@ export default async function AdminOrdersPage() {
     <>
       <PageHeader title="سفارشات" />
       {orders.length > 0 ? (
-        <AdminTable orders={orders} />
+        <AdminTable type="orders" data={orders} />
       ) : (
         <div className="text-neutral-500 text-center p-5">
           هیچ سفارشی برای نمایش وجود ندارد.

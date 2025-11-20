@@ -24,7 +24,7 @@ export default function ProfileMain({
 }: {
   products: Product[];
   user: User;
-  id: ProfileSection;
+  id: string;
 }) {
   const router = useRouter();
 

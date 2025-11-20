@@ -7,7 +7,10 @@ import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 
 interface PaymentStatusProps {
-  param: { success: boolean };
+  param: {
+    success?: string;
+    error?: string;
+  };
 }
 
 export default function PaymentStatus({ param }: PaymentStatusProps) {

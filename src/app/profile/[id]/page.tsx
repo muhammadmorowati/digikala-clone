@@ -5,8 +5,9 @@ import { serializeDoc } from "@/src/utils/serializeDoc";
 import { User, Product } from "@/src/utils/types";
 import path from "path";
 import { promises as fs } from "fs";
+import { ProfileSectionId } from "@/src/components/profile/ProfileScreenSize";
 
-/** ✅ Reusable JSON loader */
+/** Read JSON safely */
 async function readJSON<T>(relativePath: string): Promise<T[]> {
   const filePath = path.join(process.cwd(), "data", relativePath);
   try {
@@ -18,10 +19,27 @@ async function readJSON<T>(relativePath: string): Promise<T[]> {
   }
 }
 
-/** ✅ Mock user authentication (replace later with real `authUser`) */
+/** Convert dynamic route param → ProfileSectionId */
+function toProfileSectionId(id: string): ProfileSectionId {
+  const allowed: ProfileSectionId[] = [
+  "orders",
+   "lists",
+   "comments",
+   "addresses",
+   "gift-cards",
+   "notification",
+   "user-history",
+   "personal-info"
+  ];
+
+  return allowed.includes(id as ProfileSectionId) ?
+    (id as ProfileSectionId) : "orders";
+}
+
+/** Mock user auth (replace with real version later) */
 async function mockAuthUser(): Promise<User> {
   return {
-    _id: "u1" as any,
+    _id: "u1",
     name: "کاربر نمونه",
     email: "example@test.com",
     phone: "09120000000",
@@ -37,33 +55,36 @@ async function mockAuthUser(): Promise<User> {
   };
 }
 
-/** ✅ Main page component */
+/** Main Profile Page */
 export default async function ProfileIdPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  // 📦 Load local data
   const products = await readJSON<Product>("products.json");
   const user = await mockAuthUser();
 
+  // Serialize (good for server → client)
   const serializedUser = serializeDoc(user);
   const serializedProducts = serializeDoc(products);
 
+  // Convert URL param to safe enum
+  const safeId = toProfileSectionId(id);
+
   return (
     <div className="grid grid-cols-12 gap-5 lg:px-20 pb-20 lg:pt-10">
-      {/* Sidebar (Desktop) */}
+      {/* Sidebar – Desktop only */}
       <aside className="col-span-4 hidden border rounded-md py-5 lg:block">
-        <UserInfo />
-        <UserList id={id} />
+        <UserInfo user={serializedUser} />
+        <UserList id={safeId} />
       </aside>
 
-      {/* Main Content */}
+      {/* Main content */}
       <main className="col-span-12 lg:col-span-8 flex flex-col gap-5">
-        <ProfileMain
-          user={serializedUser}
-          products={serializedProducts}
-          id={id}
+        <ProfileMain 
+          user={serializedUser} 
+          products={serializedProducts} 
+          id={id} 
         />
       </main>
     </div>

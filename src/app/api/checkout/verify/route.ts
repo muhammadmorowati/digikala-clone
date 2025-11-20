@@ -43,7 +43,7 @@ export const GET = async (req: NextRequest) => {
       authority,
     });
 
-    const isVerified = [100, 101].includes(payment.data.code);
+    const isVerified = [100, 101].includes(payment.code);
 
     // 🔹 Prepare redirect URL
     const redirectUrl = new URL("/checkout/payment", req.nextUrl.origin);

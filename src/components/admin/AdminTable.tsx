@@ -315,7 +315,7 @@ function OrderRow({ order, index }: { order: Order; index: number }) {
     <TableRow key={order._id.toString()}>
       <TableCell>{index + 1}</TableCell>
       <TableCell><p className="whitespace-nowrap font-sans">{order._id.toString()}</p></TableCell>
-      <TableCell><p className="whitespace-nowrap font-sans">{order.productId.toString()}</p></TableCell>
+      <TableCell><p className="whitespace-nowrap font-sans">{order._id.toString()}</p></TableCell>
       <TableCell><p className="whitespace-nowrap font-sans">{order.userId.toString()}</p></TableCell>
       <TableCell>
         <DropdownMenu>

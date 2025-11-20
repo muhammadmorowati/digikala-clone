@@ -25,7 +25,7 @@ async function ProductTable() {
     <>
       <PageHeader href="/admin/products/new" title="محصولات" />
       {hasProducts ? (
-        <AdminTable products={products} />
+        <AdminTable type="products" data={products} />
       ) : (
         <div className="text-neutral-500 text-center p-5">
           آیتمی برای نمایش وجود ندارد.

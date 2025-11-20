@@ -86,9 +86,12 @@ const mockProducts: Product[] = [
     description: "قدرتمندترین گوشی سامسونگ در سال 2025",
     recommended_percent: 95,
     guarantee: "۱۸ ماه گارانتی سامسونگ",
-    category: mockCategories[0],
+    categoryId: mockCategories[0]._id,
     submenuId: "sm1",
     submenuItemId: "i1",
+    images: [],
+    features: [],
+    colors: []
   },
   {
     _id: "p2" as any,
@@ -103,9 +106,12 @@ const mockProducts: Product[] = [
     description: "لپ‌تاپی مناسب برای کارهای روزمره و برنامه‌نویسی",
     recommended_percent: 89,
     guarantee: "۱۲ ماه گارانتی ایسوس",
-    category: mockCategories[1],
+    categoryId: mockCategories[1]._id,
     submenuId: "",
     submenuItemId: "",
+    images: [],
+    features: [],
+    colors: []
   },
   {
     _id: "p3" as any,
@@ -120,9 +126,12 @@ const mockProducts: Product[] = [
     description: "تلویزیون هوشمند 55 اینچ OLED از LG",
     recommended_percent: 92,
     guarantee: "۲۴ ماه گارانتی گلدیران",
-    category: mockCategories[0],
+    categoryId: mockCategories[0]._id,
     submenuId: "",
     submenuItemId: "",
+    images: [],
+    features: [],
+    colors: []
   },
 ];
 
@@ -132,7 +141,7 @@ const mockArticles: Article[] = [
     title: "بررسی Galaxy S24 Ultra",
     author: "علی رضایی",
     content: "<p>گوشی Galaxy S24 Ultra پرچم‌دار جدید سامسونگ است...</p>",
-    publishedAt: new Date("2025-10-01"),
+    publishedAt: "2025-10-01",
     tags: ["موبایل", "سامسونگ"],
     source: "https://www.digikala.com/mag",
     readingTime: "5",
@@ -143,7 +152,7 @@ const mockArticles: Article[] = [
     title: "راهنمای خرید لپ‌تاپ در سال 2025",
     author: "مریم احمدی",
     content: "<p>برای انتخاب لپ‌تاپ مناسب باید به چند نکته توجه کنید...</p>",
-    publishedAt: new Date("2025-09-15"),
+    publishedAt: "2025-09-15",
     tags: ["لپ‌تاپ", "راهنما"],
     source: "https://www.digikala.com/mag",
     readingTime: "6",

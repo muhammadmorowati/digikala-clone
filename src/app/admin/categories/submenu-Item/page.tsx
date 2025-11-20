@@ -24,7 +24,7 @@ export default async function SubmenuPage() {
         href="/admin/categories/submenu/new"
       />
       {submenus.length > 0 ? (
-        <AdminTable submenus={submenus} />
+        <AdminTable type="submenus" data={submenus} />
       ) : (
         <div className="text-neutral-500 p-5 text-center">
           هنوز زیرمجموعه‌ای ثبت نشده است.

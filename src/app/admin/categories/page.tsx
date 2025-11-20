@@ -23,7 +23,7 @@ export default async function AdminCategoriesPage() {
     <>
       <PageHeader href="/admin/categories/new" title="دسته‌بندی‌ها" />
       {categories.length > 0 ? (
-        <AdminTable categories={categories} />
+        <AdminTable type="categories" data={categories} />
       ) : (
         <div className="text-neutral-500 p-5 text-center">
           هیچ موردی برای نمایش وجود ندارد.

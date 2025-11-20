@@ -84,7 +84,7 @@ export function DeleteDropdownItem({
               else if (itemId) removeSubmenuItem(itemId);
               else if (storyId) removeStory(storyId);
               else if (articleId) removeArticle(articleId);
-              else if (order) deleteFromCart(order.productId.toString());
+              else if (order) deleteFromCart(order._id.toString());
 
               router.refresh();
               toast.success(

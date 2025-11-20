@@ -35,6 +35,7 @@ const mockCategories: Category[] = [
     cover: ["/images/categories/laptop-cover.webp"],
     hero: ["/images/categories/laptop-hero.webp"],
     banner: ["/images/categories/laptop-banner.webp"],
+    submenus: []
   },
 ];
 
@@ -52,9 +53,12 @@ const mockProducts: Product[] = [
     description: "قدرتمندترین گوشی سامسونگ با دوربین فوق‌العاده",
     recommended_percent: 95,
     guarantee: "۱۸ ماه گارانتی سامسونگ",
-    category: mockCategories[0],
+    categoryId: mockCategories[0]._id,
     submenuId: "11",
     submenuItemId: "111",
+    images: [],
+    features: [],
+    colors: []
   },
   {
     _id: "p2" as any,
@@ -69,9 +73,12 @@ const mockProducts: Product[] = [
     description: "لپ‌تاپی قدرتمند برای کار و تحصیل",
     recommended_percent: 90,
     guarantee: "۱۲ ماه گارانتی ایسوس",
-    category: mockCategories[1],
+    categoryId: mockCategories[1]._id,
     submenuId: "21",
     submenuItemId: "211",
+    images: [],
+    features: [],
+    colors: []
   },
 ];
 
@@ -100,8 +107,8 @@ export default async function SearchCategoryPage({
   );
 
   // Find category for first match (if any)
-  const category =   typeof searchParamsResult[0]?.category === "object"
-    ? (searchParamsResult[0].category as Category)
+  const category =   typeof searchParamsResult[0]?.categoryId === "object"
+    ? (searchParamsResult[0].categoryId as Category)
     : null;
   const submenu = category?.submenus?.[0] || null;
 

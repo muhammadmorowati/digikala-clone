@@ -23,7 +23,7 @@ export default async function AdminArticlesPage() {
     <>
       <PageHeader href="/admin/articles/new" title="مقالات" />
       {articles.length > 0 ? (
-        <AdminTable articles={articles} />
+        <AdminTable type="articles" data={articles} />
       ) : (
         <div className="text-neutral-500 p-5 text-center">
           هنوز مقاله‌ای ثبت نشده است.

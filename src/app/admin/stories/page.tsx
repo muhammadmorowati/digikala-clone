@@ -24,7 +24,7 @@ async function StoriesTable() {
     <>
       <PageHeader title="داستان‌ها" href="/admin/stories/new" />
       {hasStories ? (
-        <AdminTable stories={stories} />
+        <AdminTable type="stories" data={stories} />
       ) : (
         <div className="text-neutral-500 text-center p-5">
           آیتمی برای نمایش وجود ندارد.

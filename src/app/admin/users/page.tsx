@@ -15,7 +15,7 @@ export default async function AdminUsersPage() {
       <PageHeader title="کاربران" />
       {users.length > 0 ? (
         // Ensure AdminTable receives correctly typed props
-        <AdminTable users={users as User[]} />
+        <AdminTable data={users as User[]}  type="users" />
       ) : (
         <div className="text-neutral-500 text-center p-5">
           آیتمی برای نمایش وجود ندارد.

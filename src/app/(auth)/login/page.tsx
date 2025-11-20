@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { signin } from "@/src/utils/auth"; // ✅ local mock auth
+import { signin } from "@/src/utils/auth"; 
 import Logo from "@/src/components/Logo";
 
 const initialState: LoginFormState = {
@@ -86,7 +86,7 @@ export default function Login() {
         >
           <h1 className="font-bold pb-5 mx-auto text-5xl">
             <Link href="/">
-              <Logo width={100} height={80} />
+              <Logo />
             </Link>
           </h1>
 
