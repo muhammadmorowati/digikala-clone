@@ -1,18 +1,49 @@
-
 import MarketOffers from "@/components/home/MarketOffers";
 import Offers from "@/components/home/Offers";
 import SelectedProducts from "@/components/home/SelectedProducts";
 import IncredibleOffersCategoriesSlider from "@/components/incredible-offers/IncredibleOffersCategoriesSlider";
 import IncredibleOffersProductsSlider from "@/components/incredible-offers/IncredibleOffersProductsSlider";
 import { serializeDoc } from "@/utils/serializeDoc";
-import { Category, Product } from "@/utils/types";
+import { Product } from "@/utils/types";
 import { Sparkles } from "lucide-react";
+import CategoryModel from "models/Category";
+import ProductModel from "models/Product";
 import Image from "next/image";
 import Link from "next/link";
 
-type WithId<T> = T & { _id: string };
-
 export default async function IncredibleOffers() {
+  const products = await ProductModel.find({})
+    .populate("images")
+    .populate("colors")
+    .populate("features")
+    .populate({
+      path: "category",
+      populate: {
+        path: "submenus",
+        populate: {
+          path: "items",
+        },
+      },
+    })
+    .lean();
+
+  // Discount Products
+  const categories = await CategoryModel.find({}).lean();
+  const discountProducts = products.filter(
+    (product: Product) => product.discount > 0
+  );
+
+  const SortedOfferProductsByRating = discountProducts
+    ?.slice()
+    .sort((a, b) => b.rating - a.rating);
+
+  const SortedOfferProductsByLowerDiscount = discountProducts
+    ?.slice()
+    .sort((a, b) => a.discount - b.discount);
+
+  const serializedAllProducts = serializeDoc(products);
+  const serializedCategories = serializeDoc(categories);
+  const serializedOfferProducts = serializeDoc(SortedOfferProductsByRating);
 
   return (
     <div className="flex flex-col gap-10">
@@ -48,19 +79,19 @@ export default async function IncredibleOffers() {
           </p>
         </div>
         <IncredibleOffersProductsSlider
-          products={[]}
+          products={SortedOfferProductsByLowerDiscount}
         />
       </div>
 
       {/* categories slider */}
-      <IncredibleOffersCategoriesSlider categories={[]} />
+      <IncredibleOffersCategoriesSlider categories={serializedCategories} />
       {/* offers */}
-      <Offers products={[]} />
+      <Offers products={serializedOfferProducts} />
       <div className="-mt-5">
         <MarketOffers />
       </div>
       <div className="-mt-10">
-        <SelectedProducts products={[]} />
+        <SelectedProducts products={serializedAllProducts} />
       </div>
     </div>
   );

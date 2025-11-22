@@ -5,7 +5,6 @@ import UserList from "@/components/profile/UserList";
 import UserOrders from "@/components/profile/UserOrders";
 import WarnSection from "@/components/profile/WarnSection";
 
-
 export default function ProfilePage({
   params: { id },
 }: {

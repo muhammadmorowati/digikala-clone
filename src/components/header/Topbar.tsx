@@ -1,4 +1,6 @@
-
+import { authUser } from "@/utils/auth";
+import { serializeDoc } from "@/utils/serializeDoc";
+import connectToDB from "config/mongodb";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,9 +10,11 @@ import { DarkMode } from "../ui/DarkMode";
 import ProfileButton from "../ui/ProfileButton";
 import Searchbar from "./Searchbar";
 import TopbarContainer from "./TopbarContainer";
-import { serializeDoc } from "@/utils/serializeDoc";
 
 export default async function Topbar() {
+  await connectToDB();
+  const user = await authUser();
+  const serializedUser = serializeDoc(user);
 
   return (
     <TopbarContainer>
@@ -33,6 +37,7 @@ export default async function Topbar() {
             <Searchbar />
           </div>
           <div className="flex items-center gap-2">
+            <ProfileButton user={serializedUser} />
             <div className="w-[0.5px] h-6 bg-gray-300 mr-2"></div>
             <div className="relative mx-2">
               <Link href="/checkout/cart/">

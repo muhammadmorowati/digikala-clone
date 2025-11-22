@@ -1,4 +1,8 @@
 "use client";
+
+import { addArticle, updateArticle } from "@/app/admin/articles/action";
+import { Button } from "@/components/ui/button";
+import { Article, Category } from "@/utils/types";
 import { Editor } from "@tinymce/tinymce-react";
 import { UploadCloud } from "lucide-react";
 import Image from "next/image";
@@ -6,9 +10,6 @@ import { useEffect, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import toast from "react-hot-toast";
 import TagInput from "./TagInput";
-import { addArticle, updateArticle } from "@/app/admin/articles/action";
-import { Article, Category } from "@/utils/types";
-import { Button } from "../ui/button";
 
 export default function ArticleForm({
   article,
@@ -55,6 +56,16 @@ export default function ArticleForm({
     formAction(formData);
   };
 
+  useEffect(() => {
+    if (state.success) {
+      toast.success(
+        article == null
+          ? "مقاله با موفقیت اضافه شد."
+          : "مقاله با موفقیت ویرایش شد."
+      );
+    }
+  }, [article, state.success]);
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="h-20 relative">
@@ -67,6 +78,9 @@ export default function ArticleForm({
           defaultValue={article?.title || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
+        {state.errors?.title && (
+          <div className="text-destructive text-xs">{state.errors.title}</div>
+        )}
         <label
           htmlFor="title"
           className="absolute right-2.5 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform text-sm text-neutral-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-neutral-400 peer-focus:dark:text-blue-500"
@@ -84,6 +98,9 @@ export default function ArticleForm({
           defaultValue={article?.author || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
+        {state.errors?.author && (
+          <div className="text-destructive text-xs">{state.errors.author}</div>
+        )}
         <label
           htmlFor="author"
           className="absolute right-2.5 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform text-sm text-neutral-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-neutral-400 peer-focus:dark:text-blue-500"
@@ -101,6 +118,11 @@ export default function ArticleForm({
           defaultValue={article?.readingTime || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
+        {state.errors?.readingTime && (
+          <div className="text-destructive text-xs">
+            {state.errors.readingTime}
+          </div>
+        )}
         <label
           htmlFor="readingTime"
           className="absolute right-2.5 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform text-sm text-neutral-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-neutral-400 peer-focus:dark:text-blue-500"
@@ -118,7 +140,9 @@ export default function ArticleForm({
           defaultValue={article?.source || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
-
+        {state.errors?.source && (
+          <div className="text-destructive text-xs">{state.errors.source}</div>
+        )}
         <label
           htmlFor="source"
           className="absolute right-2.5 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform text-sm text-neutral-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-neutral-400 peer-focus:dark:text-blue-500"
@@ -166,6 +190,9 @@ export default function ArticleForm({
           onTagsChange={setTags}
           placeholder="تگ را نوشته و Enter را بزنید."
         />
+        {state.errors?.tags && (
+          <div className="text-red-600 text-xs">{state.errors.tags}</div>
+        )}
       </div>
 
       <Editor

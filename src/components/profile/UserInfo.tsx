@@ -1,8 +1,10 @@
 import { authUser } from "@/utils/auth";
 import { User } from "@/utils/types";
+import connectToDB from "config/mongodb";
 import { ChevronLeft, Pencil } from "lucide-react";
 
 export default async function UserInfo() {
+  await connectToDB();
   const user: User = await authUser();
 
   return (

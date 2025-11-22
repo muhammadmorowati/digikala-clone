@@ -1,11 +1,31 @@
-
 import ArticleCard from "@/components/article/ArticleCard";
 import ScrollUp from "@/components/footer/ScrollUp";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Article } from "@/utils/types";
-import { Library, ChevronLeft, ArrowUp } from "lucide-react";
+import connectToDB from "config/mongodb";
+import { ArrowUp, ChevronLeft, Library } from "lucide-react";
+import ArticleModel from "models/Article";
 import { Metadata } from "next";
 import Image from "next/image";
 
@@ -14,6 +34,7 @@ export async function generateMetadata({
 }: {
   params: { id: string };
 }): Promise<Metadata> {
+  await connectToDB();
   const decodedID = decodeURIComponent(id.replaceAll("-", " "));
 
   return {
@@ -32,6 +53,18 @@ export default async function AutorPage({
 }) {
   const decodedID = decodeURIComponent(id.replaceAll("-", " "));
   const currentPage = parseInt(page, 10) || 1;
+
+  await connectToDB();
+  // Find articles by author name
+  const authorArticles: Article[] = await ArticleModel.find({
+    author: decodedID,
+  })
+    .skip((currentPage - 1) * ARTICLES_PER_PAGE)
+    .limit(ARTICLES_PER_PAGE);
+
+  const totalArticles = authorArticles.length;
+
+  const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
 
   return (
     <div className="grid-cols-12 grid gap-5 px-4 py-4">
@@ -89,17 +122,46 @@ export default async function AutorPage({
           </div>
           <div className="text-sm text-neutral-600 dark:text-neutral-100">
             <span className="text-neutral-700 dark:text-neutral-100">
+              {totalArticles}{" "}
             </span>
             مطلب موجود است.
           </div>
         </div>
         <div className="flex gap-5 flex-wrap">
-          
+          {authorArticles.map((article) => (
+            <ArticleCard key={article._id.toString()} article={article} />
+          ))}
         </div>
 
         <div className="mt-20">
           <Pagination>
-           
+            <PaginationContent>
+              {Array.from(
+                { length: totalPages > 5 ? 5 : totalPages },
+                (_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      href={`?page=${index + 1}`}
+                      isActive={index + 1 === currentPage}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              {totalPages > 5 && (
+                <>
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink href={`?page=${totalPages}`}>
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                </>
+              )}
+            </PaginationContent>
           </Pagination>
         </div>
       </div>

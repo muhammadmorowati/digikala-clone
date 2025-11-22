@@ -1,17 +1,22 @@
 "use client";
 
+import { deleteArticle } from "@/app/admin/articles/action";
+import {
+  deleteCategory,
+  deleteSubmenu,
+  deleteSubmenuItem,
+} from "@/app/admin/categories/action";
+import { deleteProduct } from "@/app/admin/products/action";
+import { deleteStory } from "@/app/admin/stories/action";
+import { deleteUser } from "@/app/admin/users/action";
+import { useCart } from "@/utils/cartItemsContext";
+import { Order } from "@/utils/types";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
-import { deleteArticle } from "@/app/admin/articles/action";
-import { deleteCategory, deleteSubmenu, deleteSubmenuItem } from "@/app/admin/categories/action";
-import { deleteStory } from "@/app/admin/stories/action";
-import { deleteUser } from "@/app/admin/users/action";
-import { useCart } from "@/utils/cartItemsContext";
-import { Order } from "@/utils/types";
 
 export function DeleteDropdownItem({
   categoryId,
@@ -75,6 +80,7 @@ export function DeleteDropdownItem({
               if (userId) {
                 await deleteUser(userId);
               } else if (productId) {
+                await deleteProduct(productId);
               } else if (categoryId) {
                 await deleteCategory(categoryId);
               } else if (submenuId) {

@@ -189,6 +189,9 @@ export default function ProductForm({
           defaultValue={product?.title || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
+        {state.errors?.title && (
+          <div className="text-red-600 text-xs">{state.errors?.title}</div>
+        )}
         <label
           htmlFor="title"
           className="absolute right-3 top-2 text-neutral-500 text-sm duration-300 transform -translate-y-4 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:peer-focus:text-blue-500"
@@ -207,6 +210,9 @@ export default function ProductForm({
           defaultValue={product?.en_title || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
+        {state.errors?.en_title && (
+          <div className="text-red-600 text-xs">{state.errors?.en_title}</div>
+        )}
         <label
           htmlFor="en_title"
           className="absolute right-3 top-2 text-neutral-500 text-sm duration-300 transform -translate-y-4 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:peer-focus:text-blue-500"
@@ -250,6 +256,9 @@ export default function ProductForm({
               defaultValue={product?.[id] || ""}
               className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
             />
+            {state.errors?.[id] && (
+              <div className="text-red-600 text-xs">{state.errors?.[id]}</div>
+            )}
             <label
               htmlFor={id}
               className="absolute right-3 top-2 text-neutral-500 text-sm duration-300 transform -translate-y-4 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:peer-focus:text-blue-500"
@@ -491,7 +500,11 @@ export default function ProductForm({
           defaultValue={product?.description || ""}
           className="peer block w-full appearance-none rounded-t-lg border-0 border-b-2 border-neutral-300 bg-neutral-50 px-2.5 pb-2.5 pt-5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500"
         />
-       
+        {state.errors?.description && (
+          <div className="text-red-600 text-xs">
+            {state.errors?.description}
+          </div>
+        )}
         <label
           htmlFor="description"
           className="absolute right-3 top-2 text-neutral-500 text-sm duration-300 transform -translate-y-4 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-blue-600 dark:peer-focus:text-blue-500"
@@ -535,7 +548,11 @@ export default function ProductForm({
               )}
             </p>
           </div>
-        
+          {state.errors?.thumbnail && (
+            <div className="text-destructive text-xs">
+              {state.errors?.thumbnail}
+            </div>
+          )}
         </div>
       )}
 

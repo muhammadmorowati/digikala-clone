@@ -1,4 +1,6 @@
 "use client";
+
+import { deleteOrder } from "@/app/admin/orders/action";
 import { useCart } from "@/utils/cartItemsContext";
 import { CartItem } from "@/utils/types";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -29,6 +31,7 @@ export default function CartItemControls({
           <Trash2
             onClick={() => {
               deleteFromCart(product._id.toString());
+              deleteOrder(product._id.toString());
             }}
             size={16}
           />
