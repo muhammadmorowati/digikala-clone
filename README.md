@@ -1,47 +1,145 @@
+Digikala Clone
 
+A modern, full-featured e-commerce platform inspired by Digikala, built with Next.js 14, TypeScript, TailwindCSS, Zod, MongoDB/Mongoose, Radix UI, and more.
 
-# <p align="center" color="#eb5e28">Digikala 🛒</p>
+This project includes client-side UI, admin dashboard, product management, authentication, orders, articles/blog, categories, submenus, image upload, rich text editor, and server actions using the latest Next.js App Router features.
 
-<p align="center">To support me, give star⭐ to this repository please.
-I appreciate your support in advance. ❤</p>
+🚀 Features
+🏪 Storefront
 
-<img src="public/Screenshot (299).png"/>
+Product listing with filters & search
 
-## <p align="center">Some Pages</p>
+Product single page with gallery, price, discount, specs
 
-<section width="100%" display="flex" align="center" justify-content="center" gap="2rem">
-<img src="public/Screenshot (300).png" width="410"/>
-<img src="public/Screenshot (301).png" width="410"/>
-<img src="public/Screenshot (302).png" width="410"/>
-<img src="public/Screenshot (303).png" width="410"/>
-<img src="public/Screenshot (304).png" width="410"/>
-<img src="public/Screenshot (305).png" width="410"/>
-</section>
+Add to cart, remove, update quantity
 
-<hr/>
+Category, submenu & submenu items
 
-### <p align="center">🔧Technologies:</p>
-<div align="center" >
-  
-![react](https://img.shields.io/badge/react-f43f5e?style=for-the-badge&logo=react&logoColor=white)
-![next.js](https://img.shields.io/badge/next.js-f43f5e?style=for-the-badge&logo=next.js&logoColor=white)
-![lucide](https://img.shields.io/badge/lucide-f43f5e?style=for-the-badge&logo=lucide&logoColor=white)
-![typescript](https://img.shields.io/badge/typescript-f43f5e?style=for-the-badge&logo=typescript&logoColor=white)
-![zod](https://img.shields.io/badge/zod-f43f5e?style=for-the-badge&logo=zod&logoColor=white)
-![tailwindcss](https://img.shields.io/badge/tailwindcss-f43f5e?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![mongoose](https://img.shields.io/badge/mongoose-f43f5e?style=for-the-badge&logo=chart.js&logoColor=white)
-![sharp](https://img.shields.io/badge/sharp-f43f5e?style=for-the-badge&logo=sharp&logoColor=white)
-![jwt](https://img.shields.io/badge/jwt-f43f5e?style=for-the-badge&logo=jwt&logoColor=white)
-![swiper](https://img.shields.io/badge/swiper-f43f5e?style=for-the-badge&logo=swiper&logoColor=white)
-![tinymce](https://img.shields.io/badge/tinymce-f43f5e?style=for-the-badge&logo=tinymce&logoColor=white)
-![axios](https://img.shields.io/badge/axios-f43f5e?style=for-the-badge&logo=axios&logoColor=white)
-![vite](https://img.shields.io/badge/vite-f43f5e?style=for-the-badge&logo=vite&logoColor=white)
-![npm](https://img.shields.io/badge/npm-f43f5e?style=for-the-badge&logo=npm&logoColor=white)
-  
-</div>
+Stories, banners, sliders
 
-<p align="center">--------------------------------------------------------------</p>
-  
-<p align="center">You can visit and explore in the <a href="https://digikala-puce.vercel.app/" target="_blank">Digikala</a>.</p>
+Leaflet map support for locations
+
+✏️ Blog / Magazine
+
+Article management
+
+Upload images for articles
+
+TinyMCE rich text editor
+
+SEO-friendly slugs and pages
+
+🔐 Authentication
+
+JWT-based login
+
+Secure user sessions
+
+Role-based access (Admin / User)
+
+Password hashing with bcryptjs
+
+🛠️ Admin Panel
+
+Manage:
+
+Products
+
+Categories
+
+Submenus & submenu items
+
+Users
+
+Orders
+
+Stories
+
+Articles
+
+Upload images to /public folder
+
+Form validation using Zod
+
+Server Actions (Next.js 14)
+
+Revalidate after CRUD operations
+
+📦 Database
+
+Mongoose for MongoDB
+
+Optional Vercel Postgres ready
+
+Fully typed models in TypeScript
+
+🎨 UI / UX
+
+TailwindCSS
+
+ShadCN-style components
+
+Radix UI primitives
+
+Lucide Icons
+
+Embla Carousel
+
+Swiper sliders
+
+Dark mode support via next-themes
+
+🧰 Tech Stack
+Frontend
+
+Next.js 14 (App Router + Server Actions)
+
+React 18
+
+TypeScript
+
+TailwindCSS + tailwind-merge
+
+Radix UI
+
+Lucide-react
+
+Swiper.js
+
+Embla Carousel
+
+TinyMCE (Rich Text Editor)
+
+Leaflet + React Leaflet
+
+Backend
+
+Next.js Server Actions
+
+Zod validation
+
+bcryptjs password hashing
+
+jsonwebtoken for authentication
+
+Sharp for image optimization
+
+Database
+
+MongoDB + Mongoose
+
+Optional: Vercel Postgres
+
+Dev Tools
+
+TypeScript
+
+ESLint
+
+Turbo Dev Server
+
+SweetAlert2
+
+React Hot Toast
 <p align="center">📌Please Use VPN to see the site.</p>
 
